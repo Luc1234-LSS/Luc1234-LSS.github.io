@@ -1,13 +1,3 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="only light">
-<meta name="theme-color" content="#2a6fdb">
-<title>Wetter – Altenburg</title>
-</head>
-<body>
 <style>
 :root{color-scheme:only light;--ink:#fff;--dim:rgba(255,255,255,.62);--glass:rgba(255,255,255,.14);--line:rgba(255,255,255,.18);--bg1:#2a6fdb;--bg2:#7fb7f5;--bg3:#16356b}
 *{box-sizing:border-box;margin:0}
@@ -518,8 +508,6 @@ body.dgging,body.dgging *{cursor:grabbing!important}
 .dp span{display:block;font-size:11px;color:var(--dim);white-space:nowrap}
 .dp b{display:block;font-size:22px;margin:4px 0;font-weight:400}
 .dp strong{font-size:15px;font-weight:600}
-.stripes{display:flex;gap:1px;height:64px;border-radius:10px;overflow:hidden;margin-top:4px}
-.stripes i{flex:1;min-width:0}
 </style>
 
 <div id="splash"><h1>Wetter</h1><div class="spn"><i></i></div><p>Dein Wetter</p></div>
@@ -928,7 +916,7 @@ function render({m,s,c,ts,al,q}){
   const daysHTML=SET.hide.days?"":sec("days","2 Tage zurück · 16 Tage voraus",`<div class="tip">Tag antippen für Details</div>${rows}`);
   let radarHTML="";try{radarHTML=SET.hide.radar?"":sec("radar","Wetterradar · Deutschland",radarShell())}catch(e){radarHTML=""}
   let stormHTML="";try{stormHTML=SET.hide.storm?"":sec("storm","Gewitter & Blitze",stormBody(s,m,D,al))}catch(e){stormHTML=""}
-  let retroHTML="";try{retroHTML=SET.hide.retro?"":sec("retro","Rückblick · 72 Stunden & 365 Tage",retroBody())}catch(e){retroHTML=""}
+  let retroHTML="";try{retroHTML=SET.hide.retro?"":sec("retro","Rückblick · letzte 72 Stunden",retroBody())}catch(e){retroHTML=""}
   const cmpHTML=SET.hide.cmp?"":sec("cmp","Modellvergleich heute (Höchstwert)",`<div class="sub" style="font-size:15px">Ø aller Modelle: <b style="color:#fff">${fT(hiAll)}</b><br>ICON (DWD, Referenz): <b style="color:#fff">${fT(hiRef)}</b> · Abweichung ${hiAll!=null&&hiRef!=null?(hiAll-hiRef>0?"+":"")+r(TD(hiAll-hiRef),1):"–"}°</div>`);
   $("#app").innerHTML=`
   <div class="hero"><div class="city">${c.n}${c.sub?` <span style="opacity:.6;font-weight:400">${c.sub}</span>`:""}</div>
@@ -1067,29 +1055,85 @@ function dwdFilter(im){
     x.putImageData(d,0,0);return cv.toDataURL();
   }catch(e){return null}
 }
-/* DWD-Satellit (METEOSAT RGB Tag / IR Nacht), alle 3 Stunden neu */
-const satURL=()=>"https://maps.dwd.de/geoserver/dwd/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=dwd:Satellite_meteosat_1km_euat_rgb_day_hrv_and_night_ir108_3h&STYLES=&FORMAT=image/png&TRANSPARENT=true&HEIGHT=520&WIDTH=560&SRS=EPSG:3857&BBOX="+DWD.x0+","+DWD.y0+","+DWD.x1+","+DWD.y1;
-async function loadSat(my){
+/* DWD-Satellit (METEOSAT RGB Tag / IR Nacht): 8 Frames à 3 Stunden, animiert wie Regen */
+const NSAT=8,SATSTEP=3*3600e3;
+const satURL=t=>"https://maps.dwd.de/geoserver/dwd/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=dwd:Satellite_meteosat_1km_euat_rgb_day_hrv_and_night_ir108_3h&STYLES=&FORMAT=image/png&TRANSPARENT=true&HEIGHT=520&WIDTH=560&SRS=EPSG:3857&BBOX="+DWD.x0+","+DWD.y0+","+DWD.x1+","+DWD.y1+(t?"&TIME="+encodeURIComponent(t):"");
+const satTimes=()=>{const b=Math.floor(Date.now()/SATSTEP)*SATSTEP,ts=[];for(let k=NSAT-1;k>=0;k--)ts.push(new Date(b-k*SATSTEP).toISOString().replace(/\.\d+Z$/,"Z"));return ts};
+async function loadSatF(my){
   try{
-    if(RD&&RD.sat&&Date.now()-RD.satT<60*60e3)return RD.sat;
-    const im=await loadImg(satURL(),20000);
-    if(my!==RDRUN||!RD)return RD?RD.sat||null:null;
-    const cv=document.createElement("canvas");cv.width=im.naturalWidth||560;cv.height=im.naturalHeight||520;
-    const x=cv.getContext("2d");x.drawImage(im,0,0,cv.width,cv.height);
-    RD.sat=cv.toDataURL();RD.satT=Date.now();return RD.sat;
+    if(RD&&RD.satF&&RD.satF.length===NSAT&&Date.now()-RD.satT<3*3600e3)return RD.satF;
+    const ts=satTimes();
+    const settled=await Promise.all(ts.map(t=>loadImg(satURL(t),20000).then(im=>{try{const cv=document.createElement("canvas");cv.width=im.naturalWidth||560;cv.height=im.naturalHeight||520;const x=cv.getContext("2d");x.drawImage(im,0,0,cv.width,cv.height);return{time:new Date(t).getTime(),url:cv.toDataURL()}}catch(e){return{time:new Date(t).getTime(),url:null}}}).catch(()=>({time:new Date(t).getTime(),url:null}))));
+    if(my!==RDRUN||!RD)return RD?RD.satF||null:null;
+    RD.satF=settled;RD.satT=Date.now();if(RD.sidx==null||RD.sidx>=settled.length)RD.sidx=settled.length-1;
+    return RD.satF;
   }catch(e){return null}
+}
+/* Wind-/Schnee-Verlauf: Stundenwerte der 50 Orte, 8 Frames à 3 Stunden (Schnee = Neuschnee der 24 Std. davor) */
+async function loadWndF(my){
+  try{
+    if(RD&&RD.wndF&&RD.wndF.length===NSAT&&Date.now()-RD.wndT<3600e3)return RD.wndF;
+    let cf=null;try{cf=JSON.parse(localStorage.getItem("radT5")||"null")}catch(e){}
+    if(!cf||Date.now()-cf.t>3600e3){
+      const la=RCITIES.map(x=>x[1]).join(","),lo=RCITIES.map(x=>x[2]).join(",");
+      const j=await get(`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&hourly=wind_speed_10m,wind_direction_10m,snowfall&past_days=2&forecast_days=1&timezone=Europe%2FBerlin`,25000).catch(()=>null);
+      if(my!==RDRUN)return null;
+      if(j){const arr=Array.isArray(j)?j:[j],o={};
+        arr.forEach((w,i)=>{if(!w||!w.hourly||!w.hourly.time||!RCITIES[i])return;o[RCITIES[i][0]]={t:w.hourly.time,ws:w.hourly.wind_speed_10m||[],wd:w.hourly.wind_direction_10m||[],sn:w.hourly.snowfall||[]}});
+        cf={t:Date.now(),o:o};try{localStorage.setItem("radT5",JSON.stringify(cf))}catch(e){}}
+    }
+    if(my!==RDRUN)return null;
+    if(!cf||!cf.o)return RD?RD.wndF||null:null;
+    const F=satTimes().map(t=>{const T=new Date(t).getTime(),o={};
+      RCITIES.forEach(nm=>{const h=cf.o[nm[0]];if(!h||!h.t||!h.t.length)return;
+        let bi=-1;for(let i=0;i<h.t.length;i++){try{const tt=new Date(h.t[i]).getTime();if(tt<=T)bi=i;else break}catch(e){}}
+        if(bi<0)return;
+        let sn=0;try{for(let i=Math.max(0,bi-23);i<=bi;i++)sn+=(+h.sn[i]||0)}catch(e){}
+        o[nm[0]]={ws:h.ws[bi],wd:h.wd[bi],sn:Math.round(sn*10)/10}});
+      return{time:T,o:o}});
+    RD.wndF=F;RD.wndT=Date.now();if(RD.widx==null||RD.widx>=F.length)RD.widx=F.length-1;
+    return F;
+  }catch(e){return null}
+}
+function loadAnim(my){
+  try{
+    loadSatF(my).then(()=>{try{if(my===RDRUN&&(SET.radLayer||"regen")==="wolken")drawRadar()}catch(e){}});
+    loadWndF(my).then(()=>{try{if(my===RDRUN){const L=SET.radLayer||"regen";if(L==="wind"||L==="schnee")drawRadar()}}catch(e){}});
+  }catch(e){}
+}
+/* aktive Ebene: Frames + Zeiger + Zeiger setzen (Slider/Play laufen auf allen Ebenen) */
+function layerFrames(){
+  const L=SET.radLayer||"regen";
+  if(L==="wolken")return{fr:(RD&&RD.satF)||[],i:(RD&&RD.sidx)||0,set:v=>{RD.sidx=v}};
+  if(L==="wind"||L==="schnee")return{fr:(RD&&RD.wndF)||[],i:(RD&&RD.widx)||0,set:v=>{RD.widx=v}};
+  return{fr:(RD&&RD.frames)||[],i:(RD&&RD.idx)||0,set:v=>{RD.idx=v}};
+}
+function layerTimeText(L,fr){
+  try{
+    if(!fr||fr.time==null)return"lädt …";
+    const ms=L==="regen"?(RD.src==="dwd"?fr.time:fr.time*1e3):fr.time;
+    const t=new Date(ms).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})+" Uhr";
+    if(L==="regen")return t+(RD.src==="dwd"?" · vor "+Math.max(0,Math.round((Date.now()-ms)/60000))+" Min":"");
+    const h=Math.max(0,Math.round((Date.now()-ms)/3600000));
+    return t+(h<1?" · gerade jetzt":" · vor "+h+" Std.");
+  }catch(e){return"–"}
 }
 function drawSatFrame(map){
   try{
     const rr=map.querySelector("[data-rr]");if(!rr)return;rr.innerHTML="";
-    if(!RD.sat){loadSat(RDRUN).then(()=>{try{if((SET.radLayer||"regen")==="wolken")drawRadar()}catch(e){}});return}
+    const F=RD.satF||[];
+    if(!F.length){loadAnim(RDRUN);return}
+    const si=Math.max(0,Math.min(F.length-1,RD.sidx||0));
+    let fr=F[si]&&F[si].url?F[si]:null;
+    if(!fr){for(let k=si;k>=0;k--){if(F[k]&&F[k].url){fr=F[k];break}}if(!fr)for(let k=si+1;k<F.length;k++){if(F[k]&&F[k].url){fr=F[k];break}}}
+    if(!fr)return;
     const W=map.clientWidth||300,H=map.clientHeight||340,z=RD.z;
     const ox=RD.cx-W/2,oy=RD.cy-H/2;
     const L=mX(DWD.lon0,z)-ox,T=mY(DWD.lat1,z)-oy;
     const wp=mX(DWD.lon1,z)-mX(DWD.lon0,z),hp=mY(DWD.lat0,z)-mY(DWD.lat1,z);
     const im=document.createElement("img");im.alt="";
     im.style.cssText="position:absolute;left:"+L.toFixed(0)+"px;top:"+T.toFixed(0)+"px;width:"+wp.toFixed(0)+"px;height:"+hp.toFixed(0)+"px;opacity:.96";
-    im.src=RD.sat;rr.appendChild(im);
+    im.src=fr.url;rr.appendChild(im);
   }catch(e){}
 }
 async function radarCities(my){
@@ -1118,7 +1162,7 @@ async function initRadar(){
     if(RD&&RD.timer){try{clearInterval(RD.timer)}catch(e){}RD.timer=null}
     const c=S.c,key=c.lat.toFixed(2)+","+c.lon.toFixed(2),R=(typeof SET.radR==="number"?SET.radR:30);
     const keep=(RD&&RD.key===key)?RD:null;
-    RD=keep||{key:key,lat:c.lat,lon:c.lon,clat:c.lat,clon:c.lon,z:zForR(R),idx:0,playing:false,frames:null,host:"",cities:{},drag:null,src:""};
+    RD=keep||{key:key,lat:c.lat,lon:c.lon,clat:c.lat,clon:c.lon,z:zForR(R),idx:0,playing:false,frames:null,host:"",cities:{},drag:null,src:"",satF:null,satT:0,sidx:null,wndF:null,wndT:0,widx:null};
     RD.lat=c.lat;RD.lon=c.lon;
     if(!keep){RD.clat=c.lat;RD.clon=c.lon;RD.z=zForR(R)}
     RD.cx=mX(RD.clon,RD.z);RD.cy=mY(RD.clat,RD.z);
@@ -1126,7 +1170,7 @@ async function initRadar(){
     try{
       if(keep&&keep.src==="dwd"&&keep.frames&&keep.frames.length){
         const lt=keep.frames[keep.frames.length-1].time;
-        if(Date.now()-lt<4*60e3){RD.cities=await radarCities(my)||{};if(my!==RDRUN)return;drawRadar();startAnim();bindMap();schedRadar();return}
+        if(Date.now()-lt<4*60e3){RD.cities=await radarCities(my)||{};if(my!==RDRUN)return;drawRadar();startAnim();bindMap();schedRadar();loadAnim(my);return}
       }
     }catch(e){}
     /* Versuch 1: DWD (5-Minuten-Takt) */
@@ -1145,7 +1189,7 @@ async function initRadar(){
         RD.cities=await radarCities(my)||{};
         if(my!==RDRUN)return;
         drawRadar();startAnim();bindMap();schedRadar();
-        loadSat(my).then(()=>{try{if(my===RDRUN&&(SET.radLayer||"regen")==="wolken")drawRadar()}catch(e){}});return;
+        loadAnim(my);return;
       }
     }catch(e){}
     /* Versuch 2: RainViewer (weltweit) */
@@ -1160,7 +1204,7 @@ async function initRadar(){
     RD.cities=await radarCities(my)||{};
     if(my!==RDRUN)return;
     drawRadar();startAnim();bindMap();schedRadar();
-    loadSat(my).then(()=>{try{if(my===RDRUN&&(SET.radLayer||"regen")==="wolken")drawRadar()}catch(e){}});
+    loadAnim(my);
   }catch(e){}
 }
 function recolorTile(im){
@@ -1248,15 +1292,18 @@ function drawRadar(){
   try{
     const L0=SET.radLayer||"regen";
     const placed=RD._pl||(RD._pl=[]);placed.length=0;
+    const snap=(L0==="wind"||L0==="schnee")&&RD.wndF&&RD.wndF[RD.widx||0]?RD.wndF[RD.widx||0].o:null;
     RCITIES.forEach(nm=>{
       if(z<=6&&!nm[3])return;
-      const o=RD.cities[nm[0]];if(o==null||o.t==null)return;
+      const o=RD.cities[nm[0]];
+      const sv=(snap&&snap[nm[0]])||null;
+      if(!sv&&(o==null||o.t==null))return;
       const px=mX(nm[2],z)-ox,py=mY(nm[1],z)-oy;
       if(px<-40||py<0||px>W+40||py>H+10)return;
       let inner="",plain=nm[0];
-      if(L0==="wind"){if(o.ws==null)return;const dg=((o.wd||0)+180)%360;inner=`<small>${esc(nm[0])}</small><b class="wdir" style="transform:rotate(${dg}deg)">↑</b> ${r(o.ws)}`;plain=nm[0]+o.ws}
-      else if(L0==="schnee"){if(o.sn==null||o.sn<0.2)return;inner=`<small>${esc(nm[0])}</small>❄ ${r(o.sn,1)}`;plain=nm[0]+o.sn}
-      else{inner=`<small>${esc(nm[0])}</small>${fT(o.t)}`;plain=nm[0]+o.t}
+      if(L0==="wind"){const v=sv||o;if(v.ws==null)return;const dg=((v.wd||0)+180)%360;inner=`<small>${esc(nm[0])}</small><b class="wdir" style="transform:rotate(${dg}deg)">↑</b> ${r(v.ws)}`;plain=nm[0]+v.ws}
+      else if(L0==="schnee"){const v=sv||o;if(v.sn==null||v.sn<0.2)return;inner=`<small>${esc(nm[0])}</small>❄ ${r(v.sn,1)}`;plain=nm[0]+v.sn}
+      else{if(o==null||o.t==null)return;inner=`<small>${esc(nm[0])}</small>${fT(o.t)}`;plain=nm[0]+o.t}
       const labelW=plain.length*6.2+18;
       for(const q of placed){if(Math.abs(q[1]-py)<20&&Math.abs(q[0]-px)<(q[2]+labelW)/2+8)return}
       placed.push([px,py,labelW]);
@@ -1268,15 +1315,14 @@ function drawRadar(){
   const rc=map.querySelector("[data-rc]");if(rc)rc.innerHTML=ch;
   RD.clon=mLon(RD.cx,z);RD.clat=mLat(RD.cy,z);
   const L1=SET.radLayer||"regen";
-  try{const ctl=document.querySelector("[data-rctl]");if(ctl)ctl.hidden=L1!=="regen"}catch(e){}
+  try{const ctl=document.querySelector("[data-rctl]");if(ctl)ctl.hidden=false}catch(e){}
   try{document.querySelectorAll("[data-rlay]").forEach(b=>b.classList.toggle("on",b.dataset.rlay===L1))}catch(e){}
-  const fr=RD.frames&&RD.frames[RD.idx];
-  const ft=L1==="regen"?(fr?(RD.src==="dwd"?fr.time:fr.time*1e3):null):null;
+  const LF=layerFrames(),fr=LF.fr&&LF.fr.length?LF.fr[Math.max(0,Math.min(LF.fr.length-1,LF.i))]:null;
   const rl=document.querySelector("[data-rl]");
-  if(rl)rl.textContent=ft?new Date(ft).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})+" Uhr"+(RD.src==="dwd"?" · vor "+Math.max(0,Math.round((Date.now()-ft)/60000))+" Min":""):L1==="wolken"?"Satellitenbild · max. 3 Std. alt":L1==="wind"?"Wind an 50 Orten · live":L1==="schnee"?"Schneemenge heute · Modell":"–";
+  if(rl)rl.textContent=fr?layerTimeText(L1,fr):(L1==="wolken"?"Satellitenbild wird geladen …":L1==="wind"?"Windverlauf wird geladen …":L1==="schnee"?"Schneeverlauf wird geladen …":"lädt …");
   try{
     const rn2=document.querySelector("[data-rnote]");
-    if(rn2)rn2.textContent=L1==="regen"?(RD.src==="dwd"?"Regenradar (DWD RADOLAN, alle 5 Minuten neu) auf Esri-Karte · Die Animation zeigt die Zugrichtung · Städte mit echten Temperaturen":"Regenradar (RainViewer) auf Esri-Karte · Die Animation zeigt die Zugrichtung · Städte mit echten Temperaturen"):L1==="wolken"?"Wolken von oben (DWD-Satellit, Tag = echt, Nacht = Infrarot) · Bild höchstens 3 Stunden alt":L1==="wind"?"Windkarte: Pfeil = Richtung, Zahl = km/h · live Messwerte aus dem Wettermodell":L1==="schnee"?"Schneekarte: ❄ = Neuschnee heute in cm (Modell) · Weiß = nichts, Lila = viel":"";
+    if(rn2)rn2.textContent=L1==="regen"?(RD.src==="dwd"?"Regenradar (DWD RADOLAN, alle 5 Minuten neu) auf Esri-Karte · Die Animation zeigt die Zugrichtung · Städte mit echten Temperaturen":"Regenradar (RainViewer) auf Esri-Karte · Die Animation zeigt die Zugrichtung · Städte mit echten Temperaturen"):L1==="wolken"?"Wolken von oben (DWD-Satellit, alle 3 Stunden neu, Tag = echt, Nacht = Infrarot) · Die Animation zeigt die Zugrichtung":L1==="wind"?"Windkarte: Pfeil = Richtung, Zahl = km/h (Modell) · Die Animation zeigt die letzten 21 Stunden in 3-Stunden-Schritten":L1==="schnee"?"Schneekarte: ❄ = Neuschnee der letzten 24 Stunden in cm (Modell) · Die Animation zeigt die letzten 21 Stunden in 3-Stunden-Schritten":"";
     const leg=document.querySelector("#rmap")&&document.querySelector(".rleg");
     const lkey=L1+"|"+(RD.src||"rv");
     if(leg&&leg.dataset.s!==lkey){leg.dataset.s=lkey;
@@ -1286,20 +1332,25 @@ function drawRadar(){
       else if(L1==="schnee")leg.innerHTML='<i style="background:linear-gradient(90deg,#ffffff,#e0ccff,#b388ff,#7a3cff,#4b1fa2)"></i><span>0 cm</span><span>wenig</span><span>viel</span><b style="background:#4b1fa2;box-shadow:0 0 8px #4b1fa2"></b><span>extrem</span>'}
   }catch(e){}
   const rt=document.querySelector("[data-rt]");
-  if(rt&&RD.frames){rt.max=RD.frames.length-1;if(document.activeElement!==rt)rt.value=RD.idx}
+  if(rt){rt.max=Math.max(0,LF.fr.length-1);if(document.activeElement!==rt)rt.value=LF.fr.length?Math.max(0,Math.min(LF.fr.length-1,LF.i)):0}
   const rp=document.querySelector("[data-rp]");if(rp)rp.textContent=RD.playing?"⏸":"▶";
 }
 function startAnim(){
-  if(!RD||RD.timer||!RD.frames||!RD.frames.length)return;
+  if(!RD||RD.timer)return;
   RD.timer=setInterval(()=>{
     if(document.hidden)return;
     if(!document.querySelector("#rmap")){clearInterval(RD.timer);RD.timer=null;return}
     const m0=document.querySelector("#rmap");if(m0&&m0.clientHeight<5)return;
     if(!RD.playing)return;
-    RD.idx=(RD.idx+1)%RD.frames.length;drawRadarFrame();
-    const fr=RD.frames[RD.idx];
-    const rl=document.querySelector("[data-rl]");if(rl&&fr){const ftx=RD.src==="dwd"?fr.time:fr.time*1e3;rl.textContent=new Date(ftx).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})+" Uhr"+(RD.src==="dwd"?" · vor "+Math.max(0,Math.round((Date.now()-ftx)/60000))+" Min":"")}
-    const rt=document.querySelector("[data-rt]");if(rt&&document.activeElement!==rt)rt.value=RD.idx;
+    try{
+      const L=SET.radLayer||"regen";
+      if(L==="wolken"){if(!RD.satF||!RD.satF.length)return;RD.sidx=((RD.sidx==null?RD.satF.length-1:RD.sidx)+1)%RD.satF.length;drawRadarFrame()}
+      else if(L==="wind"||L==="schnee"){if(!RD.wndF||!RD.wndF.length)return;RD.widx=((RD.widx==null?RD.wndF.length-1:RD.widx)+1)%RD.wndF.length;drawRadar()}
+      else{if(!RD.frames||!RD.frames.length)return;RD.idx=(RD.idx+1)%RD.frames.length;drawRadarFrame()}
+      const LF=layerFrames(),fr=LF.fr&&LF.fr.length?LF.fr[Math.max(0,Math.min(LF.fr.length-1,LF.i))]:null;
+      const rl=document.querySelector("[data-rl]");if(rl&&fr)rl.textContent=layerTimeText(L,fr);
+      const rt=document.querySelector("[data-rt]");if(rt&&document.activeElement!==rt){rt.max=Math.max(0,LF.fr.length-1);rt.value=LF.fr.length?Math.max(0,Math.min(LF.fr.length-1,LF.i)):0}
+    }catch(e){}
   },900);
 }
 function stormBody(s,m,D,al){
@@ -1310,17 +1361,15 @@ function stormBody(s,m,D,al){
     try{const H2=(s.hourly&&s.hourly.cape)||[];for(let h=0;h<24;h++){const v=H2[48+h];if(v!=null&&(cm==null||v>cm)){cm=v;ch=h}}}catch(e2){}
     const rk=cm==null?["unbekannt","CAPE-Wert gerade nicht verfügbar."]:cm<300?["gering","Kaum Gewitterenergie in der Luft."]:cm<1000?["leicht","Einzelne Hitzegewitter möglich."]:cm<2500?["mäßig","Gewitter mit Starkregen und Böen möglich."]:["hoch","Schwere Gewitter mit Hagel und Sturmböen möglich!"];
     const list=(al||[]).filter(a=>/gewitter|thunder|blitz/i.test(((a&&a.event_de)||"")+" "+((a&&a.headline_de)||"")));
-    const wT=list.length?list.map(a=>`<div class="rainc"><span class="ri">⛈</span><div><b>${esc(a.event_de||a.headline_de||"Gewitterwarnung")}</b><small>${esc(warnWhen(a))}</small></div></div>`).join(""):'<p class="wnone">Keine Gewitterwarnung des DWD für deinen Ort.</p>';
+    const wT=list.length?list.map(a=>`<div class="rainc"><span class="ri">⛈</span><div><b>${esc(a.event_de||a.headline_de||"Gewitterwarnung")}</b><small>${esc(warnWhen(a))}</small></div></div>`).join(""):"";
     return `<div class="rainc"><span class="ri">${nowS?"⛈":"🌤"}</span><div><b>${nowS?"Gewitter jetzt bei dir":"Gerade kein Gewitter"}</b><small>Gewitterrisiko heute: <b>${rk[0]}</b>${cm==null?"":" (Energie-Maximum "+r(cm,0)+" J/kg"+(ch!=null?" gegen "+ch+" Uhr":"")+")"} – ${rk[1]}</small></div></div>`
-      +wT
-      +`<p class="note">Blitze zählt die App nicht live mit – dafür bräuchte es Blitzortung-Daten. Risiko und Warnungen oben stimmen trotzdem.</p>`;
+      +wT;
   }catch(e){return '<p class="wnone">Gewitterdaten gerade nicht verfügbar.</p>'}
 }
-function stripeColor(t){const h=Math.max(0,Math.min(240,240-((t+12)/44)*240));return `hsl(${h},75%,55%)`}
 function retroBody(){
   try{
     const R2=window._retro;
-    if(!R2||(!R2.r72&&!R2.r365))return '<p class="wnone">Rückblick wird geladen …</p>';
+    if(!R2||!R2.r72)return '<p class="wnone">Rückblick wird geladen …</p>';
     let h="";
     if(R2.r72&&R2.r72.t&&R2.r72.t.length){
       const T2=R2.r72.t,P2=R2.r72.p||[],vs=T2.filter(v=>v!=null);
@@ -1330,14 +1379,6 @@ function retroBody(){
         let ps=0;try{P2.forEach(v=>{if(v!=null)ps+=v})}catch(e){}
         h+=`<div class="sh-h">Letzte 72 Stunden (${r(lo,1)}° bis ${r(hi,1)}° · ${r(ps,1)} mm Regen)</div><svg class="crv" viewBox="0 0 240 70"><polyline pathLength="1" style="stroke-dashoffset:0" points="${pts}"/></svg>`;
       }
-    }
-    if(R2.r365&&R2.r365.mx&&R2.r365.mx.length){
-      const MX=R2.r365.mx,MN=R2.r365.mn||[],PR=R2.r365.pr||[],DT=R2.r365.dt||[];
-      const bars=MX.map((v,i)=>{const c=v==null?"transparent":stripeColor((v+(MN[i]!=null?MN[i]:v))/2);return `<i style="background:${c}" title="${DT[i]||""}"></i>`}).join("");
-      let wmx=null,wmn=null,wns=null,sum=0,cnt=0;
-      MX.forEach((v,i)=>{if(v==null)return;sum+=v;cnt++;if(wmx==null||v>wmx[0])wmx=[v,DT[i]];const m2=MN[i];if(m2!=null&&(wmn==null||m2<wmn[0]))wmn=[m2,DT[i]];const p=PR[i]||0;if(wns==null||p>wns[0])wns=[p,DT[i]]});
-      const fd=d=>{try{return new Date(d+"T12:00").toLocaleDateString("de-DE",{day:"numeric",month:"short"})}catch(e){return d||"–"}};
-      h+=`<div class="sh-h">Letzte 365 Tage (Tagesmittel)</div><div class="stripes">${bars}</div><div class="sub" style="margin-top:6px">Wärmster Tag: <b style="color:#fff">${wmx?fd(wmx[1])+" · "+r(wmx[0],1)+"°":"–"}</b> · Kältester: <b style="color:#fff">${wmn?fd(wmn[1])+" · "+r(wmn[0],1)+"°":"–"}</b><br>Nassester: <b style="color:#fff">${wns?fd(wns[1])+" · "+r(wns[0],1)+" mm":"–"}</b> · Mittel: <b style="color:#fff">${cnt?r(sum/cnt,1)+"°":"–"}</b><br>Messwerte brauchen ein paar Tage – endet vor etwa einer Woche.</div>`;
     }
     return h||'<p class="wnone">Rückblick gerade nicht verfügbar.</p>';
   }catch(e){return '<p class="wnone">Rückblick gerade nicht verfügbar.</p>'}
@@ -1350,9 +1391,8 @@ async function fetchRetro(c,key){
     const ck="retro_"+c.lat.toFixed(2)+"_"+c.lon.toFixed(2)+"_"+day;
     if(window._retroKey===ck&&window._retro&&window._retro.done)return;
     window._retroKey=ck;
-    let h72=null,y365=null;
+    let h72=null;
     try{h72=JSON.parse(localStorage.getItem(ck+"h")||"null")}catch(e){}
-    try{y365=JSON.parse(localStorage.getItem(ck+"y")||"null")}catch(e){}
     if(curKey!==key)return;
     if(!h72||Date.now()-h72.t>6*3600e3){
       const j=await get(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&hourly=temperature_2m,precipitation&past_days=3&forecast_days=1&timezone=Europe%2FBerlin`,15000).catch(()=>null);
@@ -1365,16 +1405,8 @@ async function fetchRetro(c,key){
         try{localStorage.setItem(ck+"h",JSON.stringify(h72))}catch(e){}
       }
     }
-    if(!y365||Date.now()-y365.t>24*3600e3){
-      const e2=new Date();e2.setDate(e2.getDate()-6);
-      const en=e2.toISOString().slice(0,10),s0=new Date(e2);s0.setDate(s0.getDate()-364);
-      const st=s0.toISOString().slice(0,10);
-      const j=await get(`https://archive-api.open-meteo.com/v1/archive?latitude=${c.lat}&longitude=${c.lon}&start_date=${st}&end_date=${en}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Europe%2FBerlin`,20000).catch(()=>null);
-      if(curKey!==key)return;
-      if(j&&j.daily&&j.daily.time){y365={t:Date.now(),d:{mx:j.daily.temperature_2m_max,mn:j.daily.temperature_2m_min,pr:j.daily.precipitation_sum,dt:j.daily.time}};try{localStorage.setItem(ck+"y",JSON.stringify(y365))}catch(e){}}
-    }
     if(curKey!==key)return;
-    window._retro={r72:h72&&h72.d,r365:y365&&y365.d,done:!!(h72&&y365)};
+    window._retro={r72:h72&&h72.d,done:!!h72};
     const ci=document.querySelector('[data-sec="retro"] .ci');if(ci)ci.innerHTML=retroBody();
   }catch(e){}
 }
@@ -1396,7 +1428,7 @@ $("#app").addEventListener("click",e=>{
 $("#app").addEventListener("input",e=>{
   try{
     const t=e.target;if(!t||!t.matches)return;
-    if(t.matches("[data-rt]")&&RD&&RD.frames&&RD.frames.length){RD.idx=Math.min(RD.frames.length-1,Math.max(0,+t.value||0));drawRadarFrame();const fr=RD.frames[RD.idx];const rl=document.querySelector("[data-rl]");if(rl&&fr)rl.textContent=new Date(fr.time*1e3).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})+" Uhr";return}
+    if(t.matches("[data-rt]")&&RD){try{const L=SET.radLayer||"regen",LF=layerFrames();if(!LF.fr.length)return;const v=Math.min(LF.fr.length-1,Math.max(0,+t.value||0));LF.set(v);if(L==="wind"||L==="schnee")drawRadar();else drawRadarFrame();const fr2=LF.fr[v];const rl=document.querySelector("[data-rl]");if(rl&&fr2)rl.textContent=layerTimeText(L,fr2)}catch(x){}return}
     if(t.matches("[data-radr]")){const v=Math.min(50,Math.max(10,+t.value||30));SET.radR=v;saveSet();const b=t.closest(".rrow");if(b){const o=b.querySelector("b");if(o)o.textContent=v+" km"}if(RD){RD.z=zForR(v);RD.cx=mX(RD.clon,RD.z);RD.cy=mY(RD.clat,RD.z);drawRadar()}return}
   }catch(x){}
 });
@@ -2003,6 +2035,3 @@ fxEinstEinfuegen();fxSync();
 fxSync();
 })();
 </script>
-
-</body>
-</html>
