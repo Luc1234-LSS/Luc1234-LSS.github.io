@@ -204,7 +204,6 @@ body.night{--bg1:#0e1a3a;--bg2:#24376f;--bg3:#080d1f}
 body.grey{--bg1:#5a6678;--bg2:#919cad;--bg3:#39424f}
 .orbs{display:none}
 main{max-width:600px;padding:62px 16px 56px}
-@supports (zoom:1.25){main{width:100%;zoom:1.25}}
 .hero{padding:6px 0 26px}
 .hero .city{font-size:28px;font-weight:600;letter-spacing:-.01em}
 .hero .t{font-size:104px;font-weight:200;letter-spacing:-.05em}
@@ -304,6 +303,32 @@ body.dev::before{display:none}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-delay:0s!important}}
 #toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);z-index:20;max-width:min(92vw,560px);background:rgba(20,28,48,.95);border:1px solid var(--line);color:#fff;font-size:14px;line-height:1.4;padding:12px 16px;border-radius:16px;opacity:0;pointer-events:none;transition:.3s}
 #toast.show{opacity:1;transform:translateX(-50%)}
+/* ===== Bildfüllend ohne Zoom: echte App-Größe direkt im CSS (funktioniert in jedem Browser/WebView, kein Browser-Zoom nötig) – steht absichtlich ganz am Ende, damit nichts es überstimmt ===== */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.hero .city{font-size:35px}
+.hero .t{font-size:132px}
+.hero .d{font-size:24px}
+.hero .hl{font-size:20px}
+.seg button{font-size:17px;padding:10px 22px}
+.card h2{font-size:15px}
+.big{font-size:40px}
+.sub{font-size:16px}
+.row{font-size:17px}
+.mr{font-size:16px}
+.th{font-size:14px}
+.tr{font-size:17px}
+.pill{font-size:18px}
+.rc b{font-size:16px}
+.chip b{font-size:25px}
+.dchips button{width:86px;font-size:15px}
+.dchips button b{font-size:28px}
+.dchips button em{font-size:20px}
+.dh .tt{font-size:40px}
+.sh-l{font-size:17px}
+#mm button{font-size:17px}
+#sp{font-size:17px}
+#ci{font-size:18px}
+#cr button{font-size:18px}
 </style>
 <style id="glas">
 /* ===== Milchglas ===== */
@@ -930,7 +955,7 @@ function render({m,s,c,ts,al,q}){
   {const hs=document.querySelector("#app .hours"),ne=hs&&hs.querySelector(".now");if(hs&&ne){const dd=ne.getBoundingClientRect().left-hs.getBoundingClientRect().left-10;if(dd>0)hs.scrollLeft+=dd}}
   S={m,s,c,ts,al};try{window.S=S}catch(e){}afterRender(cur);
   try{if(window.__fx&&window.__fx.setCode)window.__fx.setCode(cur._effC!=null?cur._effC:cur.weather_code)}catch(e){}
-  $("#foot").innerHTML="Wetter-App · Stand 14.11.2026";
+  $("#foot").innerHTML="Wetter-App · Stand 14.11.2026, Version 2";
   try{checkNotifs(S)}catch(e){}
   try{checkSched()}catch(e){}
 }
@@ -1999,7 +2024,7 @@ function checkNotifs(d){
     }
   }catch(e){}
 }
-function showMsg(t){$("#app").innerHTML=`<div class="msg">${t}</div>`;$("#foot").innerHTML="Wetter-App · Stand 14.11.2026"}
+function showMsg(t){$("#app").innerHTML=`<div class="msg">${t}</div>`;$("#foot").innerHTML="Wetter-App · Stand 14.11.2026, Version 2"}
 function goDef(){const k=CITIES.gps?"gps":Object.keys(CITIES)[0];if(k)go(k);else{curKey="";tabs("");showMsg("Kein Ort ausgewählt.<br>"+(LOCERR?esc(LOCERR)+"<br>":"")+"Erlaube den Standort oder tippe oben auf ＋.")}}
 (async()=>{
   document.body.classList.toggle("dev",!!SET.dev);
