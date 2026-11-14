@@ -204,6 +204,7 @@ body.night{--bg1:#0e1a3a;--bg2:#24376f;--bg3:#080d1f}
 body.grey{--bg1:#5a6678;--bg2:#919cad;--bg3:#39424f}
 .orbs{display:none}
 main{max-width:600px;padding:62px 16px 56px}
+@supports (zoom:1.25){main{width:100%;zoom:1.25}}
 .hero{padding:6px 0 26px}
 .hero .city{font-size:28px;font-weight:600;letter-spacing:-.01em}
 .hero .t{font-size:104px;font-weight:200;letter-spacing:-.05em}
@@ -929,13 +930,13 @@ function render({m,s,c,ts,al,q}){
   {const hs=document.querySelector("#app .hours"),ne=hs&&hs.querySelector(".now");if(hs&&ne){const dd=ne.getBoundingClientRect().left-hs.getBoundingClientRect().left-10;if(dd>0)hs.scrollLeft+=dd}}
   S={m,s,c,ts,al};try{window.S=S}catch(e){}afterRender(cur);
   try{if(window.__fx&&window.__fx.setCode)window.__fx.setCode(cur._effC!=null?cur._effC:cur.weather_code)}catch(e){}
-  $("#foot").innerHTML="";
+  $("#foot").innerHTML="Wetter-App · Stand 14.11.2026";
   try{checkNotifs(S)}catch(e){}
   try{checkSched()}catch(e){}
 }
 
 let SET={unit:"C",hide:{},closed:{},grp:{},closeWarn:true,dist:true,notif:false,notifWarn:true,notifRain:true,edit:false,corder:[],radR:30,radLayer:"regen"};
-try{const q=JSON.parse(localStorage.getItem("settings")||"{}");SET={unit:q.unit==="F"?"F":"C",hide:q.hide||{},closed:q.closed||{},grp:q.grp||{},closeWarn:q.closeWarn!==false,dist:q.dist!==false,notif:!!q.notif,notifWarn:q.notifWarn!==false,notifRain:q.notifRain!==false,dev:!!q.dev,round:!!q.round,emoji:!!q.emoji,moonOn:!!q.moonOn,moonP:typeof q.moonP==="number"?q.moonP:null,order:Array.isArray(q.order)?q.order:null,edit:!!q.edit,corder:Array.isArray(q.corder)?q.corder.filter(x=>typeof x==="string"):[],radR:Math.min(50,Math.max(10,+q.radR||30)),radLayer:["regen","wolken","wind","schnee"].includes(q.radLayer)?q.radLayer:"regen",zoom:Math.min(1.6,Math.max(0.8,+q.zoom||1.25))}}catch(e){}
+try{const q=JSON.parse(localStorage.getItem("settings")||"{}");SET={unit:q.unit==="F"?"F":"C",hide:q.hide||{},closed:q.closed||{},grp:q.grp||{},closeWarn:q.closeWarn!==false,dist:q.dist!==false,notif:!!q.notif,notifWarn:q.notifWarn!==false,notifRain:q.notifRain!==false,dev:!!q.dev,round:!!q.round,emoji:!!q.emoji,moonOn:!!q.moonOn,moonP:typeof q.moonP==="number"?q.moonP:null,order:Array.isArray(q.order)?q.order:null,edit:!!q.edit,corder:Array.isArray(q.corder)?q.corder.filter(x=>typeof x==="string"):[],radR:Math.min(50,Math.max(10,+q.radR||30)),radLayer:["regen","wolken","wind","schnee"].includes(q.radLayer)?q.radLayer:"regen"}}catch(e){}
 const DEF_ORDER=["warn","hours","radar","storm","dev","days","retro","details","cmp"];
 const orderKeys=()=>{const o=(SET.order||[]).filter(k=>DEF_ORDER.includes(k));DEF_ORDER.forEach(k=>{if(!o.includes(k)){if(k==="warn")o.unshift(k);else o.push(k)}});return o};
 const saveSet=()=>{try{localStorage.setItem("settings",JSON.stringify(SET))}catch(e){}};
@@ -1604,7 +1605,6 @@ $("#mm").onclick=e=>{
 document.addEventListener("click",()=>{if(keepSp){keepSp=false;return}$("#mm").classList.remove("open");$("#sp").classList.remove("open")});
 $("#sp").addEventListener("pointerdown",e=>{if(e.target.closest&&e.target.closest("input[data-mr]"))keepSp=true});
 $("#sp").addEventListener("input",e=>{const t=e.target;if(!t.matches||!t.matches("input[data-mr]"))return;SET.moonOn=true;SET.moonP=+t.value/1000;saveSet();syncMoonUI(false);updateMoon()});
-$("#sp").addEventListener("input",e=>{try{const t=e.target;if(!t||!t.matches||!t.matches("input[data-zoom]"))return;const v=Math.min(160,Math.max(80,+t.value||125))/100;SET.zoom=v;saveSet();applyZoom(v);const b=t.closest(".rrow");if(b){const o=b.querySelector("b");if(o)o.textContent=Math.round(v*100)+" %"}}catch(x){}});
 const ITEMS_S=[["warn","DWD-Warnungen"],["rain","Regenvorhersage (in Details)"],["hours","Stundenvorschau"],["radar","Wetterradar"],["storm","Gewitter & Blitze"],["days","16-Tage-Vorhersage"],["retro","Rückblick"],["cmp","Modellvergleich"]];
 const ITEMS_C=[["mrain","Regen am Morgen"],["raintoday","Regen heute"],["dayparts","Tagesverlauf"],["nrain","Nächster Regen"],["uv","UV-Index"],["aqi","Luftqualität"],["feel","Sonne & Schatten"],["frost","Frost"],["weekend","Wochenende"],["dew","Taupunkt"],["vis","Sichtweite"],["sun","Sonnenstunden"],["pres","Luftdruck"],["presinfo","Luftdruck-Hinweis"],["wind","Wind"],["rise","Sonnenauf- und -untergang"],["moon","Mond"],["full","Nächster Vollmond"]];
 const ITEMS=ITEMS_S.concat(ITEMS_C);
@@ -1631,7 +1631,7 @@ function buildSettings(){
   const gOpen=k=>{try{if(SET.grp&&k in SET.grp)return !!SET.grp[k]}catch(e){}return k==="areas"};const GO=k=>"advb"+(gOpen(k)?" open":""),GD=k=>"madv"+(gOpen(k)?" open":"");
   $("#sp").innerHTML='<h3 class="cn">Allgemein</h3><label class="sw"><span>Warnung vor dem Schließen</span><input type="checkbox" data-cw '+(SET.closeWarn!==false?"checked":"")+'><i></i></label><p>An: Beim Schließen oder Verlassen fragt die App vorher nach. Aus: Kein Nachfragen.</p>'
     +'<button class="'+GO("look")+'" data-grp="look">Aussehen & Einheiten<i></i></button><div class="'+GD("look")+'" id="gr-look">'
-    +'<h3>Temperatur</h3><div class="useg"><button data-u="C" class="'+(SET.unit==="C"?"on":"")+'">°C Celsius</button><button data-u="F" class="'+(SET.unit==="F"?"on":"")+'">°F Fahrenheit</button></div><label class="sw"><span>Auf ganze Grad runden</span><input type="checkbox" data-round '+(SET.round?"checked":"")+'><i></i></label><p>Aus: 7,8°. An: 8°.</p><h3 class="cn">Symbole</h3><label class="sw"><span>Wettersymbole als Emojis</span><input type="checkbox" data-emo '+(SET.emoji?"checked":"")+'><i></i></label><p>Aus: gezeichnete Symbole. An: Emojis deines Handys.</p><h3 class="cn">Sonstiges Aussehen</h3><label class="sw"><span>Entfernung zur Station anzeigen</span><input type="checkbox" data-dist '+(SET.dist!==false?"checked":"")+'><i></i></label><label class="sw"><span>Entwickler-Modus</span><input type="checkbox" data-dev '+(SET.dev?"checked":"")+'><i></i></label><p>Schwarzes Profi-Design mit Modellvergleich als übereinandergelegte Linien.</p><h3>Zoom</h3><div class="rrow"><span>Größe</span><input type="range" data-zoom min="80" max="160" step="5" value="'+Math.round((SET.zoom||1.25)*100)+'" aria-label="App-Zoom in Prozent"><b>'+Math.round((SET.zoom||1.25)*100)+' %</b></div><p>So groß startet die App automatisch – Finger-Zoom ist abgeschaltet. Wird gespeichert und bleibt.</p></div>'
+    +'<h3>Temperatur</h3><div class="useg"><button data-u="C" class="'+(SET.unit==="C"?"on":"")+'">°C Celsius</button><button data-u="F" class="'+(SET.unit==="F"?"on":"")+'">°F Fahrenheit</button></div><label class="sw"><span>Auf ganze Grad runden</span><input type="checkbox" data-round '+(SET.round?"checked":"")+'><i></i></label><p>Aus: 7,8°. An: 8°.</p><h3 class="cn">Symbole</h3><label class="sw"><span>Wettersymbole als Emojis</span><input type="checkbox" data-emo '+(SET.emoji?"checked":"")+'><i></i></label><p>Aus: gezeichnete Symbole. An: Emojis deines Handys.</p><h3 class="cn">Sonstiges Aussehen</h3><label class="sw"><span>Entfernung zur Station anzeigen</span><input type="checkbox" data-dist '+(SET.dist!==false?"checked":"")+'><i></i></label><label class="sw"><span>Entwickler-Modus</span><input type="checkbox" data-dev '+(SET.dev?"checked":"")+'><i></i></label><p>Schwarzes Profi-Design mit Modellvergleich als übereinandergelegte Linien.</p></div>'
     +'<button class="'+GO("areas")+'" data-grp="areas">Bereiche ein/aus<i></i></button><div class="'+GD("areas")+'" id="gr-areas">'
     +'<label class="sw"><span>Bereiche verschieben</span><input type="checkbox" data-edit '+(SET.edit?"checked":"")+'><i></i></label><p>An: Bereiche und Detail-Karten lassen sich frei per Ziehen am Griff sortieren. Aus: Die Reihenfolge bleibt gespeichert und ist gesperrt.</p><h3 class="cn">Anzeige</h3>'
     +'<div class="gsub">Bereiche</div><div class="swgrid">'+ITEMS_S.map(([k,t])=>`<label class="sw"><span>${t}</span><input type="checkbox" data-h="${k}" ${SET.hide[k]?"":"checked"}><i></i></label>`).join("")+'</div>'
@@ -1999,11 +1999,9 @@ function checkNotifs(d){
     }
   }catch(e){}
 }
-function showMsg(t){$("#app").innerHTML=`<div class="msg">${t}</div>`;$("#foot").innerHTML=""}
+function showMsg(t){$("#app").innerHTML=`<div class="msg">${t}</div>`;$("#foot").innerHTML="Wetter-App · Stand 14.11.2026"}
 function goDef(){const k=CITIES.gps?"gps":Object.keys(CITIES)[0];if(k)go(k);else{curKey="";tabs("");showMsg("Kein Ort ausgewählt.<br>"+(LOCERR?esc(LOCERR)+"<br>":"")+"Erlaube den Standort oder tippe oben auf ＋.")}}
-function applyZoom(z){try{z=Math.min(1.6,Math.max(0.8,+z||1.25));var m=document.querySelector('meta[name="viewport"]');if(m)m.setAttribute("content","width=device-width, initial-scale="+z+", maximum-scale="+z+", user-scalable=no, viewport-fit=cover");}catch(e){}return z}
 (async()=>{
-  try{applyZoom(SET.zoom)}catch(e){}
   document.body.classList.toggle("dev",!!SET.dev);
   let k=null;try{k=localStorage.getItem("city")}catch(e){}
   try{const lp0=lastPosGet();if(lp0&&!CITIES.gps)CITIES.gps={n:lp0.n||"Mein Standort",sub:"",lat:lp0.lat,lon:lp0.lon,gps:1}}catch(e){}
