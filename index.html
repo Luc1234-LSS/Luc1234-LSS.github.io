@@ -159,7 +159,8 @@ main{padding-top:58px}
 .seg{max-width:100%;overflow-x:auto;scrollbar-width:none}
 .seg button{flex:0 0 auto;white-space:nowrap}
 .xx{margin-left:8px;opacity:.75;font-size:12px;padding:2px 4px}
-#cp{position:fixed;top:calc(env(safe-area-inset-top,0px) + 54px);left:12px;right:12px;max-width:420px;margin:0 auto;z-index:7;background:rgba(22,32,58,.94);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border:1px solid var(--line);border-radius:20px;padding:12px;display:none;max-height:75vh;overflow-y:auto}
+#cp{position:fixed;top:calc(env(safe-area-inset-top,0px) + 54px);left:12px;right:12px;max-width:420px;margin:0 auto;z-index:7;background:rgba(22,32,58,.94);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border:1px solid var(--line);border-radius:20px;padding:12px;display:none;max-height:75vh;overflow-y:auto;scrollbar-width:none}
+#cp::-webkit-scrollbar{display:none}
 #cp.open{display:block;animation:pop .35s cubic-bezier(.2,1.3,.4,1)}
 #cp h3{font-size:12px;color:var(--dim);font-weight:600;margin:14px 4px 6px}
 #cp h3:first-child{margin-top:2px}
@@ -953,10 +954,6 @@ const STATIONS={
 };
 try{const qs=localStorage.getItem("station");if(qs==="auto"||STATIONS[qs])STN=qs}catch(e){}
 try{JSON.parse(localStorage.getItem("cities")||"[]").forEach(c=>{if(c&&c.k&&isFinite(c.lat)&&isFinite(c.lon))CITIES[c.k]={n:c.n,sub:c.sub||"",lat:+c.lat,lon:+c.lon,custom:1}})}catch(e){}
-try{
-  const near=Object.values(CITIES).some(c=>{try{return hav(50.99,12.43,c.lat,c.lon)<3}catch(e){return false}});
-  if(!near)CITIES.altenburg={n:"Altenburg",sub:"Thüringen · 04600",lat:50.99,lon:12.43,builtin:1};
-}catch(e){}
 const MN={dwd_mosmix:"DWD-Stationsvorhersage (MOSMIX)"};CAT.forEach(x=>MN[x.id]=x.n);
 function countUp(el,to){
   if(quiet||matchMedia("(prefers-reduced-motion:reduce)").matches){el.textContent=fT(to);return}
@@ -1757,7 +1754,7 @@ document.addEventListener("click",e=>{if(moved){e.stopPropagation();e.preventDef
 async function refresh(){if(!CITIES[curKey])return;
   const b=$("#rb");b.classList.add("spin");
   try{
-    if(curKey==="gps"){const p=await quickFix(2500);if(p&&p.coords){const la=p.coords.latitude,lo=p.coords.longitude,pr=CITIES.gps,R=6371,t=x=>x*Math.PI/180;const dk=pr?2*R*Math.asin(Math.sqrt(Math.sin(t(la-pr.lat)/2)**2+Math.cos(t(pr.lat))*Math.cos(t(la))*Math.sin(t(lo-pr.lon)/2)**2)):99;if(!pr||dk>0.5){CITIES.gps={n:pr?pr.n:"Hier",sub:"",lat:la,lon:lo,gps:1};lastPosSet(la,lo,CITIES.gps.n);tabs(curKey)}}}
+    if(curKey==="gps"){const p=await quickFix(2500);if(p&&p.coords){const la=p.coords.latitude,lo=p.coords.longitude,pr=CITIES.gps,R=6371,t=x=>x*Math.PI/180;const dk=pr?2*R*Math.asin(Math.sqrt(Math.sin(t(la-pr.lat)/2)**2+Math.cos(t(pr.lat))*Math.cos(t(la))*Math.sin(t(lo-pr.lon)/2)**2)):99;if(!pr||dk>0.5){const nm=(pr&&pr.n)||"Mein Standort";CITIES.gps={n:nm,sub:"",lat:la,lon:lo,gps:1};lastPosSet(la,lo,nm);resolveName(CITIES.gps,"gps");tabs(curKey)}}}
     const d=await load(curKey);cacheSet(curKey,d);quiet=true;$("#app").classList.add("quiet");render(d)}catch(e){}
   b.classList.remove("spin");
 }
@@ -1767,7 +1764,31 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now(
 window.addEventListener("beforeunload",e=>{if(SET.closeWarn!==false){e.preventDefault();e.returnValue=""}});
 
 function tabs(active){
-  $("#seg").innerHTML=Object.entries(CITIES).sort((a,b)=>((b[0]==="gps")-(a[0]==="gps"))||((b[0]==="altenburg")-(a[0]==="altenburg"))).map(([k,c])=>`<button class="${k===active?"on":""}" data-k="${k}">${k==="gps"||c.here?IP:""}${esc(c.n)}${c.custom&&k===active?`<span class="xx" data-del="${k}" aria-label="Ort löschen">${IX}</span>`:""}</button>`).join("")+'<button data-add="1" aria-label="Ort hinzufügen">＋</button>';
+  /* Doppelte Orte zusammenfassen: anderer Eintrag am selben Platz (Name gleich oder <3 km) → builtin verstecken; gleiche Namen → nur einer (eigene > Standort > Rest). Der aktive Reiter bleibt immer sichtbar. */
+  let vis=Object.entries(CITIES);
+  try{
+    const norm=s=>String((s&&s.n)||s||"").toLowerCase().trim();
+    const dd=(a,b)=>{try{return hav(a.lat,a.lon,b.lat,b.lon)}catch(e){return 99}};
+    const rank=c=>c.custom?0:(c.gps?1:2);
+    const hide=new Set();
+    const groups={};
+    vis.forEach(([k,c])=>{(groups[norm(c)]=groups[norm(c)]||[]).push([k,c])});
+    Object.values(groups).forEach(g=>{
+      if(g.length<2)return;
+      g.sort((a,b)=>rank(a[1])-rank(b[1]));
+      const keep=g.some(([k])=>k===active)?active:g[0][0];
+      g.forEach(([k])=>{if(k!==keep)hide.add(k)});
+    });
+    vis.forEach(([k,c])=>{
+      if(!c.builtin||hide.has(k))return;
+      const near=vis.filter(([k2,c2])=>k2!==k&&!hide.has(k2)&&norm(c2)!==norm(c)&&dd(c,c2)<3);
+      if(!near.length)return;
+      if(k===active)near.forEach(([k2])=>{if(k2!==active)hide.add(k2)});
+      else hide.add(k);
+    });
+    vis=vis.filter(([k])=>!hide.has(k));
+  }catch(e){}
+  $("#seg").innerHTML=vis.sort((a,b)=>((b[0]==="gps")-(a[0]==="gps"))||((b[0]==="altenburg")-(a[0]==="altenburg"))).map(([k,c])=>`<button class="${k===active?"on":""}" data-k="${k}">${k==="gps"||c.here?IP:""}${esc(c.n)}${c.custom&&k===active?`<span class="xx" data-del="${k}" aria-label="Ort löschen">${IX}</span>`:""}</button>`).join("")+'<button data-add="1" aria-label="Ort hinzufügen">＋</button>';
   $("#seg").onclick=e=>{
     e.stopPropagation();
     if(e.target.dataset.add){openCp();return}
@@ -1783,8 +1804,18 @@ function tabs(active){
 let picked=false;
 var LOCERR="",STNOBS="";
 function lastPosGet(){try{const o=JSON.parse(localStorage.getItem("lastpos")||"null");if(o&&isFinite(o.lat)&&isFinite(o.lon)&&Date.now()-(o.t||0)<7*864e5)return o}catch(e){}return null}
-function lastPosSet(lat,lon,n){try{localStorage.setItem("lastpos",JSON.stringify({lat,lon,n:n||"Hier",t:Date.now()}))}catch(e){}}
+function lastPosSet(lat,lon,n){try{localStorage.setItem("lastpos",JSON.stringify({lat,lon,n:n||"Mein Standort",t:Date.now()}))}catch(e){}}
 function quickFix(to){return new Promise(res=>{if(!navigator.geolocation)return res(null);let done=false;const t=setTimeout(()=>{if(!done){done=true;res(null)}},(to||2500)+500);try{navigator.geolocation.getCurrentPosition(p=>{if(!done){done=true;clearTimeout(t);res(p)}},()=>{if(!done){done=true;clearTimeout(t);res(null)}},{enableHighAccuracy:false,timeout:to||2500,maximumAge:600000})}catch(e){if(!done){done=true;clearTimeout(t);res(null)}}})}
+function resolveName(g,key){
+  try{
+    if(!g||!isFinite(g.lat)||!isFinite(g.lon))return;
+    (async()=>{try{
+      const j=await get(`https://nominatim.openstreetmap.org/reverse?lat=${g.lat}&lon=${g.lon}&format=jsonv2&zoom=12&accept-language=de`,6000);
+      const a=(j&&j.address)||{},nn=a.city||a.town||a.village||a.municipality||a.county||null;
+      if(nn&&CITIES[key]===g&&nn!==g.n){g.n=nn;lastPosSet(g.lat,g.lon,nn);try{tabs(curKey)}catch(e){}}
+    }catch(e){}})();
+  }catch(e){}
+}
 function locate(){
   const ask=(hi,to,maxAge)=>new Promise(r=>{let done=false;const t=setTimeout(()=>{if(!done){done=true;r({err:3})}},to+500);try{navigator.geolocation.getCurrentPosition(p=>{if(!done){done=true;clearTimeout(t);r(p)}},e=>{if(!done){done=true;clearTimeout(t);r({err:e&&e.code||0})}},{enableHighAccuracy:hi,timeout:to,maximumAge:maxAge==null?600000:maxAge})}catch(e){if(!done){done=true;clearTimeout(t);r({err:3})}}});
   return (async()=>{
@@ -1794,10 +1825,9 @@ function locate(){
     if(p.err!==undefined){LOCERR=p.err===1?"Standort nicht erlaubt (Android: Einstellungen > Apps > Berechtigungen > Standort)":p.err===2?"Standort nicht verfügbar (Standort/GPS eingeschaltet?)":"Standortsuche dauerte zu lange";return null}
     LOCERR="";
     const lat=p.coords.latitude,lon=p.coords.longitude,lp=lastPosGet();
-    let n=(lp&&Math.abs(lp.lat-lat)<0.2&&Math.abs(lp.lon-lon)<0.2&&lp.n)||"Hier";
+    let n=(lp&&Math.abs(lp.lat-lat)<0.2&&Math.abs(lp.lon-lon)<0.2&&lp.n)||"Mein Standort";
     lastPosSet(lat,lon,n);
     const g={n,sub:"",lat,lon,gps:1};
-    (async()=>{try{const j=await get(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=jsonv2&zoom=12&accept-language=de`,5000);const a=j.address||{},nn=a.city||a.town||a.village||a.municipality||a.county||n;if(nn&&nn!==g.n){g.n=nn;lastPosSet(lat,lon,nn);if(CITIES.gps===g)tabs(curKey)}}catch(e){}})();
     return g;
   })();
 }
@@ -1969,26 +1999,23 @@ function checkNotifs(d){
   }catch(e){}
 }
 function showMsg(t){$("#app").innerHTML=`<div class="msg">${t}</div>`;$("#foot").innerHTML=""}
-function goDef(){const k=CITIES.gps?"gps":(CITIES.altenburg?"altenburg":Object.keys(CITIES)[0]);if(k)go(k);else{curKey="";tabs("");showMsg("Kein Ort ausgewählt.<br>"+(LOCERR?esc(LOCERR)+"<br>":"")+"Erlaube den Standort oder tippe oben auf ＋.")}}
+function goDef(){const k=CITIES.gps?"gps":Object.keys(CITIES)[0];if(k)go(k);else{curKey="";tabs("");showMsg("Kein Ort ausgewählt.<br>"+(LOCERR?esc(LOCERR)+"<br>":"")+"Erlaube den Standort oder tippe oben auf ＋.")}}
 (async()=>{
   document.body.classList.toggle("dev",!!SET.dev);
   let k=null;try{k=localStorage.getItem("city")}catch(e){}
-  try{const lp0=lastPosGet();if(lp0&&!CITIES.gps)CITIES.gps={n:lp0.n||"Hier",sub:"",lat:lp0.lat,lon:lp0.lon,gps:1}}catch(e){}
+  try{const lp0=lastPosGet();if(lp0&&!CITIES.gps)CITIES.gps={n:lp0.n||"Mein Standort",sub:"",lat:lp0.lat,lon:lp0.lon,gps:1}}catch(e){}
   const t0=Date.now();
   const off=()=>setTimeout(()=>$("#splash").classList.add("off"),Math.max(0,900-(Date.now()-t0)));
   let shown=false;
-  const first=CITIES.gps?"gps":(k&&CITIES[k]?k:(CITIES.altenburg?"altenburg":Object.keys(CITIES)[0]));
+  const first=CITIES.gps?"gps":null;
   if(first){try{await go(first);shown=true}catch(e){}}
   if(!shown){tabs("");showMsg("Standort wird gesucht …")}
   off();
   let g=null;try{g=await locate()}catch(e){g=null}
   if(g){
-    const km=(a,b,c2,d)=>{const R=6371,t=x=>x*Math.PI/180,u=t(c2-a),v=t(d-b),h=Math.sin(u/2)**2+Math.cos(t(a))*Math.cos(t(c2))*Math.sin(v/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
-    const near=Object.entries(CITIES).filter(([k])=>k!=="gps").map(([k,c])=>[k,km(g.lat,g.lon,c.lat,c.lon)]).sort((a,b)=>a[1]-b[1])[0];
-    const same=Object.entries(CITIES).find(([k,c])=>k!=="gps"&&c.n.toLowerCase()===String(g.n).toLowerCase());
-    const hit=same?[same[0],0]:(near&&near[1]<15?near:null);
-    if(hit){CITIES[hit[0]].here=true;if(!picked&&curKey!==hit[0])go(hit[0]);else tabs(curKey)}
-    else{const prev=CITIES.gps,moved=!prev||km(g.lat,g.lon,prev.lat,prev.lon)>1.5;CITIES.gps=g;if(!picked&&(curKey!=="gps"||moved||!shown))go("gps");else tabs(curKey)}
+    /* immer der echte GPS-Standort – kein vorgewähltes Altenburg, kein Umschalten auf gespeicherte Orte */
+    CITIES.gps=g;resolveName(g,"gps");
+    if(!picked)go("gps");else tabs(curKey);
   }else if(!shown)goDef();else if(curKey==="gps"){const u=document.querySelector(".upd");if(u&&LOCERR)u.insertAdjacentHTML("beforeend","<br>"+esc(LOCERR))}
 })();
 </script>
