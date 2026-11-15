@@ -92,7 +92,7 @@
     border:0; cursor:pointer; border-radius:999px; padding:0 20px; font-weight:800; font-size:15px;
     background:#fff; color:#000; -webkit-text-fill-color:#000; box-shadow:0 12px 30px -12px rgba(0,0,0,.4); transition:transform .15s;
   }
-  .dice-btn:hover{ transform:rotate(-3deg) scale(1.05); }
+  .dice-btn:hover{ transform:translateY(-2px) scale(1.03); }
   .quick{ display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
   .quick button{
     border:1px solid rgba(255,255,255,.35); background:rgba(255,255,255,.14); color:#fff;
@@ -121,12 +121,11 @@
     transition:transform .2s, box-shadow .2s;
   }
   @keyframes cardIn{ to{ opacity:1; transform:none; } }
-  .card:hover{ transform:translateY(-7px) rotate(-.3deg); box-shadow:var(--shadow); }
+  .card:hover{ transform:none; box-shadow:var(--shadow); }
   .img-wrap{ position:relative; height:180px; overflow:hidden; background:linear-gradient(135deg,#FFD9A8,#FFB3C8); display:grid; place-items:center; }
   .img-wrap .fallback{ font-size:64px; filter:drop-shadow(0 8px 12px rgba(0,0,0,.25)); animation:floatY 4s ease-in-out infinite alternate; }
   @keyframes floatY{ from{ transform:translateY(-4px) rotate(-4deg);} to{ transform:translateY(5px) rotate(4deg);} }
-  .img-wrap img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .5s; }
-  .card:hover .img-wrap img{ transform:scale(1.08) rotate(.5deg); }
+  .img-wrap img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
   .pill-row{ position:absolute; top:10px; left:10px; right:10px; display:flex; gap:6px; }
   .pill{
     font-size:11.5px; font-weight:800; padding:6px 11px; border-radius:999px; color:#fff;
@@ -161,9 +160,7 @@
   .overlay.show{ display:flex; }
   .sheet{
     background:var(--cream); width:min(860px,100%); max-height:92vh; overflow-y:auto; border-radius:28px 28px 0 0;
-    animation:sheetUp .38s cubic-bezier(.2,.9,.3,1.15);
   }
-  @keyframes sheetUp{ from{ transform:translateY(60px) scale(.98); opacity:0;} to{ transform:none; opacity:1;} }
   .sheet-hero{ position:relative; height:260px; background:linear-gradient(135deg,#FFD9A8,#FF9EBB); overflow:hidden; }
   .sheet-hero img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
   .sheet-hero .grad{ position:absolute; inset:0; background:linear-gradient(180deg,transparent 30%,rgba(40,22,10,.72)); }
@@ -347,9 +344,6 @@
     content:""; position:absolute; top:0; left:-70%; width:45%; height:100%; pointer-events:none; z-index:1;
     background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent); transform:skewX(-20deg);
   }
-  .card:hover .img-wrap::after{ animation:shine .8s ease; }
-  #setBtn{ transition:transform .3s; }
-  #setBtn:hover{ transform:rotate(30deg) scale(1.08); }
   #menuBtn{ font-size:18px; }
   .paw{ display:inline-block; animation:pawHop 1.2s ease-in-out infinite; }
   .paw:nth-of-type(3n+2){ animation-delay:.2s; } .paw:nth-of-type(3n){ animation-delay:.4s; }
@@ -389,7 +383,9 @@
   .set-row small{ display:block; font-weight:600; color:var(--muted); font-size:12.5px; }
   .set-row .switch{ margin-left:auto; }
   body.noanim *, body.noanim *::before, body.noanim *::after{ animation:none !important; transition:none !important; }
-  @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+  body.noanim .card{ opacity:1 !important; transform:none !important; }
+  body.noanim *:hover{ transform:none !important; }
+  @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } .card{ opacity:1 !important; transform:none !important; } *:hover{ transform:none !important; } }
   :focus-visible{ outline:3px solid var(--caramel2); outline-offset:2px; }
   body.senior{ --muted:#6E5C48; }
   body.senior .switch{ width:66px; height:36px; flex:0 0 66px; }
@@ -447,6 +443,13 @@
     .card-actions .btn{ font-size:13px; padding:10px 8px; }
     .btn.ghost{ flex-basis:42px; }
     .sheet-hero{ height:210px; }
+    /* 📱 Handy-Performance: weniger RAM/GPU-Last, keine Ruckler */
+    .card{ animation:none; opacity:1; transform:none; content-visibility:auto; contain-intrinsic-size:300px; }
+    .blob, .floaty{ display:none; }
+    header.top{ backdrop-filter:none; -webkit-backdrop-filter:none; background:rgba(255,249,241,.97); }
+    .overlay{ backdrop-filter:none; -webkit-backdrop-filter:none; }
+    .logo-mark, .hero h1 .hl, .hero::after, .hero::before, .img-wrap .fallback, .empty .big,
+    .dice-btn, .favbtn.on, .paw, .stat, .quick button, .menu.show .menu-list button, main{ animation:none !important; }
   }
 </style>
 
@@ -4077,6 +4080,7 @@ const CATS = [
   {id:"schoko", label:"🍫 Schoko"},
   {id:"kaese", label:"🧀 Käse"},
   {id:"kartoffel", label:"🥔 Kartoffel"},
+  {id:"salat", label:"🥬 Salat"},
   {id:"frucht", label:"🍎 Fruchtig"},
   {id:"party", label:"🎉 Party"},
   {id:"fruehstueck", label:"🥐 Frühstück"},
@@ -4152,6 +4156,7 @@ function matchCat(r){
   if(activeCat==="schoko") return /schoko|kakao|nougat|brownie|kuvertüre|schokolade/i.test(r.title+" "+r.tags.join(" ")+" "+r.zutaten.map(z=>z.z).join(" "));
   if(activeCat==="kaese") return /käse|parmesan|mozzarella|cheddar|camembert|gouda|feta|emmentaler|raclette|bergkäse/i.test(r.title+" "+r.tags.join(" ")+" "+r.zutaten.map(z=>z.z).join(" "));
   if(activeCat==="kartoffel") return /kartoffel/i.test(r.title+" "+r.tags.join(" ")+" "+r.zutaten.map(z=>z.z).join(" "));
+  if(activeCat==="salat") return /salat|rucola|feldsalat|eisbergsalat/i.test(r.title+" "+r.tags.join(" ")+" "+r.zutaten.map(z=>z.z).join(" "));
   if(activeCat==="frucht") return r.tags.includes("fruchtig")||/apfel|kirsch|beere|erdbeer|himbeer|blaubeer|zitrone|orange|pflaume|rhabarber|banane|mandarine|maracuja|tomate/i.test(r.title+" "+r.tags.join(" "));
   if(activeCat==="party") return ["party","fingerfood","aperitif","filmabend"].some(t=>r.tags.includes(t));
   if(activeCat==="fruehstueck") return r.tags.includes("frühstück")||/waffel|müsli|porridge|pancake/i.test(r.title);
@@ -4238,7 +4243,7 @@ function render(){
     const d=document.createElement("article");
     d.className="card"; d.style.animationDelay=(Math.min(i,11)*0.05)+"s";
     d.innerHTML=`
-      <div class="img-wrap"><span class="fallback">${r.emoji}</span><img loading="lazy" src="${r.img}" alt="${r.title}" onerror="this.remove()">
+      <div class="img-wrap"><span class="fallback">${r.emoji}</span><img loading="lazy" decoding="async" src="${r.img}" alt="${r.title}" onerror="this.remove()">
         <div class="pill-row"><span class="pill cat">${r.cat}</span>${r.airfryer?'<span class="pill air">♨ Airfryer</span>':""}<span class="pill time">⏱ ${r.time} Min.</span></div>
       </div>
       <div class="card-body"><h3>${r.title}</h3>
@@ -4611,7 +4616,7 @@ function renderOnline(){
     const d = document.createElement("article");
     d.className = "card"; d.style.animationDelay = (Math.min(i,11)*0.05)+"s";
     d.innerHTML = `
-      <div class="img-wrap"><span class="fallback">${r.emoji}</span><img loading="lazy" src="${r.img}" alt="" onerror="this.remove()">
+      <div class="img-wrap"><span class="fallback">${r.emoji}</span><img loading="lazy" decoding="async" src="${r.img}" alt="" onerror="this.remove()">
         <div class="pill-row"><span class="pill cat">🌍 ${r.cat}</span><span class="pill time">Online</span></div>
       </div>
       <div class="card-body"><h3>${r.title}</h3>
