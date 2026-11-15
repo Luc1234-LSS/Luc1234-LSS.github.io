@@ -100,7 +100,7 @@
   }
   .quick button:hover{ background:#fff; color:var(--cocoa); transform:translateY(-2px); }
 
-  .chips{ display:none; }
+  .chips, .hero .quick, .hero .stat-row{ display:none; }
   .chip{
     flex:0 0 auto; border:2px solid var(--line); background:#fff; border-radius:999px; padding:10px 18px;
     font-weight:800; font-size:14px; cursor:pointer; transition:all .18s; display:flex; gap:8px; align-items:center;
@@ -362,7 +362,7 @@
   .menu-h{ padding:18px; background:linear-gradient(135deg,#2E1A0E,#5C3413); color:#FFEFD6; }
   .menu-h h3{ margin:0; font-family:'Fredoka',sans-serif; font-size:22px; }
   .menu-h p{ margin:4px 0 0; font-size:13px; opacity:.85; }
-  .menu-list{ flex:1; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; touch-action:pan-y; padding:14px; display:flex; flex-direction:column; gap:8px; }
+  .menu-list{ flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; touch-action:pan-y; padding:14px; display:flex; flex-direction:column; gap:8px; }
   .menu-list button{
     display:flex; align-items:center; gap:10px; border:1.5px solid var(--line); background:#fff;
     border-radius:14px; padding:13px 15px; font-weight:800; font-size:15px; color:var(--cocoa);
@@ -4170,7 +4170,7 @@ function matchQuery(r){
   const hay = (r.title+" "+r.desc+" "+r.cat+" "+r.tags.join(" ")+" "+r.zutaten.map(z=>z.z).join(" ")).toLowerCase();
   return q.split(/\s+/).every(w=>hay.includes(w));
 }
-function filtered(){ return RECIPES.filter(r=>!r.online&&matchCat(r)&&matchQuery(r)); }
+function filtered(){ return RECIPES.filter(r=>(!r.online||activeCat==="favs")&&matchCat(r)&&matchQuery(r)); }
 
 function renderChips(){
   chipsEl.innerHTML = "";
@@ -4574,12 +4574,15 @@ function mapMeal(m){
   return {mealId:m.idMeal, title:deText(orig), orig:orig, cat:cat, emoji:"🌍", img:m.strMealThumb||"", time:30, tags:["online"],
     desc:((area?area+" · ":"")+cat+(orig?" · Original: „"+orig+"“":"")).trim()||"Online-Fund"};
 }
+/* Unpassende Online-Funde (Zutaten statt Gerichte, vom Nutzer aussortiert) */
+const ONLINE_BLOCK = ["achiote","ajo blanco","alfajor","kefta","almojabana","pan de bono","buljol","saltfish","apam balik","aji de aguacate","algerian"];
+function onlineGesperrt(t){ const s=String(t||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""); return ONLINE_BLOCK.some(b=>s.includes(b)); }
 async function fetchOnline(q){
   const raw = (q||"").trim().toLowerCase();
   onlineLoading = true; onlineErr = ""; renderOnline();
   try{
     const seen = new Set(); onlineCache = [];
-    const einsammeln = (j)=>{ ((j&&j.meals)||[]).forEach(m=>{ if(m&&m.idMeal&&!seen.has(m.idMeal)){ seen.add(m.idMeal); onlineCache.push(mapMeal(m)); } }); };
+    const einsammeln = (j)=>{ ((j&&j.meals)||[]).forEach(m=>{ if(m&&m.idMeal&&!seen.has(m.idMeal)&&!onlineGesperrt(m.strMeal)){ seen.add(m.idMeal); onlineCache.push(mapMeal(m)); } }); };
     if(!raw){
       onlineShown = "A–Z-Auswahl";
       const reqs = "abcdefghijklmnopqrstuvwxyz".split("").map(L=>fetch("https://www.themealdb.com/api/json/v1/1/search.php?f="+L).then(r=>{ if(!r.ok) throw 0; return r.json(); }).catch(()=>null));
@@ -4626,16 +4629,21 @@ function renderOnline(){
       </div>`;
     d.querySelector(".btn").onclick = (e)=>{ e.stopPropagation(); openOnlineRecipe(r.mealId); };
     d.onclick = ()=>openOnlineRecipe(r.mealId);
+    const fb = document.createElement("button");
+    const dbId = "db"+r.mealId;
+    const refreshFb = ()=>{ fb.textContent=isFav(dbId)?"❤️":"🤍"; fb.classList.toggle("on",isFav(dbId)); };
+    fb.className = "favbtn"; fb.title = "Zu Favoriten"; refreshFb();
+    fb.onclick = async (e)=>{ e.stopPropagation(); fb.textContent = "⏳"; const voll = await ladeOnlineVoll(r.mealId); if(!voll){ toast("Online-Rezept lädt gerade nicht – später nochmal."); refreshFb(); return; } toggleFav(voll.id); refreshFb(); verfeinereOnline(voll, voll.orig, voll._rawPaare||"", voll._rawAnleitung||""); };
+    d.querySelector(".img-wrap").appendChild(fb);
     grid.appendChild(d);
   });
 }
-async function openOnlineRecipe(mealId){
-  toast("🌍 Lade Online-Rezept …");
+async function ladeOnlineVoll(mealId){
   try{
     const res = await fetch("https://www.themealdb.com/api/json/v1/1/lookup.php?i="+encodeURIComponent(mealId));
     if(!res.ok) throw 0;
     const j = await res.json();
-    const m = (j.meals||[])[0]; if(!m){ toast("Rezept nicht gefunden."); return; }
+    const m = (j.meals||[])[0]; if(!m) return null;
     const zut = [], rawPairs = [];
     for(let i=1;i<=20;i++){
       const z = (m["strIngredient"+i]||"").trim(), e = (m["strMeasure"+i]||"").trim();
@@ -4656,10 +4664,17 @@ async function openOnlineRecipe(mealId){
       zutaten:zut, steps:steps.length?steps:["(Keine Anleitung verfügbar.)"], tipp:"Alles vor dem Start bereitstellen – falls englische Rest-Maße stehen: 1 Cup ≈ 240 ml, 1 Tbsp ≈ 1 EL, 1 Tsp ≈ 1 TL.",
       online:true, youtube:m.strYoutube||""};
     const ix = RECIPES.findIndex(x=>x.id===r.id); if(ix<0) RECIPES.push(r); else RECIPES[ix]=Object.assign(RECIPES[ix],r);
-    openRecipe(r.id);
-    haengeOnlineNotizAn(r,false);
-    verfeinereOnline(r, r.orig, rawPairs.join("; "), raw);
-  }catch(e){ toast("Online-Rezept lädt gerade nicht – später nochmal."); }
+    r._rawPaare = rawPairs.join("; "); r._rawAnleitung = raw;
+    return r;
+  }catch(e){ return null; }
+}
+async function openOnlineRecipe(mealId){
+  toast("🌍 Lade Online-Rezept …");
+  const r = await ladeOnlineVoll(mealId);
+  if(!r){ toast("Rezept nicht gefunden – später nochmal."); return; }
+  openRecipe(r.id);
+  haengeOnlineNotizAn(r,false);
+  verfeinereOnline(r, r.orig, r._rawPaare||"", r._rawAnleitung||"");
 }
 
 renderChips(); renderQuick(); render(); updateBadge(); renderShop();
