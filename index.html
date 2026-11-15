@@ -295,12 +295,90 @@
   @keyframes spin{ to{ transform:rotate(360deg); } }
   #favBtnTop{ border-color:#F3C2D4; }
   footer{ text-align:center; color:var(--muted); font-size:13px; padding:26px 10px 40px; position:relative; z-index:1; }
+  html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+  .hero h1 .hl{ background:linear-gradient(90deg,#FFD98A,#FF9EBB,#FFD98A); background-size:220% auto; -webkit-background-clip:text; background-clip:text; color:transparent; animation:hlShift 7s linear infinite; }
+  @keyframes hlShift{ to{ background-position:220% center; } }
+  .hero p{ font-size:clamp(13px,3.4vw,15.5px); line-height:1.62; }
+  .hero{ isolation:isolate; }
+  .hero::before{
+    content:""; position:absolute; top:-60%; bottom:-60%; left:-40%; width:32%; pointer-events:none; z-index:0;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.16),transparent);
+    transform:skewX(-18deg); animation:sheen 7.5s ease-in-out infinite;
+  }
+  @keyframes sheen{ 0%,55%{ left:-40%; } 92%,100%{ left:135%; } }
+  .hero h1, .hero p, .hero .search-row, .hero .quick, .hero .stat-row{ position:relative; z-index:1; }
+  .hero-more{ display:none; }
+  .btn, .search button{ position:relative; overflow:hidden; }
+  .btn::after, .search button::after{
+    content:""; position:absolute; top:0; left:-70%; width:45%; height:100%; pointer-events:none;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent); transform:skewX(-20deg);
+  }
+  .btn:hover::after, .search button:hover::after{ animation:shine .7s ease; }
+  @keyframes shine{ to{ left:135%; } }
+  .chip.on{ animation:chipGlow 2.4s ease-in-out infinite alternate; }
+  @keyframes chipGlow{ from{ box-shadow:0 12px 24px -12px rgba(62,42,30,.6); } to{ box-shadow:0 12px 30px -8px rgba(232,131,58,.7); } }
+  .stat{ animation:statIn .5s ease backwards; }
+  .stat:nth-child(2){ animation-delay:.08s; } .stat:nth-child(3){ animation-delay:.16s; } .stat:nth-child(4){ animation-delay:.24s; }
+  @keyframes statIn{ from{ opacity:0; transform:translateY(8px); } }
+  .set-ov{ position:fixed; inset:0; z-index:120; background:rgba(46,28,16,.5); display:none; }
+  .set-ov.show{ display:block; }
+  .set-panel{
+    position:fixed; top:70px; right:14px; z-index:121; width:min(330px,92vw);
+    background:var(--cream); border:1px solid var(--line); border-radius:22px; padding:20px;
+    box-shadow:var(--shadow); transform:translateY(-12px) scale(.97); opacity:0; transition:all .22s;
+  }
+  .set-panel.show{ transform:none; opacity:1; }
+  .set-panel h3{ margin:0 0 12px; font-family:'Fredoka',sans-serif; font-size:21px; }
+  .set-row{ display:flex; align-items:center; gap:12px; background:#fff; border:1px solid var(--line); border-radius:16px; padding:13px 15px; margin-bottom:10px; cursor:pointer; font-weight:700; font-size:15px; }
+  .set-row small{ display:block; font-weight:600; color:var(--muted); font-size:12.5px; }
+  .set-row .switch{ margin-left:auto; }
+  body.noanim *, body.noanim *::before, body.noanim *::after{ animation:none !important; transition:none !important; }
+  @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+  body.senior{ font-size:19px; }
+  body.senior .hero p{ font-size:18px; line-height:1.7; display:block !important; -webkit-line-clamp:unset !important; }
+  body.senior .hero-more{ display:none !important; }
+  body.senior .hero h1{ font-size:clamp(26px,6vw,40px); }
+  body.senior .card-body h3{ font-size:23px; }
+  body.senior .card-sub{ font-size:15.5px; }
+  body.senior .tag{ font-size:13.5px; }
+  body.senior .chip{ font-size:17px; padding:14px 24px; }
+  body.senior .icon-btn{ font-size:16px; }
+  body.senior .btn{ font-size:17px; padding:15px; }
+  body.senior .search input{ font-size:18px; }
+  body.senior .step{ font-size:18px; line-height:1.7; }
+  body.senior .ing .txt{ font-size:17.5px; }
+  body.senior .sec-t{ font-size:24px; }
+  body.senior .fact b{ font-size:20px; } body.senior .fact span{ font-size:14px; }
+  body.senior .sheet-hero h2{ font-size:clamp(28px,6vw,40px); }
+  body.senior .toast{ font-size:16.5px; }
+  body.senior .add{ width:44px; height:44px; flex:0 0 44px; font-size:22px; }
+  body.senior .stepper button{ width:44px; height:44px; font-size:22px; }
+  body.senior .meta-line, body.senior #resultCount{ font-size:16px; }
   @media (max-width:640px){
-    .hero{ padding:24px 18px; } .sheet{ border-radius:22px 22px 0 0; }
+    .hero{ padding:22px 16px; border-radius:24px; margin:16px 0 14px; } .sheet{ border-radius:22px 22px 0 0; }
     .top-in{ padding:10px 12px; } .logo b{ font-size:17px; }
     .logo span{ display:none; }
     .icon-btn{ padding:10px 13px; font-size:13px; }
     .icon-btn .lbl{ display:none; }
+    .hero h1{ font-size:clamp(23px,6.6vw,30px); }
+    .hero::after{ font-size:23px; right:10px; }
+    .hero p{ display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:10px; }
+    .hero.expanded p{ display:block; -webkit-line-clamp:unset; }
+    .hero-more{
+      display:inline-block; position:relative; z-index:1; margin:0 0 14px;
+      border:1px solid rgba(255,255,255,.4); background:rgba(255,255,255,.14); color:#fff;
+      border-radius:999px; padding:8px 16px; font-size:13.5px; font-weight:800; cursor:pointer;
+    }
+    .hero-more:hover{ background:#fff; color:var(--cocoa); }
+    .stat{ font-size:12px; padding:6px 12px; }
+    .grid{ grid-template-columns:repeat(auto-fill,minmax(165px,1fr)); gap:12px; }
+    .img-wrap{ height:132px; }
+    .card-body{ padding:12px 12px 13px; }
+    .card-body h3{ font-size:16px; }
+    .card-sub{ font-size:12px; }
+    .card-actions .btn{ font-size:13px; padding:10px 8px; }
+    .btn.ghost{ flex-basis:42px; }
+    .sheet-hero{ height:210px; }
   }
 </style>
 
@@ -315,6 +393,7 @@
     <div class="spacer"></div>
     <button class="icon-btn" id="favBtnTop" title="Deine gespeicherten Favoriten">❤️ <span class="lbl">Favoriten</span> <span class="badge" id="favBadge" hidden>0</span></button>
     <button class="icon-btn" id="listBtn">🛒 <span class="lbl">Einkaufsliste</span> <span class="badge" id="listBadge" hidden>0</span></button>
+    <button class="icon-btn" id="setBtn" title="Einstellungen: Seniorenmodus & Animationen">⚙️ <span class="lbl">Optionen</span></button>
   </div>
 </header>
 
@@ -322,6 +401,7 @@
   <section class="hero">
     <h1>Was gibt's heute <span class="hl">Leckeres</span>?</h1>
     <p>263 Rezepte für alles – Kuchen, Muffins, Torten, Plätzchen, Pasta, Pizza, Pfannengerichte, Snacks &amp; Airfryer. Neu: <b>🧱 DDR-Klassiker</b> – von Soljanka bis Schwedeneisbecher – plus <b>🩵 Diabetes · zuckerarm</b> – Kuchen &amp; Co. mit Xylit statt Zucker, plus alles Herzhaften für Oma. Dazu <b>🌍 Online entdecken</b> mit tausenden weiteren Rezepten aus aller Welt. Tipp einfach eine Zutat wie <b>Zimt</b>, <b>Milchreis</b> oder <b>Bolognese</b> ein. Alle eigenen Angaben in Gramm, Milliliter, EL &amp; TL.</p>
+    <button class="hero-more" id="heroMore">Mehr anzeigen ↓</button>
     <div class="search-row">
       <div class="search"><span style="font-size:20px">🔍</span><input id="searchInput" placeholder="Zutat, Rezept oder Stichwort … z. B. Zimt, Apfel, Milchreis" autocomplete="off"><button id="searchBtn">Suchen</button></div>
       <button class="dice-btn" id="clearBtn" hidden title="Suche löschen">✕</button>
@@ -345,10 +425,17 @@
   <div class="drawer-list" id="drawerList"></div>
   <div class="drawer-f">
     <button id="copyBtn">📋 Kopieren</button>
-    <button id="clearBtn">🗑 Leeren</button>
+    <button id="clearShopBtn">🗑 Leeren</button>
     <button class="primary" id="closeDrawerBtn">Weiter backen →</button>
   </div>
 </aside>
+<div class="set-ov" id="setOv"></div>
+<div class="set-panel" id="setPanel" hidden>
+  <h3>⚙️ Einstellungen</h3>
+  <label class="set-row"><span>👴 Seniorenmodus<br><small>Größere Schrift &amp; Knöpfe überall</small></span><span class="switch"><input type="checkbox" id="seniorToggle"><span class="sl"></span></span></label>
+  <label class="set-row"><span>✨ Animationen<br><small>Glanz, Wackeln &amp; Bewegung an/aus</small></span><span class="switch"><input type="checkbox" id="animToggle" checked><span class="sl"></span></span></label>
+  <button class="wide-btn" id="setClose">Fertig ✓</button>
+</div>
 <div class="toast" id="toast"></div>
 <button id="topBtn" title="Nach oben">↑</button>
 
@@ -2445,7 +2532,7 @@ function openRecipe(id){
 }
 function closeSheet(){ currentOpen=null; $("overlay").classList.remove("show"); document.body.style.overflow=""; }
 $("overlay").addEventListener("click",(e)=>{ if(e.target.id==="overlay") closeSheet(); });
-document.addEventListener("keydown",(e)=>{ if(e.key==="Escape"){ closeSheet(); closeDrawer(); } });
+document.addEventListener("keydown",(e)=>{ if(e.key==="Escape"){ closeSheet(); closeDrawer(); closeSettings(); } });
 
 /* Einkaufsliste */
 function saveShop(){ try{ localStorage.setItem("kk_shop",JSON.stringify(shop)); }catch(e){} updateBadge(); }
@@ -2486,7 +2573,7 @@ function openDrawer(){ renderShop(); $("drawer").classList.add("show"); $("drawe
 function closeDrawer(){ $("drawer").classList.remove("show"); $("drawerOv").classList.remove("show"); }
 $("favBtnTop").onclick=()=>{ activeCat="favs"; renderChips(); render(); document.getElementById("grid").scrollIntoView({behavior:"smooth"}); };
 $("listBtn").onclick=openDrawer; $("closeDrawerBtn").onclick=closeDrawer; $("drawerOv").onclick=closeDrawer;
-$("clearBtn").onclick=()=>{ if(!shop.length) return; if(confirm("Wirklich die ganze Liste leeren?")){ shop=[]; saveShop(); renderShop(); } };
+$("clearShopBtn").onclick=()=>{ if(!shop.length) return; if(confirm("Wirklich die ganze Liste leeren?")){ shop=[]; saveShop(); renderShop(); } };
 $("copyBtn").onclick=async()=>{
   if(!shop.length){ toast("Die Liste ist leer 🧺"); return; }
   const t="🧑‍🍳 Einkaufsliste Leckerküche\n"+shop.map(s=>`${s.done?"[x]":"[ ]"} ${s.text}`).join("\n");
@@ -2507,6 +2594,23 @@ $("randomBtn").onclick=()=>{
   toast("🎲 Es wird: "+r.title+"!"); setTimeout(()=>openRecipe(r.id),450);
 };
 $("logoEl").onclick=()=>window.scrollTo({top:0,behavior:"smooth"});
+
+/* ⚙️ Einstellungen: Seniorenmodus & Animationen */
+function applyPrefs(){
+  let senior=false, anim=true;
+  try{ senior=localStorage.getItem("lk_senior")==="1"; if(localStorage.getItem("lk_anim")==="0") anim=false; }catch(e){}
+  document.body.classList.toggle("senior",senior);
+  document.body.classList.toggle("noanim",!anim);
+  if($("seniorToggle")) $("seniorToggle").checked=senior;
+  if($("animToggle")) $("animToggle").checked=anim;
+}
+function closeSettings(){ if($("setPanel").hidden) return; $("setPanel").classList.remove("show"); $("setOv").classList.remove("show"); setTimeout(()=>{ $("setPanel").hidden=true; },220); }
+$("setBtn").onclick=()=>{ $("setPanel").hidden=false; requestAnimationFrame(()=>$("setPanel").classList.add("show")); $("setOv").classList.add("show"); };
+$("setClose").onclick=closeSettings; $("setOv").onclick=closeSettings;
+$("seniorToggle").onchange=(e)=>{ try{localStorage.setItem("lk_senior",e.target.checked?"1":"0");}catch(_){} applyPrefs(); toast(e.target.checked?"👴 Seniorenmodus an – alles größer und gemütlicher.":"Seniorenmodus aus."); };
+$("animToggle").onchange=(e)=>{ try{localStorage.setItem("lk_anim",e.target.checked?"1":"0");}catch(_){} applyPrefs(); };
+$("heroMore").onclick=()=>{ const h=document.querySelector(".hero"); h.classList.toggle("expanded"); $("heroMore").textContent=h.classList.contains("expanded")?"Weniger anzeigen ↑":"Mehr anzeigen ↓"; };
+applyPrefs();
 
 /* 🌍 Online-Entdecken: tausende zusätzliche Rezepte via TheMealDB (gratis, ohne Key) */
 let onlineCache = [], onlineLoading = false, onlineErr = "", onlineTimer = null;
