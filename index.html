@@ -244,6 +244,13 @@
   }
   @keyframes glow{ from{ box-shadow:0 10px 24px -14px rgba(108,92,231,.6);} to{ box-shadow:0 18px 40px -12px rgba(0,206,201,.7);} }
   .tipbox{ background:#FFF3D6; border:1.5px dashed #D9A441; border-radius:16px; padding:14px 16px; margin-top:12px; font-size:14px; }
+  .zuckerbox{ display:flex; align-items:center; gap:12px; background:#EAF7EF; border:1.5px dashed #4E9B6A; border-radius:16px; padding:12px 16px; margin-bottom:16px; font-size:14px; }
+  .switch{ position:relative; width:54px; height:30px; flex:0 0 54px; }
+  .switch input{ opacity:0; width:100%; height:100%; position:absolute; margin:0; cursor:pointer; z-index:1; }
+  .switch .sl{ position:absolute; inset:0; background:#C9BBA9; border-radius:999px; transition:background .2s; }
+  .switch .sl::after{ content:""; position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:50%; background:#fff; transition:left .2s; box-shadow:0 2px 6px rgba(0,0,0,.3); }
+  .switch input:checked + .sl{ background:var(--leaf); }
+  .switch input:checked + .sl::after{ left:27px; }
   .wide-btn{
     width:100%; margin-top:16px; border:0; border-radius:16px; padding:15px; font-size:15.5px; font-weight:800;
     color:#fff; cursor:pointer; background:linear-gradient(135deg,var(--leaf),#2E7D4F); transition:transform .15s;
@@ -314,14 +321,14 @@
 <main>
   <section class="hero">
     <h1>Was gibt's heute <span class="hl">Leckeres</span>?</h1>
-    <p>216 Rezepte für alles – Kuchen, Muffins, Torten, Plätzchen, Pasta, Pizza, Pfannengerichte, Snacks &amp; Airfryer. Neu: <b>🩵 Diabetes · zuckerarm</b> – Kuchen &amp; Co. mit Xylit statt Zucker, plus alles Herzhaften für Oma. Dazu <b>🌍 Online entdecken</b> mit tausenden weiteren Rezepten aus aller Welt. Tipp einfach eine Zutat wie <b>Zimt</b>, <b>Milchreis</b> oder <b>Bolognese</b> ein. Alle eigenen Angaben in Gramm, Milliliter, EL &amp; TL.</p>
+    <p>263 Rezepte für alles – Kuchen, Muffins, Torten, Plätzchen, Pasta, Pizza, Pfannengerichte, Snacks &amp; Airfryer. Neu: <b>🧱 DDR-Klassiker</b> – von Soljanka bis Schwedeneisbecher – plus <b>🩵 Diabetes · zuckerarm</b> – Kuchen &amp; Co. mit Xylit statt Zucker, plus alles Herzhaften für Oma. Dazu <b>🌍 Online entdecken</b> mit tausenden weiteren Rezepten aus aller Welt. Tipp einfach eine Zutat wie <b>Zimt</b>, <b>Milchreis</b> oder <b>Bolognese</b> ein. Alle eigenen Angaben in Gramm, Milliliter, EL &amp; TL.</p>
     <div class="search-row">
       <div class="search"><span style="font-size:20px">🔍</span><input id="searchInput" placeholder="Zutat, Rezept oder Stichwort … z. B. Zimt, Apfel, Milchreis" autocomplete="off"><button id="searchBtn">Suchen</button></div>
       <button class="dice-btn" id="clearBtn" hidden title="Suche löschen">✕</button>
       <button class="dice-btn" id="randomBtn" title="Zufallsrezept">🎲 Überrasch mich</button>
     </div>
     <div class="quick" id="quickTags"></div>
-    <div class="stat-row"><span class="stat">📖 216 Rezepte</span><span class="stat">🗂️ Backen · Herzhaft · Suppen · 🩵 Diabetes</span><span class="stat">⚡ Schnell · 🍫 Schoko · 🧀 Käse · 🎉 Party</span><span class="stat">🌍 Online-Entdecken inklusive</span></div>
+    <div class="stat-row"><span class="stat">📖 263 Rezepte</span><span class="stat">🗂️ Backen · Herzhaft · Suppen · 🧱 DDR · 🩵 Diabetes</span><span class="stat">⚡ Schnell · 🍫 Schoko · 🧀 Käse · 🎉 Party</span><span class="stat">🌍 Online-Entdecken inklusive</span></div>
   </section>
 
   <div class="chips" id="chips"></div>
@@ -1217,9 +1224,9 @@ const RECIPES = [
 ,
 {id:"brokkolisuppe", title:"Brokkoli-Cremesuppe", cat:"Suppen", emoji:"🥦", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/68/Cream_of_broccoli_soup.jpg/960px-Cream_of_broccoli_soup.jpg", credit:"Alpha · CC BY-SA 2.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3ACream_of_broccoli_soup.jpg",
   time:30, kcal:210, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["diabetes", "suppe","brokkoli","cremig","vegetarisch","schnell","gesund"],
-  desc:"Leuchtend grün, in 30 Minuten fertig – mit Mandelblättchen als Knusper-Topping.",
-  zutaten:[{m:600,e:"g",z:"Brokkoli"},{m:1,e:"Stück",z:"Zwiebel + 1 Kartoffel"},{m:800,e:"ml",z:"Gemüsebrühe"},{m:150,e:"ml",z:"Sahne"},{m:2,e:"EL",z:"Mandelblättchen"},{m:1,e:"Prise",z:"Muskat + Salz"}],
-  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place) – und das Rezept einmal komplett durchlesen, damit dich kein Schritt überrascht.","Brokkoli in Röschen teilen, Strunk würfeln. Zwiebel und Kartoffel grob würfeln.","Alles in Brühe 12–15 Min. garen, bis der Brokkoli weich, aber noch grün ist. Mit Flüssigkeit ablöschen und den Bratensatz mit einem Holzlöffel vom Boden lösen – genau darin steckt das Aroma.","Mandelblättchen in einer trockenen Pfanne goldbraun rösten. Bei mittlerer Hitze und unter ständigem Rühren bzw. Schütteln rösten – Nüsse, Kerne und Brösel verbrennen in Sekunden von goldbraun zu bitter.","Suppe pürieren (ggf. durch ein Sieb streichen), Sahne unterrühren und mit Salz und Muskat abschmecken. Mit Mandeln servieren. In 2–3 Portionen mit einem Teigschaber locker von unten nach oben unterheben, damit möglichst viel Luft im Teig bleibt. Zum Servieren auf vorgewärmte Teller bzw. in vorgewärmte Schüsseln anrichten – so bleibt das Essen länger heiß.","Vor dem Servieren noch einmal mit Salz, Pfeffer (und je nach Gericht einem Spritzer Zitrone oder Essig) abschmecken. Reste abkühlen lassen und im Kühlschrank 2–3 Tage aufbewahren – Suppen und Eintöpfe lassen sich auch prima einfrieren."],
+  desc:"Leuchtend grün, in 30 Minuten fertig – mit gerösteten Kürbiskernen als Knusper-Topping.",
+  zutaten:[{m:600,e:"g",z:"Brokkoli"},{m:1,e:"Stück",z:"Zwiebel + 1 Kartoffel"},{m:800,e:"ml",z:"Gemüsebrühe"},{m:150,e:"ml",z:"Sahne"},{m:2,e:"EL",z:"Kürbiskerne"},{m:1,e:"Prise",z:"Muskat + Salz"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place) – und das Rezept einmal komplett durchlesen, damit dich kein Schritt überrascht.","Brokkoli in Röschen teilen, Strunk würfeln. Zwiebel und Kartoffel grob würfeln.","Alles in Brühe 12–15 Min. garen, bis der Brokkoli weich, aber noch grün ist. Mit Flüssigkeit ablöschen und den Bratensatz mit einem Holzlöffel vom Boden lösen – genau darin steckt das Aroma.","Kürbiskerne in einer trockenen Pfanne goldbraun rösten. Bei mittlerer Hitze und unter ständigem Rühren bzw. Schütteln rösten – Nüsse, Kerne und Brösel verbrennen in Sekunden von goldbraun zu bitter.","Suppe pürieren (ggf. durch ein Sieb streichen), Sahne unterrühren und mit Salz und Muskat abschmecken. Mit Kürbiskernen servieren. In 2–3 Portionen mit einem Teigschaber locker von unten nach oben unterheben, damit möglichst viel Luft im Teig bleibt. Zum Servieren auf vorgewärmte Teller bzw. in vorgewärmte Schüsseln anrichten – so bleibt das Essen länger heiß.","Vor dem Servieren noch einmal mit Salz, Pfeffer (und je nach Gericht einem Spritzer Zitrone oder Essig) abschmecken. Reste abkühlen lassen und im Kühlschrank 2–3 Tage aufbewahren – Suppen und Eintöpfe lassen sich auch prima einfrieren."],
   tipp:"Nicht zu lange kochen – sonst wird die Suppe oliv statt leuchtend grün."}
 ,
 {id:"spargelsuppe", title:"Spargelcremesuppe", cat:"Suppen", emoji:"🌱", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7c/Spargel-Suppe_%28asparagus_soup%29.jpg/960px-Spargel-Suppe_%28asparagus_soup%29.jpg", credit:"M. & B. Aulbach · CC BY-SA 3.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3ASpargel-Suppe_(asparagus_soup).jpg",
@@ -1811,17 +1818,17 @@ const RECIPES = [
   tipp:"Säuerliche Äpfel (Elstar, Boskop) geben das meiste Aroma – dann fällt die geringe Süße kaum auf."}
 ,
 {id:"karottenkuchen-dia", title:"Karottenkuchen mit Frischkäse (zuckerarm)", cat:"Kuchen", emoji:"🥕", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7b/0112_Karottenkuchen%2C_ciasto_marchwiowe.JPG/960px-0112_Karottenkuchen%2C_ciasto_marchwiowe.JPG", credit:"Silar · CC BY-SA 3.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3A0112_Karottenkuchen%2C_ciasto_marchwiowe.JPG",
-  time:70, kcal:240, diff:"Einfach", portion:12, portionUnit:"Stücke", tags:["diabetes","zuckerarm","karotte","nuss"],
-  desc:"Möhren und Nüsse machen ihn von Natur aus saftig – dazu mildes Xylit-Frosting aus Frischkäse.",
-  zutaten:[{m:300,e:"g",z:"Möhren (fein gerieben)"},{m:200,e:"g",z:"gemahlene Haselnüsse"},{m:4,e:"Stück",z:"Eier"},{m:80,e:"g",z:"Xylit (Birkenzucker)"},{m:80,e:"g",z:"Weizenmehl"},{m:1,e:"Päckchen",z:"Backpulver"},{m:2,e:"TL",z:"Zimt"},{m:1,e:"Stück",z:"Zitrone (Abrieb)"},{m:200,e:"g",z:"Frischkäse (natur)"},{m:1,e:"EL",z:"Xylit (fein gemahlen)"},{m:1,e:"EL",z:"Zitronensaft"}],
-  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Springform (24 cm) fetten und mit Mehl ausstäuben. Ofen auf 180 °C Ober-/Unterhitze vorheizen – mittlere Schiene.","Eier mit Xylit 3–4 Min. hell und dicklich aufschlagen. Zitronenabrieb unterrühren. Mindestens 2–3 Minuten schlagen – diese Luft trägt den Kuchen.","Mehl, Backpulver und Zimt darübersieben und kurz unterheben. Dann Möhrenraspel und Haselnüsse locker unterziehen – in 2–3 Portionen mit dem Teigschaber von unten nach oben.","Teig in die Form füllen und 40–45 Min. backen (Stäbchenprobe). 15 Min. in der Form abkühlen lassen, dann stürzen und vollständig auskühlen lassen – erst auf dem kalten Kuchen hält das Frosting.","Frischkäse mit gemahlenem Xylit und Zitronensaft glatt rühren, auf dem kalten Kuchen verstreichen.","Bis zum Servieren kalt stellen (Frischhaltefolie direkt auf die Oberfläche). Mit Möhrengrün oder gehackten Nüssen verzieren."],
-  tipp:"Xylit im Blitzhacker 20 Sek. mahlen – so wird das Frosting so glatt wie mit Puderzucker."}
+  time:70, kcal:240, diff:"Einfach", portion:12, portionUnit:"Stücke", tags:["diabetes","zuckerarm","nussfrei","karotte","hafer"],
+  desc:"Möhren und Haferflocken machen ihn von Natur aus saftig – dazu mildes Xylit-Frosting aus Frischkäse.",
+  zutaten:[{m:300,e:"g",z:"Möhren (fein gerieben)"},{m:200,e:"g",z:"gemahlene Haferflocken (Hafermehl)"},{m:4,e:"Stück",z:"Eier"},{m:80,e:"g",z:"Xylit (Birkenzucker)"},{m:80,e:"g",z:"Weizenmehl"},{m:50,e:"ml",z:"Milch"},{m:1,e:"Päckchen",z:"Backpulver"},{m:2,e:"TL",z:"Zimt"},{m:1,e:"Stück",z:"Zitrone (Abrieb)"},{m:200,e:"g",z:"Frischkäse (natur)"},{m:1,e:"EL",z:"Xylit (fein gemahlen)"},{m:1,e:"EL",z:"Zitronensaft"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Springform (24 cm) fetten und mit Mehl ausstäuben. Ofen auf 180 °C Ober-/Unterhitze vorheizen – mittlere Schiene.","Eier mit Xylit 3–4 Min. hell und dicklich aufschlagen. Zitronenabrieb und Milch unterrühren. Mindestens 2–3 Minuten schlagen – diese Luft trägt den Kuchen.","Mehl, Hafermehl, Backpulver und Zimt mischen, kurz unterheben. Dann Möhrenraspel locker unterziehen – in 2–3 Portionen mit dem Teigschaber von unten nach oben.","Teig in die Form füllen und 40–45 Min. backen (Stäbchenprobe). 15 Min. in der Form abkühlen lassen, dann stürzen und vollständig auskühlen lassen – erst auf dem kalten Kuchen hält das Frosting.","Frischkäse mit gemahlenem Xylit und Zitronensaft glatt rühren, auf dem kalten Kuchen verstreichen.","Bis zum Servieren kalt stellen (Frischhaltefolie direkt auf die Oberfläche). Mit Möhrengrün oder Kokosraspeln verzieren."],
+  tipp:"Xylit im Blitzhacker 20 Sek. mahlen – so wird das Frosting so glatt wie mit Puderzucker. Hafermehl gibt es fertig zu kaufen oder einfach aus zarten Haferflocken selbst mahlen."}
 ,
-{id:"schoko-nuss-kuchen-dia", title:"Schoko-Nuss-Kuchen mit Xylit (zuckerarm)", cat:"Kuchen", emoji:"🍫", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e6/Flourless_Chocolate_Cake_with_Bourbon_Vanilla_Ice_Cream.jpg/960px-Flourless_Chocolate_Cake_with_Bourbon_Vanilla_Ice_Cream.jpg", credit:"Tammy Green · CC BY-SA 2.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AFlourless_Chocolate_Cake_with_Bourbon_Vanilla_Ice_Cream.jpg",
-  time:60, kcal:280, diff:"Einfach", portion:12, portionUnit:"Stücke", tags:["diabetes","zuckerarm","schoko","nuss"],
-  desc:"Der Beweis, dass Schoko auch zuckerarm geht: 85 % Kakao, gemahlene Mandeln statt viel Mehl, Xylit statt Zucker.",
-  zutaten:[{m:100,e:"g",z:"Zartbitterschokolade (85 % Kakao)"},{m:150,e:"g",z:"weiche Butter"},{m:4,e:"Stück",z:"Eier"},{m:80,e:"g",z:"Xylit (Birkenzucker)"},{m:200,e:"g",z:"gemahlene Mandeln"},{m:30,e:"g",z:"Backkakao"},{m:1,e:"TL",z:"Backpulver"},{m:1,e:"Prise",z:"Salz"}],
-  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Springform (24 cm) fetten und mit Backkakao ausstäuben. Ofen auf 175 °C Ober-/Unterhitze vorheizen.","Schokolade mit der Butter über dem Wasserbad schmelzen und leicht abkühlen lassen – sie darf nur noch lauwarm sein, sonst gerinnt das Ei.","Eier mit Xylit und Salz 3–4 Min. hell und dicklich aufschlagen, Schokomasse langsam unterrühren.","Mandeln, Kakao und Backpulver mischen, kurz unterheben – nur bis alles feucht ist, nicht länger rühren.","Teig in die Form füllen, 30–35 Min. backen: Die Oberfläche soll fest sein, innen darf er noch leicht feucht wirken (Stäbchenprobe mit feuchten Krümeln ist hier richtig).","In der Form vollständig auskühlen lassen – warm bricht er leicht. Mit Beeren servieren: Die Säure gleicht die herbe Schokolade wunderbar aus."],
+{id:"schoko-nuss-kuchen-dia", title:"Schoko-Hafer-Kuchen mit Xylit (zuckerarm)", cat:"Kuchen", emoji:"🍫", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e6/Flourless_Chocolate_Cake_with_Bourbon_Vanilla_Ice_Cream.jpg/960px-Flourless_Chocolate_Cake_with_Bourbon_Vanilla_Ice_Cream.jpg", credit:"Tammy Green · CC BY-SA 2.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AFlourless_Chocolate_Cake_with_Bourbon_Vanilla_Ice_Cream.jpg",
+  time:60, kcal:270, diff:"Einfach", portion:12, portionUnit:"Stücke", tags:["diabetes","zuckerarm","nussfrei","schoko","hafer"],
+  desc:"Der Beweis, dass Schoko auch zuckerarm geht: 85 % Kakao, Hafermehl statt viel Weizenmehl, Xylit statt Zucker.",
+  zutaten:[{m:100,e:"g",z:"Zartbitterschokolade (85 % Kakao)"},{m:150,e:"g",z:"weiche Butter"},{m:4,e:"Stück",z:"Eier"},{m:80,e:"g",z:"Xylit (Birkenzucker)"},{m:200,e:"g",z:"gemahlene Haferflocken (Hafermehl)"},{m:50,e:"ml",z:"Milch"},{m:30,e:"g",z:"Backkakao"},{m:1,e:"TL",z:"Backpulver"},{m:1,e:"Prise",z:"Salz"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Springform (24 cm) fetten und mit Backkakao ausstäuben. Ofen auf 175 °C Ober-/Unterhitze vorheizen.","Schokolade mit der Butter über dem Wasserbad schmelzen und leicht abkühlen lassen – sie darf nur noch lauwarm sein, sonst gerinnt das Ei.","Eier mit Xylit und Salz 3–4 Min. hell und dicklich aufschlagen, Milch und Schokomasse langsam unterrühren.","Hafermehl, Kakao und Backpulver mischen, kurz unterheben – nur bis alles feucht ist, nicht länger rühren.","Teig in die Form füllen, 30–35 Min. backen: Die Oberfläche soll fest sein, innen darf er noch leicht feucht wirken (Stäbchenprobe mit feuchten Krümeln ist hier richtig).","In der Form vollständig auskühlen lassen – warm bricht er leicht. Mit Beeren servieren: Die Säure gleicht die herbe Schokolade wunderbar aus."],
   tipp:"Je höher der Kakaoanteil, desto weniger Zucker steckt drin – 85 % schmeckt hier dank Xylit trotzdem rund."}
 ,
 {id:"mandarinen-kaesekuchen-dia", title:"Mandarinen-Käsekuchen ohne Boden (zuckerarm)", cat:"Torten", emoji:"🍊", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/K%C3%A4sekuchen_mit_Mandarinen_ohne_Boden_2013.JPG/960px-K%C3%A4sekuchen_mit_Mandarinen_ohne_Boden_2013.JPG", credit:"4028mdk09 · CC BY-SA 3.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AK%C3%A4sekuchen_mit_Mandarinen_ohne_Boden_2013.JPG",
@@ -1838,19 +1845,19 @@ const RECIPES = [
   steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Springform (24 cm) mit Backpapier auslegen. Erdbeeren waschen, putzen und trocken tupfen.","Butter schmelzen, mit Haferflocken, 1 EL Xylit und Zimt vermischen. Als Boden fest in die Form drücken (mit einem Glasboden andrücken) und 30 Min. kalt stellen.","Gelatine 5 Min. in kaltem Wasser einweichen. Quark, Frischkäse und gemahlenes Xylit glatt rühren.","Gelatine ausdrücken, bei milder Hitze auflösen (nicht kochen!), erst mit 3 EL der Quarkmasse angleichen, dann unter die restliche Masse rühren – so gibt es keine Klümpchen.","Masse auf den Boden streichen und mindestens 4 Stunden (am besten über Nacht) kalt stellen, bis sie schnittfest ist.","Erst kurz vor dem Servieren mit Erdbeeren belegen – halbiert oder in Scheiben. So bleibt alles frisch und die Beeren verwässern nichts."],
   tipp:"Agar-Agar als Alternative: nach Packung kochen und heiß unterrühren – Gelatine darf dagegen nie kochen."}
 ,
-{id:"hafer-nuss-plaetzchen-dia", title:"Hafer-Nuss-Plätzchen (zuckerarm)", cat:"Plätzchen", emoji:"🌾", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/0/09/Oatmeal_Cookies_with_orange_zest%2C_golden_raisins%2C_and_chocolate_chips.jpg/960px-Oatmeal_Cookies_with_orange_zest%2C_golden_raisins%2C_and_chocolate_chips.jpg", credit:"P. Martin · CC BY 2.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AOatmeal_Cookies_with_orange_zest%2C_golden_raisins%2C_and_chocolate_chips.jpg",
-  time:40, kcal:90, diff:"Einfach", portion:30, portionUnit:"Stück", tags:["diabetes","zuckerarm","hafer","nuss","weihnachten"],
-  desc:"Knusprige Haferplätzchen mit Haselnuss – mit Xylit und Zimt statt einer Tasse Zucker.",
-  zutaten:[{m:200,e:"g",z:"zarte Haferflocken"},{m:100,e:"g",z:"gemahlene Haselnüsse"},{m:60,e:"g",z:"Xylit (Birkenzucker)"},{m:100,e:"g",z:"weiche Butter"},{m:1,e:"Stück",z:"Ei"},{m:1,e:"TL",z:"Zimt"},{m:1,e:"TL",z:"Backpulver"},{m:1,e:"Prise",z:"Salz"}],
-  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Backblech mit Backpapier auslegen. Ofen auf 180 °C Ober-/Unterhitze vorheizen – mittlere Schiene.","Butter und Xylit cremig rühren, das Ei unterrühren. Haferflocken, Nüsse, Zimt, Backpulver und Salz mischen und kurz unterkneten.","Mit zwei Teelöffeln walnussgroße Häufchen aufs Blech setzen und flach drücken – sie laufen noch etwas auseinander, also Abstand lassen.","12–14 Min. goldbraun backen. Sie sind heiß noch weich und werden erst beim Abkühlen knusprig – also nicht zu lange drin lassen.","Auf dem Blech 5 Min. ruhen lassen, dann auf ein Kuchengitter heben und vollständig auskühlen lassen.","Luftdicht in der Keksdose halten sie 2–3 Wochen – falls sie so lange überleben."],
+{id:"hafer-nuss-plaetzchen-dia", title:"Hafer-Kokos-Plätzchen (zuckerarm)", cat:"Plätzchen", emoji:"🌾", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/0/09/Oatmeal_Cookies_with_orange_zest%2C_golden_raisins%2C_and_chocolate_chips.jpg/960px-Oatmeal_Cookies_with_orange_zest%2C_golden_raisins%2C_and_chocolate_chips.jpg", credit:"P. Martin · CC BY 2.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AOatmeal_Cookies_with_orange_zest%2C_golden_raisins%2C_and_chocolate_chips.jpg",
+  time:40, kcal:90, diff:"Einfach", portion:30, portionUnit:"Stück", tags:["diabetes","zuckerarm","nussfrei","hafer","kokos","weihnachten"],
+  desc:"Knusprige Haferplätzchen mit Kokos – mit Xylit und Zimt statt einer Tasse Zucker, ganz ohne Nüsse.",
+  zutaten:[{m:200,e:"g",z:"zarte Haferflocken"},{m:100,e:"g",z:"Kokosraspel"},{m:60,e:"g",z:"Xylit (Birkenzucker)"},{m:100,e:"g",z:"weiche Butter"},{m:1,e:"Stück",z:"Ei"},{m:1,e:"TL",z:"Zimt"},{m:1,e:"TL",z:"Backpulver"},{m:1,e:"Prise",z:"Salz"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Backblech mit Backpapier auslegen. Ofen auf 180 °C Ober-/Unterhitze vorheizen – mittlere Schiene.","Butter und Xylit cremig rühren, das Ei unterrühren. Haferflocken, Kokosraspel, Zimt, Backpulver und Salz mischen und kurz unterkneten.","Mit zwei Teelöffeln kleine Häufchen aufs Blech setzen und flach drücken – sie laufen noch etwas auseinander, also Abstand lassen.","12–14 Min. goldbraun backen. Sie sind heiß noch weich und werden erst beim Abkühlen knusprig – also nicht zu lange drin lassen.","Auf dem Blech 5 Min. ruhen lassen, dann auf ein Kuchengitter heben und vollständig auskühlen lassen.","Luftdicht in der Keksdose halten sie 2–3 Wochen – falls sie so lange überleben."],
   tipp:"Wer mag, rührt 50 g gehackte dunkle Schokolade (85 %) unter – bleibt trotzdem deutlich zuckerärmer als normale Kekse."}
 ,
 {id:"vanillekipferl-xylit-dia", title:"Vanillekipferl mit Xylit (zuckerarm)", cat:"Plätzchen", emoji:"🌙", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/Vanillekipferl-Nahaufnahme.jpg/960px-Vanillekipferl-Nahaufnahme.jpg", credit:"Wikimedia Commons · CC-Lizenz", creditUrl:"https://commons.wikimedia.org/wiki/File:Vanillekipferl-Nahaufnahme.jpg",
-  time:60, kcal:80, diff:"Mittel", portion:40, portionUnit:"Stück", tags:["diabetes","zuckerarm","vanille","weihnachten","klassiker"],
-  desc:"Omas Weihnachtsliebling in zuckerarm: mürber Mandelteig, echte Vanille – gewälzt in gemahlenem Xylit.",
-  zutaten:[{m:200,e:"g",z:"Weizenmehl"},{m:100,e:"g",z:"gemahlene Mandeln"},{m:150,e:"g",z:"kalte Butter (gewürfelt)"},{m:60,e:"g",z:"Xylit (fein gemahlen)"},{m:1,e:"Stück",z:"Vanilleschote (Mark)"},{m:1,e:"Prise",z:"Salz"},{m:3,e:"EL",z:"Xylit (fein gemahlen, zum Wälzen)"},{m:1,e:"TL",z:"Vanilleextrakt (für die Wälzmischung)"}],
-  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Xylit im Blitzhacker 20 Sek. zu Puder mahlen – grobes Xylit knirscht im Teig.","Mehl, Mandeln, Butterwürfel, 60 g gemahlenes Xylit, Vanillemark und Salz zügig zu einem glatten Teig verkneten. Zu langes Kneten macht Mürbeteig hart – aufhören, sobald alles zusammenhält.","Teig zur Kugel formen, flach drücken und 1 Stunde kalt stellen. Kalter Teig lässt sich formen, warmer klebt.","Ofen auf 175 °C Ober-/Unterhitze vorheizen, Blech mit Backpapier auslegen. Aus haselnussgroßen Stücken kleine Hörnchen rollen und zu Kipferln biegen.","12–15 Min. backen, bis die Enden leicht gold sind – sie sollen hell bleiben, nicht braun werden.","Noch warm (nicht heiß!) vorsichtig in der Xylit-Vanille-Mischung wälzen. Xylit schmilzt anders als Puderzucker: nur leicht andrücken, nicht drücken. Vollständig auskühlen lassen."],
-  tipp:"Xylit karamellisiert nicht – deshalb lieber hell backen und auf die Vanille als Aromaträger setzen."}
+  time:60, kcal:80, diff:"Mittel", portion:40, portionUnit:"Stück", tags:["diabetes","zuckerarm","nussfrei","vanille","weihnachten","klassiker"],
+  desc:"Omas Weihnachtsliebling in zuckerarm und nussfrei: mürber Haferteig, echte Vanille – gewälzt in gemahlenem Xylit.",
+  zutaten:[{m:200,e:"g",z:"Weizenmehl"},{m:100,e:"g",z:"Hafermehl (gemahlene Haferflocken)"},{m:150,e:"g",z:"kalte Butter (gewürfelt)"},{m:60,e:"g",z:"Xylit (fein gemahlen)"},{m:1,e:"Stück",z:"Vanilleschote (Mark)"},{m:1,e:"Prise",z:"Salz"},{m:3,e:"EL",z:"Xylit (fein gemahlen, zum Wälzen)"},{m:1,e:"TL",z:"Vanilleextrakt (für die Wälzmischung)"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Xylit im Blitzhacker 20 Sek. zu Puder mahlen – grobes Xylit knirscht im Teig.","Mehl, Hafermehl, Butterwürfel, 60 g gemahlenes Xylit, Vanillemark und Salz zügig zu einem glatten Teig verkneten. Zu langes Kneten macht Mürbeteig hart – aufhören, sobald alles zusammenhält.","Teig zur Kugel formen, flach drücken und 1 Stunde kalt stellen. Kalter Teig lässt sich formen, warmer klebt.","Ofen auf 175 °C Ober-/Unterhitze vorheizen, Blech mit Backpapier auslegen. Aus kleinen Stücken kleine Hörnchen rollen und zu Kipferln biegen.","12–15 Min. backen, bis die Enden leicht gold sind – sie sollen hell bleiben, nicht braun werden.","Noch warm (nicht heiß!) vorsichtig in der Xylit-Vanille-Mischung wälzen. Xylit schmilzt anders als Puderzucker: nur leicht andrücken, nicht drücken. Vollständig auskühlen lassen."],
+  tipp:"Xylit karamellisiert nicht – deshalb lieber hell backen und auf die Vanille als Aromaträger setzen. Mit Hafermehl werden sie etwas rustikaler als mit Mandeln – dafür sind sie komplett nussfrei."}
 ,
 {id:"gemuesesticks-quarkdip-dia", title:"Gemüsesticks mit Kräuterquark (zuckerfrei)", cat:"Snacks", emoji:"🥕", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/Tzatziki_IMGP1444.jpg/960px-Tzatziki_IMGP1444.jpg", credit:"N. Nijaki · CC BY-SA 3.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3ATzatziki_IMGP1444.jpg",
   time:15, kcal:90, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["diabetes","zuckerarm","herzhaft","schnell","dip","party"],
@@ -1858,11 +1865,346 @@ const RECIPES = [
   zutaten:[{m:500,e:"g",z:"Quark (20 % Fett)"},{m:100,e:"g",z:"Naturjoghurt"},{m:1,e:"Bund",z:"Schnittlauch + Petersilie"},{m:1,e:"Zehe",z:"Knoblauch"},{m:1,e:"TL",z:"Salz"},{m:0.5,e:"TL",z:"Pfeffer"},{m:1,e:"Spritzer",z:"Zitronensaft"},{m:2,e:"Stück",z:"Möhren"},{m:1,e:"Stück",z:"Gurke"},{m:2,e:"Stück",z:"Paprika"},{m:1,e:"Stück",z:"Kohlrabi"}],
   steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Kräuter waschen und trocken schütteln, Gemüse waschen.","Quark und Joghurt glatt rühren. Kräuter fein schneiden, Knoblauch pressen und alles unterrühren. Mit Salz, Pfeffer und Zitronensaft abschmecken.","Dip mindestens 15 Min. kalt stellen – so verbinden sich die Aromen. Abgedeckt kalt stellen (Frischhaltefolie direkt auf die Oberfläche legen), damit sich keine Haut bildet.","Inzwischen das Gemüse in gleichmäßige Stifte schneiden – so lässt es sich am besten dippen.","Dip in eine Schüssel füllen, Gemüsesticks darum anrichten und sofort servieren.","Reste abgedeckt im Kühlschrank aufbewahren und innerhalb von 2 Tagen aufbrauchen – frisch schmeckt es am besten."],
   tipp:"Auch toll als Brotaufstrich oder zu Pellkartoffeln – der Dip hält sich 2 Tage im Kühlschrank."}
+,
+{id:"heidelbeer-quark-muffins-dia", title:"Blaubeer-Quark-Muffins (zuckerarm)", cat:"Muffins", emoji:"🫐", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9c/Sugar_Free_Vegan_Blueberry_Corn_Muffins_%285347154968%29.jpg/960px-Sugar_Free_Vegan_Blueberry_Corn_Muffins_%285347154968%29.jpg", credit:"Veganbaking.net · CC BY-SA 2.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3ASugar_Free_Vegan_Blueberry_Corn_Muffins_(5347154968).jpg",
+  time:35, kcal:150, diff:"Einfach", portion:12, portionUnit:"Muffins", tags:["diabetes","zuckerarm","nussfrei","heidelbeere","quark","frühstück"],
+  desc:"Ohne Mehl und ohne Nüsse, mit Hafer, Quark und Xylit – nur ca. 150 kcal pro Stück und herrlich saftig.",
+  zutaten:[{m:250,e:"g",z:"Quark (20 % Fett)"},{m:3,e:"Stück",z:"Eier"},{m:60,e:"g",z:"Xylit (Birkenzucker)"},{m:150,e:"g",z:"gemahlene Haferflocken (Hafermehl)"},{m:3,e:"EL",z:"Milch"},{m:50,e:"g",z:"Kokosmehl"},{m:2,e:"TL",z:"Backpulver"},{m:1,e:"TL",z:"Vanilleextrakt"},{m:1,e:"Stück",z:"Zitrone (Abrieb)"},{m:150,e:"g",z:"Heidelbeeren (frisch oder TK)"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). TK-Beeren unaufgetaut lassen – so bluten sie weniger aus. Muffinblech mit 12 Förmchen auslegen.","Ofen auf 175 °C Ober-/Unterhitze vorheizen. Plane etwa 10 Minuten Vorheizzeit ein – das Blech kommt auf die mittlere Schiene.","Quark, Eier, Xylit, Milch und Vanilleextrakt glatt verrühren. Zitronenabrieb dazugeben.","Hafermehl, Kokosmehl und Backpulver mischen, kurz unterrühren. Kokosmehl quillt stark – den Teig 5 Min. ruhen lassen, dann erst die Beeren vorsichtig unterheben.","Auf 12 Förmchen verteilen (ca. ¾ voll), 20–23 Min. backen. Sie bleiben heller als normale Muffins – verlass dich auf die Stäbchenprobe, nicht auf die Farbe.","Auf einem Kuchengitter vollständig auskühlen lassen. Luftdicht halten sie 2–3 Tage – mit etwas Quark dazu sind sie ein komplettes zuckerarmes Frühstück."],
+  tipp:"Kokosmehl saugt viel Flüssigkeit – bitte nicht durch Mehl ersetzen, sonst wird der Teig zu fest."}
+,
+{id:"schoko-quark-muffins-dia", title:"Schoko-Quark-Muffins mit Xylit", cat:"Muffins", emoji:"🍫", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/Making_chocolate_muffins_no_butter_no_oil.jpg/960px-Making_chocolate_muffins_no_butter_no_oil.jpg", credit:"Roozitaa · CC BY-SA 4.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AMaking_chocolate_muffins_no_butter_no_oil.jpg",
+  time:35, kcal:170, diff:"Einfach", portion:12, portionUnit:"Muffins", tags:["diabetes","zuckerarm","nussfrei","schoko","quark"],
+  desc:"Ohne Butter und Öl, dafür mit Quark und 85 % Schokolade – schokoladig, saftig, nur 60 g Xylit.",
+  zutaten:[{m:250,e:"g",z:"Quark (20 % Fett)"},{m:3,e:"Stück",z:"Eier"},{m:60,e:"g",z:"Xylit (Birkenzucker)"},{m:100,e:"g",z:"gemahlene Haferflocken (Hafermehl)"},{m:2,e:"EL",z:"Milch"},{m:50,e:"g",z:"Backkakao"},{m:1,e:"TL",z:"Backpulver"},{m:1,e:"Prise",z:"Salz"},{m:50,e:"g",z:"Zartbitterschokolade (85 %), gehackt"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Muffinblech mit 12 Förmchen auslegen, Schokolade grob hacken.","Ofen auf 175 °C Ober-/Unterhitze vorheizen – mittlere Schiene, etwa 10 Minuten Vorheizzeit.","Quark, Eier, Milch und Xylit glatt verrühren. Keine Sorge, Xylit löst sich beim Backen vollständig auf.","Hafermehl, Kakao, Backpulver und Salz darübersieben und kurz unterrühren – nur bis alles feucht ist. Gehackte Schokolade unterheben.","Auf 12 Förmchen verteilen, 18–20 Min. backen. Sie dürfen innen noch leicht feucht wirken (Stäbchenprobe mit ein paar feuchten Krümeln ist hier richtig).","Kurz in der Form ruhen lassen, dann auf ein Kuchengitter heben. Warm schmecken sie fast wie kleine Lava-Küchlein."],
+  tipp:"Kakao und Xylit immer sieben – beide klumpen gern, und Klümpchen schmeckt man später."}
+,
+{id:"zitronen-quarkkuchen-dia", title:"Zitronen-Quarkkuchen ohne Boden (zuckerarm)", cat:"Kuchen", emoji:"🍋", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/35/Lemon_polenta_cake%2C_glazed%2C_with_freeze-dried_raspberry_garnish.jpg/960px-Lemon_polenta_cake%2C_glazed%2C_with_freeze-dried_raspberry_garnish.jpg", credit:"Ilikefood · CC BY-SA 4.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3ALemon_polenta_cake%2C_glazed%2C_with_freeze-dried_raspberry_garnish.jpg",
+  time:70, kcal:180, diff:"Einfach", portion:12, portionUnit:"Stücke", tags:["diabetes","zuckerarm","nussfrei","zitrone","quark","klassiker"],
+  desc:"Bodenlos und federleicht: Quark, Polenta und Hafermehl statt Mehlberg – mit viel Zitrone und nur 80 g Xylit.",
+  zutaten:[{m:750,e:"g",z:"Quark (20 % Fett)"},{m:4,e:"Stück",z:"Eier"},{m:80,e:"g",z:"Xylit (Birkenzucker)"},{m:80,e:"g",z:"Polenta (Maisgrieß, fein)"},{m:100,e:"g",z:"Hafermehl (gemahlene Haferflocken)"},{m:1,e:"Päckchen",z:"Vanillepuddingpulver"},{m:2,e:"Stück",z:"Bio-Zitronen (Saft + Abrieb)"},{m:1,e:"Prise",z:"Salz"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Springform (24 cm) fetten und mit etwas Polenta ausstreuen. Ofen auf 170 °C Ober-/Unterhitze vorheizen.","Eier trennen. Eigelb mit Xylit und Zitronenabrieb 3–4 Min. hell aufschlagen.","Quark, Zitronensaft, Polenta, Hafermehl und Puddingpulver unterrühren – glatt, aber nicht schaumig schlagen.","Eiweiß mit Salz steif schlagen und in 2–3 Portionen locker unterheben – das macht den Kuchen fluffig statt speckig.","In die Form füllen und 55–65 Min. backen: Der Rand steht, die Mitte darf noch leicht wackeln – sie wird beim Abkühlen fest. Ofen ausschalten und den Kuchen bei einen Spalt offener Tür 30 Min. darin lassen, damit er nicht einsinkt.","Vollständig auskühlen lassen, dann mindestens 2 Stunden kalt stellen. Mit Beeren servieren – die Säure der Zitrone trägt die milde Süße."],
+  tipp:"Polenta vorher probieren: Feine Instant-Polenta wird samtig, grobe bleibt körnig – für Kuchen immer die feine nehmen."}
+,
+{id:"mandel-beeren-kuchen-dia", title:"Beeren-Joghurt-Kuchen (zuckerarm)", cat:"Kuchen", emoji:"🫐", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/Almond%2C_Lemon_%26_Blueberry_Cake_-_Garden_Caf%C3%A9_Brighton_2025-05-01.jpg/960px-Almond%2C_Lemon_%26_Blueberry_Cake_-_Garden_Caf%C3%A9_Brighton_2025-05-01.jpg", credit:"Andy Li · CC0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AAlmond%2C_Lemon_%26_Blueberry_Cake_-_Garden_Caf%C3%A9_Brighton_2025-05-01.jpg",
+  time:65, kcal:200, diff:"Einfach", portion:12, portionUnit:"Stücke", tags:["diabetes","zuckerarm","nussfrei","joghurt","beeren","sommer"],
+  desc:"Fast nur Hafer, Joghurt, Eier und Beeren – saftig, mild und komplett nussfrei, mit 70 g Xylit.",
+  zutaten:[{m:200,e:"g",z:"gemahlene Haferflocken (Hafermehl)"},{m:4,e:"Stück",z:"Eier"},{m:70,e:"g",z:"Xylit (Birkenzucker)"},{m:200,e:"g",z:"Naturjoghurt"},{m:2,e:"TL",z:"Backpulver"},{m:1,e:"Stück",z:"Zitrone (Abrieb)"},{m:1,e:"TL",z:"Vanilleextrakt"},{m:250,e:"g",z:"Beerenmix (frisch oder TK)"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Springform (24 cm) fetten und mit Haferflocken ausstreuen. Ofen auf 175 °C Ober-/Unterhitze vorheizen.","Eier mit Xylit 3–4 Min. hell und dicklich aufschlagen. Joghurt, Zitronenabrieb und Vanille unterrühren.","Hafermehl und Backpulver mischen, kurz unterheben – nicht länger rühren als nötig.","Teig in die Form streichen, Beeren (TK unaufgetaut) gleichmäßig darauf verteilen und leicht eindrücken.","40–45 Min. backen (Stäbchenprobe). Den Ofen in den ersten zwei Dritteln geschlossen halten.","In der Form abkühlen lassen, dann auf ein Kuchengitter heben. Schmeckt lauwarm am besten – mit einem Klecks Joghurt."],
+  tipp:"TK-Beeren vorher in 1 EL Haferflocken wälzen – so sinken sie nicht ab und saften weniger."}
+,
+{id:"kokos-quarkkuchen-dia", title:"Kokos-Quarkkuchen (zuckerarm)", cat:"Kuchen", emoji:"🥥", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/91/Healthy_Coconut_Cake_-_49859570546.jpg/960px-Healthy_Coconut_Cake_-_49859570546.jpg", credit:"FitTasteTic · CC BY-SA 2.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AHealthy_Coconut_Cake_-_49859570546.jpg",
+  time:70, kcal:200, diff:"Einfach", portion:12, portionUnit:"Stücke", tags:["diabetes","zuckerarm","lowcarb","kokos","quark","exotisch"],
+  desc:"Kokosraspeln, Limette und Quark – schmeckt nach Urlaub und kommt mit 70 g Xylit aus.",
+  zutaten:[{m:750,e:"g",z:"Quark (20 % Fett)"},{m:4,e:"Stück",z:"Eier"},{m:70,e:"g",z:"Xylit (Birkenzucker)"},{m:120,e:"g",z:"Kokosraspel"},{m:2,e:"EL",z:"Kokosmehl"},{m:1,e:"Päckchen",z:"Vanillepuddingpulver"},{m:1,e:"Stück",z:"Limette (Saft + Abrieb)"},{m:2,e:"EL",z:"Kokosraspel (zum Bestreuen)"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Springform (24 cm) fetten und mit Kokosraspeln ausstreuen. Ofen auf 170 °C Ober-/Unterhitze vorheizen.","Eier mit Xylit 3 Min. aufschlagen. Quark, Limettensaft und -abrieb unterrühren.","Kokosraspel, Kokosmehl und Puddingpulver mischen und kurz unterrühren. Teig 5 Min. quellen lassen – Kokosmehl braucht einen Moment.","In die Form füllen, glatt streichen und mit 2 EL Kokosraspeln bestreuen.","55–60 Min. backen, bis der Rand goldbraun steht und die Mitte nur noch leicht wackelt. Bei einen Spalt offener Tür im ausgeschalteten Ofen 20 Min. ruhen lassen.","Vollständig auskühlen lassen und kalt stellen. Zum Servieren mit Limettenscheiben verzieren."],
+  tipp:"Kokosraspeln vorher in der trockenen Pfanne kurz anrösten – das verstärkt das Aroma enorm."}
+,
+{id:"himbeer-quarktorte-dia", title:"Himbeer-Quarktorte (No-Bake, zuckerarm)", cat:"Torten", emoji:"💗", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2d/Raspberry_cheesecake.jpg/960px-Raspberry_cheesecake.jpg", credit:"misbehave · CC BY 2.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3ARaspberry_cheesecake.jpg",
+  time:45, kcal:170, diff:"Einfach", portion:12, portionUnit:"Stücke", tags:["diabetes","zuckerarm","nussfrei","himbeere","quark","sommer"],
+  desc:"Ohne Backofen: Haferboden, cremige Quarkschicht, viele Himbeeren – nur 60 g Xylit auf die ganze Torte.",
+  zutaten:[{m:150,e:"g",z:"zarte Haferflocken"},{m:60,e:"g",z:"Butter"},{m:1,e:"EL",z:"Xylit (Birkenzucker)"},{m:500,e:"g",z:"Quark (20 % Fett)"},{m:200,e:"g",z:"Frischkäse (light)"},{m:60,e:"g",z:"Xylit (fein gemahlen)"},{m:6,e:"Blatt",z:"Gelatine (oder Agar-Agar)"},{m:400,e:"g",z:"Himbeeren (frisch oder TK)"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Springform (24 cm) mit Backpapier auslegen. TK-Himbeeren auftauen und gut abtropfen lassen.","Butter schmelzen, mit Haferflocken und 1 EL Xylit vermischen. Als Boden fest in die Form drücken und 30 Min. kalt stellen.","Gelatine 5 Min. in kaltem Wasser einweichen. Quark, Frischkäse und gemahlenes Xylit glatt rühren.","Gelatine ausdrücken, bei milder Hitze auflösen (nicht kochen!), erst mit 3 EL der Quarkmasse angleichen, dann unter die restliche Masse rühren.","Die Hälfte der Himbeeren unter die Masse heben, auf den Boden streichen und mindestens 4 Stunden (am besten über Nacht) kalt stellen.","Erst vor dem Servieren mit den restlichen Himbeeren belegen – so bleibt alles frisch und saftet nicht durch."],
+  tipp:"TK-Himbeeren machen die Creme wässrig, wenn sie nicht gut abtropfen – dafür mindestens 20 Min. in ein Sieb geben."}
+,
+{id:"nuss-sahne-torte-dia", title:"Schoko-Sahne-Torte mit Xylit (zuckerarm)", cat:"Torten", emoji:"🍫", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/Flourless_chocolate_cake.jpg/960px-Flourless_chocolate_cake.jpg", credit:"P. Goyette · CC BY-SA 2.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AFlourless_chocolate_cake.jpg",
+  time:70, kcal:240, diff:"Mittel", portion:12, portionUnit:"Stücke", tags:["diabetes","zuckerarm","nussfrei","schoko","sahne","festlich"],
+  desc:"Festtagstorte für Oma: Hafer-Kakao-Boden ohne Weizenmehl, Quark-Sahne-Creme – mit Xylit statt Zucker.",
+  zutaten:[{m:4,e:"Stück",z:"Eier"},{m:80,e:"g",z:"Xylit (Birkenzucker)"},{m:200,e:"g",z:"gemahlene Haferflocken (Hafermehl)"},{m:30,e:"g",z:"Backkakao"},{m:1,e:"TL",z:"Backpulver"},{m:1,e:"Prise",z:"Salz"},{m:400,e:"g",z:"Schlagsahne"},{m:250,e:"g",z:"Quark (20 % Fett)"},{m:40,e:"g",z:"Xylit (fein gemahlen)"},{m:2,e:"Päckchen",z:"Sahnesteif"},{m:2,e:"EL",z:"dunkle Schokoraspel (85 %, Deko)"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Springform (24 cm) fetten und mit Backkakao ausstäuben. Ofen auf 175 °C Ober-/Unterhitze vorheizen.","Eier mit 80 g Xylit und Salz 4–5 Min. hell und dicklich aufschlagen – diese Luft trägt den mehlfreien Boden.","Hafermehl, Kakao und Backpulver mischen, in 2–3 Portionen locker unterheben.","In die Form füllen und 25–30 Min. backen (Stäbchenprobe). Vollständig in der Form auskühlen lassen – warm bricht der Boden.","Sahne mit Sahnesteif fast steif schlagen, Quark und gemahlenes Xylit unterrühren und fertig steif schlagen.","Boden einmal waagrecht teilen, Creme dazwischen und darauf verteilen. Mit Schokoraspeln bestreuen und mindestens 2 Stunden kalt stellen."],
+  tipp:"Den Boden am besten am Vortag backen – durchgekühlt lässt er sich viel sauberer durchschneiden."}
+,
+{id:"mandel-zimt-plaetzchen-dia", title:"Zimtsterne nussfrei (zuckerarm)", cat:"Plätzchen", emoji:"⭐", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f9/Rolled_Almond_Vanilla_Cookies.jpg/960px-Rolled_Almond_Vanilla_Cookies.jpg", credit:"HeatherMarieKosur · CC BY-SA 4.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3ARolled_Almond_Vanilla_Cookies.jpg",
+  time:45, kcal:70, diff:"Einfach", portion:30, portionUnit:"Stück", tags:["diabetes","zuckerarm","nussfrei","hafer","zimt","weihnachten"],
+  desc:"Wie Zimtsterne, nur ohne Nüsse, Mehl und Zucker: Hafermehl, Eiweiß, Zimt und Xylit – ca. 70 kcal pro Stück.",
+  zutaten:[{m:200,e:"g",z:"Hafermehl (gemahlene Haferflocken)"},{m:60,e:"g",z:"Xylit (fein gemahlen)"},{m:2,e:"Stück",z:"Eiweiß"},{m:1,e:"EL",z:"Zimt"},{m:1,e:"TL",z:"Zitronensaft"},{m:1,e:"Prise",z:"Salz"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Xylit im Blitzhacker 20 Sek. zu Puder mahlen – grobes Xylit knirscht. Backblech mit Backpapier auslegen.","Eiweiß mit Salz halbsteif schlagen (nicht ganz fest – sonst wird der Teig trocken). Zitronensaft unterrühren.","Hafermehl, gemahlenes Xylit und Zimt mischen und locker unterheben – es entsteht ein formbarer, leicht klebriger Teig.","Teig zwischen zwei Lagen Frischhaltefolie ca. 5 mm dick ausrollen und 1 Stunde kalt stellen. Kalter Teig lässt sich sauber ausstechen.","Ofen auf 160 °C Ober-/Unterhitze vorheizen. Sterne ausstechen, auf das Blech legen – sie laufen kaum auseinander.","10–12 Min. backen, bis die Ränder leicht Farbe nehmen. Auf dem Blech auskühlen lassen – warm sind sie noch weich."],
+  tipp:"Frischhaltefolie statt Mehl zum Ausrollen – der nussfreie Teig klebt sonst überall fest."}
+,
+{id:"kokosmakronen-xylit-dia", title:"Kokosmakronen mit Xylit (mehlfrei)", cat:"Plätzchen", emoji:"🥥", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a4/Flourless_coconut_macaroons_%282308674143%29.jpg/960px-Flourless_coconut_macaroons_%282308674143%29.jpg", credit:"istolethetv · CC BY 2.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AFlourless_coconut_macaroons_%282308674143%29.jpg",
+  time:40, kcal:75, diff:"Einfach", portion:25, portionUnit:"Stück", tags:["diabetes","zuckerarm","lowcarb","kokos","weihnachten","klassiker"],
+  desc:"Der Kokos-Klassiker geht fast von allein zuckerarm: nur Kokos, Eiweiß und Xylit – mehlfrei und saftig.",
+  zutaten:[{m:200,e:"g",z:"Kokosraspel"},{m:3,e:"Stück",z:"Eiweiß"},{m:70,e:"g",z:"Xylit (Birkenzucker)"},{m:1,e:"TL",z:"Vanilleextrakt"},{m:1,e:"Prise",z:"Salz"},{m:25,e:"Stück",z:"Backoblaten (5 cm, optional)"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Backblech mit Backpapier auslegen (oder Oblaten bereitlegen). Ofen auf 160 °C Ober-/Unterhitze vorheizen.","Eiweiß mit Salz steif schlagen, dabei Xylit einrieseln lassen – so wird der Schnee glänzend und stabil.","Kokosraspel und Vanilleextrakt mit einem Teigschaber locker unterheben – nicht rühren, sonst fällt der Schnee zusammen.","Mit zwei Teelöffeln kleine Häufchen aufs Blech setzen (oder auf Oblaten). Genug Abstand lassen.","15–18 Min. backen, bis die Spitzen goldbraun sind. Sie sind heiß noch weich und werden erst kalt fest – also nicht zu lange drin lassen.","Auf dem Blech vollständig auskühlen lassen, dann erst ablösen. In der Keksdose halten sie 2–3 Wochen."],
+  tipp:"Wer mag, taucht die kalten Spitzen in 85 % Schokolade – bleibt trotzdem deutlich zuckerärmer als gekauft."}
+,
+{id:"bratapfel-nuss-dia", title:"Bratapfel mit Haferfüllung (zuckerarm)", cat:"Snacks", emoji:"🍎", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/37/Brat%C3%A4pfel_1.JPG/960px-Brat%C3%A4pfel_1.JPG", credit:"Brücke-Osteuropa · CC BY-SA 3.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3ABrat%C3%A4pfel_1.JPG",
+  time:45, kcal:170, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["diabetes","zuckerarm","nussfrei","apfel","herbst","oma"],
+  desc:"Omas Winterliebling in leicht: Boskop-Äpfel mit Hafer-Zimt-Füllung – dazu Vanillequark statt Vanillesauce.",
+  zutaten:[{m:4,e:"Stück",z:"Äpfel (Boskop, groß)"},{m:60,e:"g",z:"zarte Haferflocken"},{m:2,e:"EL",z:"Xylit (Birkenzucker)"},{m:2,e:"TL",z:"Zimt"},{m:40,e:"g",z:"Butter"},{m:4,e:"EL",z:"Apfelsaft (naturtrüb)"},{m:250,e:"g",z:"Quark (20 % Fett)"},{m:1,e:"TL",z:"Vanilleextrakt"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Ofen auf 180 °C Ober-/Unterhitze vorheizen. Auflaufform fetten.","Äpfel waschen, Deckel abschneiden und mit einem Apfelentkerner großzügig aushöhlen – unten ca. 1 cm Boden stehen lassen, damit nichts ausläuft.","Haferflocken mit Xylit, Zimt und der weichen Butter verkneten, in die Äpfel füllen. Deckel wieder aufsetzen.","Äpfel in die Form setzen, Apfelsaft angießen (so brennt nichts an und es gibt gleich etwas Sauce). 30–35 Min. backen, bis sie weich sind und duften – ab Minute 25 im Auge behalten.","Inzwischen Quark mit Vanilleextrakt glatt rühren – das ist der zuckerarme Ersatz für Vanillesauce.","Äpfel heiß mit je einem Klecks Vanillequark servieren und mit dem Bratensaft beträufeln."],
+  tipp:"Boskop bleibt am besten in Form – mehlige Sorten wie Golden Delicious zerfallen leicht."}
+,
+{id:"kuerbiscurry", title:"Kürbis-Curry mit Kokosmilch", cat:"Herzhaft", emoji:"🎃", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Mattanga_Curry.jpg/960px-Mattanga_Curry.jpg", credit:"S. Menon · CC BY-SA 4.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AMattanga_Curry.jpg",
+  time:35, kcal:320, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["diabetes","kürbis","curry","herbst","vegetarisch","schnell"],
+  desc:"Cremiges Curry mit Hokkaido, Kokosmilch und roter Currypaste – in 35 Minuten auf dem Tisch.",
+  zutaten:[{m:800,e:"g",z:"Hokkaido-Kürbis"},{m:1,e:"Stück",z:"Zwiebel"},{m:2,e:"Zehen",z:"Knoblauch"},{m:20,e:"g",z:"frischer Ingwer"},{m:2,e:"EL",z:"rote Currypaste"},{m:400,e:"ml",z:"Kokosmilch"},{m:250,e:"ml",z:"Gemüsebrühe"},{m:1,e:"EL",z:"Öl"},{m:1,e:"EL",z:"Limettensaft"},{m:1,e:"TL",z:"Salz"},{m:250,e:"g",z:"Basmatireis (dazu)"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Reis nach Packung aufsetzen – er braucht ca. 15 Min. Kürbis waschen, entkernen und in ca. 2 cm große Würfel schneiden (Hokkaido muss nicht geschält werden!).","Zwiebel, Knoblauch und Ingwer fein hacken. Öl in einem großen Topf erhitzen und alles 3 Min. glasig dünsten.","Currypaste einrühren und 1 Min. anrösten, bis es duftet – so entfaltet sie ihr volles Aroma. Vorsicht, nicht zu dunkel werden lassen.","Kürbiswürfel zugeben, mit Kokosmilch und Brühe ablöschen. 15–18 Min. sanft köcheln, bis der Kürbis weich ist, aber noch Form hat.","Mit Salz und Limettensaft abschmecken – die Säure hebt das ganze Curry. Wer es schärfer mag, gibt noch etwas Currypaste dazu.","Auf Reis anrichten und mit Koriander oder Frühlingszwiebeln bestreuen. Reste halten im Kühlschrank 2–3 Tage und lassen sich prima einfrieren."],
+  tipp:"Der Kürbis darf ruhig noch etwas Biss haben – er gart in der heißen Sauce nach."}
+,
+{id:"kuerbiskuchen", title:"Saftiger Kürbiskuchen", cat:"Kuchen", emoji:"🎃", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/36/Bizcocho_de_Calabaza_con_Harina_Integral_y_Azucar_Moreno.jpg/960px-Bizcocho_de_Calabaza_con_Harina_Integral_y_Azucar_Moreno.jpg", credit:"J. Lastras · CC BY 2.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3ABizcocho_de_Calabaza_con_Harina_Integral_y_Azucar_Moreno.jpg",
+  time:70, kcal:290, diff:"Einfach", portion:12, portionUnit:"Stücke", tags:["kürbis","herbst","saftig","gewürz"],
+  desc:"Mit echtem Kürbispüree, Zimt und Nelken – der Herbstkuchen schlechthin, bleibt tagelang saftig.",
+  zutaten:[{m:400,e:"g",z:"Hokkaido-Kürbis (netto, gewürfelt)"},{m:200,e:"g",z:"weiche Butter"},{m:180,e:"g",z:"brauner Zucker"},{m:1,e:"Päckchen",z:"Vanillezucker"},{m:3,e:"Stück",z:"Eier"},{m:300,e:"g",z:"Weizenmehl"},{m:1,e:"Päckchen",z:"Backpulver"},{m:2,e:"TL",z:"Zimt"},{m:0.5,e:"TL",z:"Nelken (gemahlen)"},{m:100,e:"g",z:"gemahlene Haselnüsse"},{m:1,e:"Prise",z:"Salz"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Kastenform (30 cm) fetten oder mit Backpapier auslegen. Ofen auf 180 °C Ober-/Unterhitze vorheizen – mittlere Schiene.","Kürbiswürfel in wenig Wasser 12–15 Min. weich dünsten, abgießen und fein pürieren. Etwas abkühlen lassen – heißes Püree würde die Butter schmelzen.","Butter, Zucker und Vanillezucker 3–4 Min. hell aufschlagen. Eier einzeln je 30 Sek. unterrühren, dann das lauwarme Kürbispüree dazu.","Mehl, Backpulver, Zimt, Nelken, Nüsse und Salz mischen und kurz unterrühren – nur bis kein Mehl mehr sichtbar ist.","Teig in die Form füllen und 50–60 Min. backen (Stäbchenprobe). Den Ofen in den ersten zwei Dritteln geschlossen halten.","15 Min. in der Form abkühlen lassen, dann auf ein Kuchengitter stürzen. Vollständig ausgekühlt anschneiden – mit Puderzucker bestäubt ein Hingucker."],
+  tipp:"Das Püree lässt sich prima auf Vorrat einfrieren – portionsweise in Gefrierbeuteln, so gibt's schnell Nachschub."}
+,
+{id:"pumpkinpie", title:"American Pumpkin Pie", cat:"Kuchen", emoji:"🥧", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/14/Pumpkin_Pie.jpg/960px-Pumpkin_Pie.jpg", credit:"P. Greb · Public Domain", creditUrl:"https://commons.wikimedia.org/wiki/File%3APumpkin_Pie.jpg",
+  time:80, kcal:310, diff:"Mittel", portion:12, portionUnit:"Stücke", tags:["kürbis","herbst","usa","festlich"],
+  desc:"Der US-Klassiker: knuspriger Mürbeteig, seidige Kürbis-Gewürz-Füllung – am besten mit Sahne.",
+  zutaten:[{m:250,e:"g",z:"Weizenmehl"},{m:125,e:"g",z:"kalte Butter (gewürfelt)"},{m:70,e:"g",z:"Zucker (für den Teig)"},{m:1,e:"Stück",z:"Ei"},{m:1,e:"Prise",z:"Salz"},{m:500,e:"g",z:"Kürbispüree (Hokkaido, gegart)"},{m:150,e:"g",z:"brauner Zucker"},{m:200,e:"ml",z:"Sahne"},{m:2,e:"Stück",z:"Eier (für die Füllung)"},{m:2,e:"TL",z:"Zimt"},{m:0.5,e:"TL",z:"Ingwer (gemahlen)"},{m:0.5,e:"TL",z:"Nelken (gemahlen)"},{m:200,e:"ml",z:"Schlagsahne (zum Servieren)"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Für das Püree Kürbis würfeln, weich dünsten und fein pürieren – gut abtropfen lassen, damit die Füllung nicht wässrig wird.","Mehl, Butter, 70 g Zucker, Ei und Salz zügig zu einem glatten Mürbeteig verkneten. In Folie wickeln und 30 Min. kalt stellen – kalter Teig lässt sich besser ausrollen.","Ofen auf 200 °C Ober-/Unterhitze vorheizen. Teig rund ausrollen, in eine gefettete Tarteform (28 cm) legen, Rand andrücken. Mit der Gabel mehrmals einstechen und 10 Min. blind backen.","Kürbispüree, braunen Zucker, Sahne, Eier und Gewürze glatt verrühren. Auf den vorgebackenen Boden gießen.","Temperatur auf 175 °C senken und 40–45 Min. backen: Die Füllung steht am Rand, die Mitte darf noch leicht wackeln – sie wird beim Abkühlen fest.","Vollständig auskühlen lassen, dann kalt stellen. Mit leicht gesüßter Schlagsahne servieren – lauwarm oder kalt, beides ein Traum."],
+  tipp:"Blind backen ist Pflicht, sonst weicht der Boden durch – getrocknete Erbsen oder Reis als Gewicht nehmen."}
+,
+{id:"quarkbaellchen-xylit-dia", title:"Quarkbällchen mit Xylit (zuckerarm)", cat:"Snacks", emoji:"🍩", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/Quarkkrapfen.jpg/960px-Quarkkrapfen.jpg", credit:"Stadt Braut · CC BY-SA 2.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AQuarkkrapfen.jpg", airfryer:{temp:"170 °C", zeit:"10–12 Min.", hinweis:"Kugeln mit Abstand legen, nach der Hälfte wenden. Werden nicht ganz so dunkel wie frittiert – dafür ohne Fettbad."},
+  time:30, kcal:120, diff:"Einfach", portion:20, portionUnit:"Stück", tags:["diabetes","zuckerarm","nussfrei","quark","frühstück"],
+  desc:"Flaumige Quarkbällchen aus dem Airfryer – mit Xylit statt Zucker, ganz ohne Friteuse und ohne Nüsse.",
+  zutaten:[{m:250,e:"g",z:"Quark (20 % Fett)"},{m:2,e:"Stück",z:"Eier"},{m:60,e:"g",z:"Xylit (Birkenzucker)"},{m:200,e:"g",z:"Weizenmehl"},{m:1,e:"Päckchen",z:"Backpulver"},{m:1,e:"TL",z:"Vanilleextrakt"},{m:1,e:"Prise",z:"Salz"},{m:2,e:"EL",z:"gemahlenes Xylit + Zimt (zum Wälzen)"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Quark vorher gut abtropfen lassen, damit der Teig nicht zu weich wird.","Quark, Eier, Xylit und Vanille glatt verrühren. Mehl, Backpulver und Salz mischen und kurz unterrühren – nur bis alles zusammenhält.","Mit nassen Händen oder zwei Löffeln ca. 20 kleine Kugeln formen.","Airfryer auf 170 °C vorheizen, Kugeln mit Abstand in den Korb legen und 10–12 Min. backen, nach der Hälfte wenden.","Noch warm in Xylit-Zimt wälzen.","Frisch servieren – warm schmecken sie am besten, kalt gehen sie auch noch für die Brotdose."],
+  tipp:"Nasse Hände verhindern Kleben – oder die Kugeln mit einem Eisportionierer abstechen."}
+,
+{id:"milchreis-xylit-dia", title:"Milchreis mit Xylit (zuckerarm)", cat:"Snacks", emoji:"🍚", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e6/Rice_pudding_bowl.jpg/960px-Rice_pudding_bowl.jpg", credit:"stu_spivack · CC BY-SA 2.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3ARice_pudding_bowl.jpg",
+  time:40, kcal:220, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["diabetes","zuckerarm","nussfrei","milchreis","klassiker"],
+  desc:"Cremiger Milchreis wie bei Oma – mit Xylit statt Zucker und Zimt obendrauf.",
+  zutaten:[{m:250,e:"g",z:"Rundkornreis (Milchreis)"},{m:1,e:"l",z:"Milch"},{m:40,e:"g",z:"Xylit (Birkenzucker)"},{m:1,e:"Prise",z:"Salz"},{m:1,e:"TL",z:"Vanilleextrakt"},{m:2,e:"TL",z:"Zimt (zum Bestreuen)"},{m:400,e:"g",z:"Apfelmus (ungesüßt, dazu)"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Reis kalt abspülen.","Milch mit Salz und Vanille aufkochen, Reis einrühren und Hitze klein stellen.","30–35 Min. sanft köcheln, dabei oft umrühren – sonst setzt er an. Bei kleiner Hitze und leicht geöffnetem Deckel garen.","Xylit unterrühren, noch 2 Min. ziehen lassen. Er dickt beim Abkühlen nach – lieber einen Schuss Milch übrig lassen.","Warm mit Zimt und Apfelmus servieren.","Reste kalt stellen – mit Folie direkt auf der Oberfläche, damit sich keine Haut bildet. Hält 2–3 Tage."],
+  tipp:"Umrühren nicht vergessen – angebrannter Milchreis schmeckt bitter und ist kaum zu retten."}
+,
+{id:"apfelpfannkuchen-xylit-dia", title:"Apfelpfannkuchen mit Xylit (zuckerarm)", cat:"Snacks", emoji:"🥞", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/a/af/Stewed_apple_%26_ginger_crumb_pancake_-_Green_Kitchen_2024-03-11.jpg/960px-Stewed_apple_%26_ginger_crumb_pancake_-_Green_Kitchen_2024-03-11.jpg", credit:"Andy Li · CC0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AStewed_apple_%26_ginger_crumb_pancake_-_Green_Kitchen_2024-03-11.jpg",
+  time:30, kcal:250, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["diabetes","zuckerarm","nussfrei","apfel","pfannkuchen"],
+  desc:"Dicke Apfelpfannkuchen mit Xylit im Teig – Apfelringe inklusive, ganz ohne Nüsse.",
+  zutaten:[{m:3,e:"Stück",z:"Äpfel (säuerlich, z. B. Elstar)"},{m:200,e:"g",z:"Weizenmehl"},{m:300,e:"ml",z:"Milch"},{m:2,e:"Stück",z:"Eier"},{m:30,e:"g",z:"Xylit (Birkenzucker)"},{m:1,e:"TL",z:"Zimt"},{m:1,e:"Prise",z:"Salz"},{m:2,e:"EL",z:"neutrales Öl (zum Braten)"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Äpfel schälen, entkernen und in Ringe schneiden.","Mehl, Milch, Eier, Xylit, Zimt und Salz glatt verrühren. Teig 10 Min. quellen lassen – so wird er gleichmäßiger.","Apfelringe durch den Teig ziehen. Etwas Öl in der Pfanne erhitzen – mittlere Hitze reicht, sonst werden sie außen dunkel und innen roh.","Portionsweise je Seite 2–3 Min. goldgelb backen. Warm halten, bis alle fertig sind.","Mit Zimt-Xylit bestäuben und sofort servieren.","Dazu passt ungesüßtes Apfelmus oder ein Klecks Quark."],
+  tipp:"Säuerliche Äpfel geben das meiste Aroma – dann fällt die geringe Süße kaum auf."}
+,
+{id:"kaiserschmarrn-xylit-dia", title:"Kaiserschmarrn mit Xylit (zuckerarm)", cat:"Snacks", emoji:"👑", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/2015_0731_Kaiserschmarrn_Apfelso%C3%9Fe_Edelweissh%C3%BCtte_S%C3%B6lden.jpg/960px-Kaiserschmarrn_Apfelso%C3%9Fe_Edelweissh%C3%BCtte_S%C3%B6lden.jpg", credit:"Takeaway · CC BY-SA 4.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3A2015_0731_Kaiserschmarrn_Apfelso%C3%9Fe_Edelweissh%C3%BCtte_S%C3%B6lden.jpg",
+  time:30, kcal:280, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["diabetes","zuckerarm","nussfrei","kaiserschmarrn","klassiker"],
+  desc:"Der zerrupfte Kaiser: fluffig, karamellisiert – mit Xylit statt Zucker und Apfelmus dazu.",
+  zutaten:[{m:200,e:"g",z:"Weizenmehl"},{m:300,e:"ml",z:"Milch"},{m:3,e:"Stück",z:"Eier (getrennt)"},{m:40,e:"g",z:"Xylit (Birkenzucker)"},{m:1,e:"Prise",z:"Salz"},{m:2,e:"EL",z:"Butter (zum Braten)"},{m:400,e:"g",z:"Apfelmus (ungesüßt, dazu)"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Eier trennen.","Mehl, Milch, Eigelb, Xylit und Salz glatt verrühren. Teig 10 Min. quellen lassen.","Eiweiß steif schlagen und locker unterheben – das macht den Schmarrn fluffig.","Butter in einer großen Pfanne schmelzen, Teig ca. 1 cm hoch eingießen. Bei mittlerer Hitze 3–4 Min. stocken lassen.","Vierteln, wenden, mit zwei Gabeln in Stücke zerrupfen. Noch 3–4 Min. braten, bis alles goldbraun ist.","Mit Apfelmus und Xylit-Zimt servieren – am besten direkt aus der Pfanne."],
+  tipp:"Nicht zu früh zerrupfen – erst wenden, wenn die Unterseite goldbraun ist und sich von allein löst."}
+,
+{id:"armeritter-xylit-dia", title:"Arme Ritter mit Xylit (zuckerarm)", cat:"Snacks", emoji:"🍞", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/17/French_toast_for_breakfast_%2810294904906%29.jpg/960px-French_toast_for_breakfast_%2810294904906%29.jpg", credit:"R. Hartnup · CC BY 2.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AFrench_toast_for_breakfast_(10294904906).jpg",
+  time:20, kcal:200, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["diabetes","zuckerarm","nussfrei","armeritter","schnell"],
+  desc:"Altbackenes Brot wird zum Star: in Xylit-Milch gewendet, goldgelb gebraten – mit Beeren.",
+  zutaten:[{m:8,e:"Scheiben",z:"Toast oder Weißbrot (gern vom Vortag)"},{m:3,e:"Stück",z:"Eier"},{m:200,e:"ml",z:"Milch"},{m:30,e:"g",z:"Xylit (Birkenzucker)"},{m:1,e:"TL",z:"Zimt"},{m:2,e:"EL",z:"Butter (zum Braten)"},{m:250,e:"g",z:"Beeren (dazu)"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Beeren waschen und trocken tupfen.","Eier, Milch, Xylit und Zimt in einer flachen Schüssel verquirlen.","Brotscheiben je Seite ca. 1 Min. einweichen – sie sollen vollgesogen, aber nicht matschig sein.","Butter in der Pfanne schmelzen und die Scheiben bei mittlerer Hitze je Seite 2–3 Min. goldbraun braten.","Mit Beeren und etwas Xylit-Zimt servieren.","Am besten sofort essen – kalt werden sie schnell labberig."],
+  tipp:"Toast vom Vortag saugt besser als frischer – und Vollkorntoast macht länger satt."}
+,
+{id:"pancakes-xylit-dia", title:"Pancakes mit Xylit (zuckerarm)", cat:"Snacks", emoji:"🥞", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/74/The_Smoking_Stack_Pancakes_-_Laughing_Dog_2026-08-25.jpg/960px-The_Smoking_Stack_Pancakes_-_Laughing_Dog_2026-08-25.jpg", credit:"Andy Li · CC0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AThe_Smoking_Stack_Pancakes_-_Laughing_Dog_2026-08-25.jpg",
+  time:25, kcal:230, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["diabetes","zuckerarm","nussfrei","pancakes","frühstück"],
+  desc:"Flaumige Pancakes mit Xylit im Teig – mit Beeren statt Ahornsirup, komplett nussfrei.",
+  zutaten:[{m:250,e:"g",z:"Weizenmehl"},{m:300,e:"ml",z:"Milch"},{m:2,e:"Stück",z:"Eier"},{m:30,e:"g",z:"Xylit (Birkenzucker)"},{m:2,e:"TL",z:"Backpulver"},{m:1,e:"Prise",z:"Salz"},{m:2,e:"EL",z:"neutrales Öl (zum Braten)"},{m:300,e:"g",z:"Beerenmix (dazu)"}],
+  steps:["Alle Zutaten genau abwiegen bzw. abmessen und griffbereit hinstellen (Mise en place). Mehl und Backpulver mischen.","Milch, Eier und Xylit verquirlen, Mehlmischung und Salz kurz unterrühren – kleine Klümpchen sind okay. Nicht zu lange rühren!","Teig 5 Min. ruhen lassen. Pfanne nur leicht ölen (Pinsel oder Papier).","Bei mittlerer Hitze kleine Portionen einfüllen. Wenden, sobald Bläschen an der Oberfläche platzen – je Seite ca. 2 Min.","Stapelweise mit Beeren servieren.","Warm halten, bis alle fertig sind – im Ofen bei 80 °C geht das prima."],
+  tipp:"Der erste Pancake misslingt fast immer – den darf der Koch essen."}
+,
+{id:"jaegerschnitzel-ddr", title:"DDR-Jägerschnitzel mit Nudeln", cat:"Herzhaft", emoji:"🍖", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/b/be/J%C3%A4gerschnitzel_DDR.jpg/960px-J%C3%A4gerschnitzel_DDR.jpg", credit:"Xipolis · CC BY-SA 4.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AJ%C3%A4gerschnitzel_DDR.jpg",
+  time:40, kcal:640, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["ddr","diabetes","jagdwurst","nudeln","tomate","kinder","klassiker","hausmannskost"],
+  desc:"Der DDR-Kantinenklassiker: panierte Jagdwurstscheiben mit Nudeln und milder Tomatensoße – bei Kindern bis heute der Renner.",
+  zutaten:[{m:600,e:"g",z:"Jagdwurst am Stück"},{m:2,e:"Stück",z:"Eier"},{m:100,e:"g",z:"Semmelbrösel"},{m:80,e:"g",z:"Weizenmehl"},{m:500,e:"g",z:"Spirelli oder Makkaroni"},{m:1,e:"Stück",z:"Zwiebel"},{m:2,e:"EL",z:"Tomatenmark"},{m:400,e:"g",z:"passierte Tomaten"},{m:1,e:"TL",z:"Zucker"},{m:1,e:"TL",z:"Paprikapulver, edelsüß"},{m:1,e:"Prise",z:"Salz und Pfeffer"},{m:6,e:"EL",z:"neutrales Öl"}],
+  steps:["Nudeln in reichlich Salzwasser bissfest garen, abgießen und mit 1 EL Öl vermischen, damit nichts verklebt.","Jagdwurst in 8 dicke Scheiben (ca. 1,5 cm) schneiden – zu dünn bricht sie beim Wenden.","Panierstraße aufbauen: Mehl, verquirlte Eier (mit Salz und Pfeffer gewürzt) und Semmelbrösel in drei tiefe Teller geben.","Wurstscheiben erst in Mehl wenden, abklopfen, dann durchs Ei ziehen und in den Bröseln fest andrücken.","Für die Soße Zwiebel fein würfeln und in 2 EL Öl glasig dünsten. Tomatenmark kurz anrösten, mit passierten Tomaten ablöschen.","Soße mit Zucker, Paprika edelsüß, Salz und Pfeffer mild abschmecken und 10 Min. offen einköcheln lassen.","Wurstscheiben in restlichem heißen Öl je Seite 3–4 Min. goldbraun braten – erst wenden, wenn die Panade unten fest ist.","Schnitzel auf den Nudeln anrichten, Soße darüber geben. Dazu passt Gurkensalat."],
+  tipp:"Die Wurst vorher kalt stellen – kalte, feste Scheiben panieren sich viel sauberer."}
+,
+{id:"wuerzfleisch-ddr", title:"Würzfleisch mit Käse überbacken", cat:"Herzhaft", emoji:"🧀", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2f/W%C3%BCrzfleisch_Zur_Noll_Jena.JPG/960px-W%C3%BCrzfleisch_Zur_Noll_Jena.JPG", credit:"Benreis · CC BY 3.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AW%C3%BCrzfleisch_Zur_Noll_Jena.JPG",
+  time:45, kcal:420, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["ddr","diabetes","hähnchen","käse","party","klassiker","überbacken"],
+  desc:"Zartes Hühnerragout in Förmchen, mit Käse und Worcestersoße überbacken – dazu Toast. Die Ost-Antwort auf Ragout fin.",
+  zutaten:[{m:500,e:"g",z:"Hähnchenbrust"},{m:500,e:"ml",z:"Hühnerbrühe"},{m:1,e:"Stück",z:"Lorbeerblatt"},{m:40,e:"g",z:"Butter"},{m:40,e:"g",z:"Weizenmehl"},{m:100,e:"ml",z:"Sahne"},{m:2,e:"EL",z:"Zitronensaft"},{m:1,e:"EL",z:"Worcestersoße"},{m:100,e:"g",z:"Gouda, gerieben"},{m:1,e:"Prise",z:"Salz und Pfeffer"},{m:4,e:"Scheiben",z:"Toastbrot (dazu)"}],
+  steps:["Hähnchenbrust in der Brühe mit Lorbeerblatt 20 Min. sanft gar ziehen lassen – nicht sprudelnd kochen, sonst wird sie trocken.","Fleisch herausnehmen, Brühe aufheben. Fleisch in kleine Würfel schneiden.","Butter schmelzen, Mehl einrühren und kurz anschwitzen. Mit 400 ml Brühe und Sahne glatt rühren.","Soße 5 Min. cremig einkochen, mit Zitronensaft, Worcestersoße, Salz und Pfeffer mild-würzig abschmecken.","Fleischwürfel unterheben, alles in 4 ofenfeste Förmchen füllen und mit Gouda bestreuen.","Bei 200 °C Oberhitze (Grill) 5–8 Min. überbacken, bis der Käse goldgelb blubbert.","Mit Toast servieren – der gehört zum Tunken unbedingt dazu."],
+  tipp:"Reste vom Sonntags-Brathähnchen passen hier perfekt hinein – dann Schritt 1 einfach überspringen."}
+,
+{id:"letscho-ddr", title:"Letscho mit Jagdwurst (mild)", cat:"Herzhaft", emoji:"🫑", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/60/Letscho.jpg/960px-Letscho.jpg", credit:"Ladkor · CC BY-SA 3.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3ALetscho.jpg",
+  time:35, kcal:380, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["ddr","diabetes","paprika","jagdwurst","süßsalzig","eintopf","schnell"],
+  desc:"Paprika, Tomaten und Jagdwurst mild geschmort – süßlich-deftig, ganz ohne Schärfe. Dazu passen Nudeln, Reis oder Brot.",
+  zutaten:[{m:4,e:"Stück",z:"Paprikaschoten (rot und gelb)"},{m:400,e:"g",z:"Jagdwurst"},{m:2,e:"Stück",z:"Zwiebeln"},{m:400,e:"g",z:"passierte Tomaten"},{m:2,e:"EL",z:"Tomatenmark"},{m:1,e:"EL",z:"neutrales Öl"},{m:1,e:"TL",z:"Paprikapulver, edelsüß"},{m:1,e:"TL",z:"Zucker"},{m:1,e:"Prise",z:"Salz und Pfeffer"}],
+  steps:["Paprika putzen und in Streifen schneiden, Zwiebeln würfeln, Jagdwurst in Halbmonde oder Würfel schneiden.","Zwiebeln in Öl glasig dünsten, Tomatenmark und Paprikapulver kurz anrösten – nicht dunkel werden lassen, sonst bittert es.","Paprikastreifen zugeben, 3 Min. mitdünsten, dann passierte Tomaten angießen.","Mit Zucker, Salz und Pfeffer mild süßsalzig abschmecken und 15 Min. offen schmoren, bis die Paprika weich ist.","Jagdwurst unterheben und 5 Min. mitwärmen – sie soll heiß werden, aber nicht auskochen.","Dazu Nudeln, Reis oder frisches Brot reichen. Reste schmecken aufgewärmt fast noch besser."],
+  tipp:"Ein Klecks Schmand obendrauf macht das Letscho extra samtig – ganz wie früher in der HO-Gaststätte."}
+,
+{id:"klopse-ddr", title:"Königsberger Klopse", cat:"Herzhaft", emoji:"🍲", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/2022-11-13_K%C3%B6nigsberger_Klopse_Restaurant_Dicke_Paula_Berlin_anagoria.jpg/960px-2022-11-13_K%C3%B6nigsberger_Klopse_Restaurant_Dicke_Paula_Berlin_anagoria.jpg", credit:"Anagoria · CC BY 3.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3A2022-11-13_K%C3%B6nigsberger_Klopse_Restaurant_Dicke_Paula_Berlin_anagoria.jpg",
+  time:60, kcal:580, diff:"Mittel", portion:4, portionUnit:"Portionen", tags:["ddr","diabetes","hackfleisch","kapern","klassiker","sonntag","hausmannskost"],
+  desc:"Zarte Hackklößchen in heller Kapernsoße mit Zitrone – der ostdeutsche Sonntagsliebling zu Salzkartoffeln.",
+  zutaten:[{m:500,e:"g",z:"Hackfleisch, gemischt"},{m:1,e:"Stück",z:"Brötchen vom Vortag"},{m:1,e:"Stück",z:"Zwiebel"},{m:1,e:"Stück",z:"Ei"},{m:1,e:"TL",z:"Senf"},{m:1,e:"l",z:"Fleischbrühe"},{m:2,e:"EL",z:"Butter"},{m:2,e:"EL",z:"Weizenmehl"},{m:200,e:"ml",z:"Sahne"},{m:2,e:"EL",z:"Kapern + 2 EL Kapernflüssigkeit"},{m:2,e:"EL",z:"Zitronensaft"},{m:1,e:"Prise",z:"Zucker, Salz und Pfeffer"}],
+  steps:["Brötchen einweichen und gut ausdrücken. Zwiebel sehr fein würfeln und in wenig Butter glasig dünsten.","Hackfleisch mit Brötchen, Zwiebel, Ei, Senf, Salz und Pfeffer gründlich verkneten – bis die Masse bindet.","Mit nassen Händen 12 Klopse formen. Brühe zum Sieden bringen (nicht sprudelnd kochen!).","Klopse einlegen und 15–18 Min. gar ziehen lassen, dann mit der Schaumkelle herausheben und warm halten.","Butter schmelzen, Mehl anschwitzen, mit 600 ml Brühe und Sahne glatt rühren und 5 Min. köcheln.","Kapern, Kapernflüssigkeit und Zitronensaft einrühren, mit Zucker, Salz und Pfeffer fein säuerlich abschmecken.","Klopse in die Soße legen, 5 Min. durchwärmen. Mit Salzkartoffeln und Roter Bete servieren."],
+  tipp:"Die Klopse nie kochen, nur ziehen lassen – kochendes Wasser macht sie hart und bröckelig."}
+,
+{id:"frikassee-ddr", title:"Hühnerfrikassee mit Reis", cat:"Herzhaft", emoji:"🍗", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/99/Chicken_fricassee_%283062217256%29.jpg/960px-Chicken_fricassee_%283062217256%29.jpg", credit:"Sheri Wetherell · CC BY 2.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AChicken_fricassee_(3062217256).jpg",
+  time:55, kcal:540, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["ddr","diabetes","hähnchen","reis","kinder","klassiker","hausmannskost"],
+  desc:"Cremiges Hühnerfrikassee mit Erbsen, Möhren und Spargel – mild und kinderlieb, dazu lockerer Reis.",
+  zutaten:[{m:500,e:"g",z:"Hähnchenbrust oder -keulen"},{m:750,e:"ml",z:"Hühnerbrühe"},{m:1,e:"Stück",z:"Lorbeerblatt"},{m:300,e:"g",z:"Reis"},{m:200,e:"g",z:"Möhren"},{m:150,e:"g",z:"Erbsen (TK)"},{m:1,e:"Glas",z:"Spargelstücke (abgetropft)"},{m:40,e:"g",z:"Butter"},{m:40,e:"g",z:"Weizenmehl"},{m:150,e:"ml",z:"Sahne"},{m:2,e:"EL",z:"Zitronensaft"},{m:1,e:"Prise",z:"Salz, Pfeffer und Zucker"}],
+  steps:["Hähnchen in der Brühe mit Lorbeerblatt 20–25 Min. gar ziehen lassen. Fleisch würfeln, Brühe aufheben.","Reis nach Packung garen und warm halten.","Möhren in Scheiben schneiden und in wenig Brühe 8 Min. bissfest garen, Erbsen 3 Min. mitgaren.","Butter schmelzen, Mehl anschwitzen, mit 600 ml Brühe und Sahne glatt rühren und cremig einkochen.","Fleisch, Möhren, Erbsen und Spargel in die Soße geben und 5 Min. durchwärmen.","Mit Zitronensaft, Salz, Pfeffer und einer Prise Zucker mild und rund abschmecken.","Auf Reis anrichten – wer mag, streut frische Petersilie darüber."],
+  tipp:"Ein Schuss Spargelflüssigkeit aus dem Glas macht die Soße besonders aromatisch."}
+,
+{id:"schulnudeln-ddr", title:"Nudeln mit Tomatensoße (Schulspeise)", cat:"Herzhaft", emoji:"🍝", img:"https://upload.wikimedia.org/wikipedia/commons/8/83/Spaghetti_Bolognese.jpg", credit:"Wikimedia Commons · Public Domain", creditUrl:"https://commons.wikimedia.org/wiki/File%3ASpaghetti_Bolognese.jpg",
+  time:25, kcal:480, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["ddr","nudeln","tomate","kinder","vegetarisch","schnell","klassiker"],
+  desc:"So schmeckte die Schulmensa: Nudeln mit süßlich-milder Tomatensoße und viel geriebenem Käse obendrauf.",
+  zutaten:[{m:500,e:"g",z:"Spaghetti oder Makkaroni"},{m:1,e:"Stück",z:"Zwiebel"},{m:1,e:"Stück",z:"Möhre"},{m:2,e:"EL",z:"Tomatenmark"},{m:800,e:"g",z:"passierte Tomaten"},{m:1,e:"EL",z:"neutrales Öl"},{m:2,e:"TL",z:"Zucker"},{m:1,e:"TL",z:"Oregano (getrocknet)"},{m:100,e:"g",z:"Gouda, gerieben"},{m:1,e:"Prise",z:"Salz und Pfeffer"}],
+  steps:["Nudeln in Salzwasser bissfest garen, eine Tasse Nudelwasser aufheben, dann abgießen.","Zwiebel und Möhre sehr fein würfeln (die Möhre mogelt Süße und Vitamine hinein) und in Öl weich dünsten.","Tomatenmark kurz anrösten, mit passierten Tomaten und etwas Nudelwasser ablöschen.","Mit Zucker, Oregano, Salz und Pfeffer süßlich-mild abschmecken, 10 Min. einköcheln.","Nudeln in der Soße schwenken, bis alles glänzt – das Nudelwasser bindet wunderbar.","Mit viel geriebenem Gouda bestreut servieren."],
+  tipp:"Die Soße lässt sich prima auf Vorrat kochen und einfrieren – Schulessen für faule Tage."}
+,
+{id:"makkaroni-ddr", title:"Makkaroni-Käse-Auflauf", cat:"Herzhaft", emoji:"🧀", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/Baked_macaroni_and_cheese.jpg/960px-Baked_macaroni_and_cheese.jpg", credit:"Scott Veg · CC BY 2.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3ABaked_macaroni_and_cheese.jpg",
+  time:50, kcal:620, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["ddr","käse","auflauf","nudeln","kinder","überbacken","schnell"],
+  desc:"Makkaroni in Käse-Sahne-Soße, im Ofen goldgelb überbacken – Soulfood aus der DDR-Küche.",
+  zutaten:[{m:400,e:"g",z:"Makkaroni"},{m:40,e:"g",z:"Butter"},{m:40,e:"g",z:"Weizenmehl"},{m:500,e:"ml",z:"Milch"},{m:200,e:"ml",z:"Sahne"},{m:250,e:"g",z:"Gouda, gerieben"},{m:1,e:"TL",z:"Senf"},{m:1,e:"Prise",z:"Salz, Pfeffer und Muskat"}],
+  steps:["Backofen auf 200 °C vorheizen, Auflaufform fetten. Makkaroni 2 Min. kürzer als angegeben garen.","Butter schmelzen, Mehl anschwitzen, mit Milch und Sahne glatt rühren und 5 Min. cremig kochen.","Zwei Drittel vom Käse in der Soße schmelzen, mit Senf, Salz, Pfeffer und Muskat würzig abschmecken.","Makkaroni unterheben, in die Form füllen und mit restlichem Käse bestreuen.","25 Min. goldgelb überbacken – oben soll es blubbern und knuspern.","5 Min. ruhen lassen, dann portionieren. Dazu passt Gurkensalat."],
+  tipp:"Ein Löffel Schmand in der Soße macht den Auflauf besonders cremig."}
+
+,
+{id:"wurstgulasch-ddr", title:"Kesselgulasch mit Nudeln (mild)", cat:"Herzhaft", emoji:"🫕", img:"https://upload.wikimedia.org/wikipedia/commons/f/f7/Kesselgulasch.jpg", credit:"Magellan · CC BY-SA 2.5", creditUrl:"https://commons.wikimedia.org/wiki/File%3AKesselgulasch.jpg",
+  time:75, kcal:590, diff:"Einfach", portion:6, portionUnit:"Portionen", tags:["ddr","diabetes","jagdwurst","eintopf","deftig","party","klassiker"],
+  desc:"Der Partytopf aus dem Osten: Jagdwurst und Kartoffeln in mild-würziger Paprikasoße – macht viele Mäuler satt.",
+  zutaten:[{m:600,e:"g",z:"Jagdwurst"},{m:800,e:"g",z:"Kartoffeln"},{m:2,e:"Stück",z:"Zwiebeln"},{m:2,e:"EL",z:"Tomatenmark"},{m:2,e:"EL",z:"Paprikapulver, edelsüß"},{m:750,e:"ml",z:"Fleischbrühe"},{m:2,e:"EL",z:"neutrales Öl"},{m:1,e:"TL",z:"Majoran"},{m:1,e:"Prise",z:"Salz und Pfeffer"},{m:500,e:"g",z:"Nudeln (dazu)"}],
+  steps:["Kartoffeln schälen und würfeln, Zwiebeln würfeln, Jagdwurst in dicke Scheiben und Viertel schneiden.","Zwiebeln in Öl goldgelb dünsten, Tomatenmark und Paprika edelsüß kurz anrösten.","Mit Brühe ablöschen, Kartoffeln zugeben und 20 Min. weich garen.","Jagdwurst unterheben, mit Majoran, Salz und Pfeffer mild-deftig abschmecken.","Nochmal 10 Min. ziehen lassen – die Soße soll sämig sein, ggf. etwas einköcheln.","Mit Nudeln oder Brot servieren. Schmeckt aufgewärmt noch besser."],
+  tipp:"Ein Klecks saure Sahne pro Teller rundet den Gulasch ab – und sieht toll aus."}
+,
+{id:"broiler-ddr", title:"Goldbroiler mit Kartoffelsalat", cat:"Herzhaft", emoji:"🍗", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Roasted_chicken_and_Cooked_rice.jpg/960px-Roasted_chicken_and_Cooked_rice.jpg", credit:"Baoothersks · CC BY-SA 4.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3ARoasted_chicken_and_Cooked_rice.jpg",
+  time:90, kcal:680, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["ddr","hähnchen","kartoffel","sonntag","party","klassiker"],
+  desc:"Knuspriger Broiler wie vom Grillpavillon – mit cremigem Kartoffelsalat und Gewürzgurke. Sonntagsessen mit Ostalgie.",
+  zutaten:[{m:1,e:"Stück",z:"Brathähnchen (ca. 1,4 kg)"},{m:2,e:"EL",z:"neutrales Öl"},{m:2,e:"TL",z:"Paprikapulver, edelsüß"},{m:1,e:"TL",z:"Salz"},{m:1,e:"Prise",z:"Pfeffer und Knoblauchpulver"},{m:1,e:"kg",z:"Kartoffeln, festkochend"},{m:200,e:"g",z:"Mayonnaise"},{m:150,e:"g",z:"Joghurt"},{m:3,e:"Stück",z:"Gewürzgurken + 3 EL Gurkenflüssigkeit"},{m:1,e:"Stück",z:"Zwiebel"},{m:1,e:"EL",z:"Senf"},{m:1,e:"Prise",z:"Zucker, Salz und Pfeffer"}],
+  steps:["Kartoffeln als Pellkartoffeln 20 Min. garen, noch warm pellen und in Scheiben schneiden.","Mayonnaise, Joghurt, Senf, Gurkenflüssigkeit, Zucker, Salz und Pfeffer verrühren.","Gurken und Zwiebel fein würfeln, unterheben und alles mit den warmen Kartoffeln mischen. Mind. 1 Std. ziehen lassen.","Ofen auf 200 °C vorheizen. Hähnchen innen und außen salzen, mit Öl einpinseln.","Paprika, Salz, Pfeffer und Knoblauchpulver mischen und das Hähnchen rundum einreiben.","Auf einem Rost über der Fettpfanne ca. 70 Min. braten, bis die Haut knuspert und der Saft klar austritt.","10 Min. ruhen lassen, dann tranchieren und mit Kartoffelsalat anrichten."],
+  tipp:"Warm marinieren die Kartoffeln am besten – kalte Scheiben nehmen fast keine Soße auf."}
+,
+{id:"eisbein-ddr", title:"Eisbein mit Sauerkraut & Erbspüree", cat:"Herzhaft", emoji:"🍖", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/72/Eisbein.jpg/960px-Eisbein.jpg", credit:"CoralBrowne · CC BY-SA 4.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AEisbein.jpg",
+  time:150, kcal:750, diff:"Mittel", portion:4, portionUnit:"Portionen", tags:["ddr","diabetes","schwein","sauerkraut","erbse","sonntag","deftig"],
+  desc:"Butterzartes Eisbein, mildes Sauerkraut und süßes Erbspüree – das deftige Festessen aus Omas Küche.",
+  zutaten:[{m:2,e:"Stück",z:"Eisbeine (je ca. 700 g, gepökelt)"},{m:1,e:"Bund",z:"Suppengrün"},{m:2,e:"Stück",z:"Zwiebeln"},{m:2,e:"Stück",z:"Lorbeerblätter"},{m:1,e:"TL",z:"Pfefferkörner"},{m:800,e:"g",z:"Sauerkraut"},{m:1,e:"Stück",z:"Apfel"},{m:500,e:"g",z:"Schälerbsen"},{m:50,e:"g",z:"Butter"},{m:100,e:"ml",z:"Sahne"},{m:1,e:"Prise",z:"Zucker, Salz und Pfeffer"}],
+  steps:["Eisbeine mit Suppengrün, einer Zwiebel, Lorbeer und Pfefferkörnern in kaltem Wasser aufsetzen.","Langsam zum Sieden bringen und ca. 2 Stunden weich garen – das Fleisch soll fast vom Knochen fallen.","Schälerbsen in Salzwasser 40 Min. weich kochen, abgießen, mit Butter und Sahne fein stampfen.","Püree mit Zucker, Salz und Pfeffer mild-süßlich abschmecken und warm halten.","Sauerkraut mit geriebenem Apfel und einer Schöpfkelle Eisbeinbrühe 20 Min. dünsten.","Eisbeine aus der Brühe heben, kurz abtropfen lassen. Wer mag: Haut im Ofen bei 220 °C 10 Min. knuspern.","Mit Sauerkraut und Erbspüree anrichten, etwas Brühe über das Fleisch löffeln."],
+  tipp:"Die Brühe nicht wegschütten – sie ist die perfekte Basis für Graupensuppe am nächsten Tag."}
+,
+{id:"pellkartoffeln-ddr", title:"Pellkartoffeln mit Quark & Leinöl", cat:"Herzhaft", emoji:"🥔", img:"https://upload.wikimedia.org/wikipedia/commons/c/c4/Pellkartoffeln%2C_frisch_gekocht.jpg", credit:"Beat von Stein · CC BY-SA 3.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3APellkartoffeln%2C_frisch_gekocht.jpg",
+  time:30, kcal:420, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["ddr","diabetes","kartoffel","quark","vegetarisch","schnell","klassiker"],
+  desc:"Spreewälder Abendbrot: heiße Pellkartoffeln, cremiger Quark und nussiges Leinöl – einfach, ehrlich, gut.",
+  zutaten:[{m:1,e:"kg",z:"Kartoffeln, festkochend"},{m:500,e:"g",z:"Magerquark"},{m:200,e:"g",z:"saure Sahne"},{m:100,e:"ml",z:"Milch"},{m:1,e:"Bund",z:"Schnittlauch"},{m:1,e:"Stück",z:"Zwiebel"},{m:4,e:"EL",z:"Leinöl"},{m:1,e:"Prise",z:"Salz und Pfeffer"}],
+  steps:["Kartoffeln gründlich waschen und in Salzwasser 20–25 Min. als Pellkartoffeln garen.","Quark mit saurer Sahne und Milch glatt und cremig rühren – Schlückchen für Schlückchen, bis er locker fällt.","Schnittlauch in Röllchen schneiden, Zwiebel sehr fein würfeln und unter den Quark rühren.","Kräftig mit Salz und Pfeffer abschmecken, abgedeckt kalt stellen, damit er durchzieht.","Kartoffeln abgießen, kurz ausdampfen lassen und in der Schale aufbrechen.","Jede Kartoffel mit Quark löffeln und mit Leinöl beträufeln – Leinöl immer erst auf dem Teller zugeben."],
+  tipp:"Leinöl wird schnell bitter: kleine Flasche kaufen, dunkel lagern und zügig verbrauchen."}
+,
+{id:"bauernfruehstueck-ddr", title:"Bauernfrühstück aus der Pfanne", cat:"Herzhaft", emoji:"🍳", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cd/Bratkartoffeln_1024_768.jpg/960px-Bratkartoffeln_1024_768.jpg", credit:"Metzecki · Public Domain", creditUrl:"https://commons.wikimedia.org/wiki/File%3ABratkartoffeln_1024_768.jpg",
+  time:35, kcal:520, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["ddr","diabetes","kartoffel","ei","schnell","resteverwertung","hausmannskost"],
+  desc:"Knusprige Bratkartoffeln mit Ei gestockt, dazu Gewürzgurke – das beste Resteessen der DDR-Küche.",
+  zutaten:[{m:800,e:"g",z:"Kartoffeln vom Vortag (Pellkartoffeln)"},{m:150,e:"g",z:"durchwachsener Speck"},{m:2,e:"Stück",z:"Zwiebeln"},{m:6,e:"Stück",z:"Eier"},{m:3,e:"EL",z:"neutrales Öl oder Butterschmalz"},{m:1,e:"Bund",z:"Schnittlauch"},{m:1,e:"Prise",z:"Salz, Pfeffer und Majoran"},{m:4,e:"Stück",z:"Gewürzgurken (dazu)"}],
+  steps:["Pellkartoffeln pellen und in Scheiben schneiden – kalte Kartoffeln braten am knusprigsten.","Speck würfeln und in der Pfanne auslassen, Zwiebeln zugeben und glasig dünsten.","Kartoffelscheiben dazu, mit Salz, Pfeffer und Majoran würzen und bei guter Hitze goldbraun braten.","Erst wenden, wenn die Unterseite knuspert – zu frühes Rühren macht alles matschig.","Eier verquirlen, salzen, über die Kartoffeln gießen und bei kleiner Hitze stocken lassen.","Mit Schnittlauch bestreuen und mit Gewürzgurken servieren."],
+  tipp:"Die Pfanne darf ruhig voll sein, aber nicht überfüllt – lieber zweimal braten als einmal dämpfen."}
+,
+{id:"kartoffelpuffer-ddr", title:"Kartoffelpuffer mit Apfelmus", cat:"Herzhaft", emoji:"🥞", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c5/Reibekuchen_mit_Apfelmus.jpg/960px-Reibekuchen_mit_Apfelmus.jpg", credit:"Martin van Baal · CC BY-SA 4.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AReibekuchen_mit_Apfelmus.jpg",
+  time:45, kcal:450, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["ddr","kartoffel","süßsalzig","vegetarisch","apfel","kinder","klassiker"],
+  desc:"Außen kross, innen saftig – mit süßem Apfelmus das schönste Süßsalzig der DDR-Küche.",
+  zutaten:[{m:1,e:"kg",z:"Kartoffeln, mehligkochend"},{m:1,e:"Stück",z:"Zwiebel"},{m:2,e:"Stück",z:"Eier"},{m:3,e:"EL",z:"Haferflocken oder Mehl"},{m:1,e:"TL",z:"Salz"},{m:1,e:"Prise",z:"Pfeffer und Muskat"},{m:8,e:"EL",z:"neutrales Öl"},{m:400,e:"g",z:"Apfelmus (dazu)"}],
+  steps:["Kartoffeln und Zwiebel fein reiben – die Zwiebel verhindert, dass die Masse grau wird.","Masse in ein Tuch geben und kräftig ausdrücken – je trockener, desto krosser.","Eier, Haferflocken, Salz, Pfeffer und Muskat unterrühren, 5 Min. ruhen lassen.","Öl portionsweise in der Pfanne erhitzen – ein Tropfen Teig muss sofort brutzeln.","Je 2 EL Teig flach drücken, je Seite 3–4 Min. goldbraun braten.","Auf Küchenpapier entfetten und heiß mit kaltem Apfelmus servieren."],
+  tipp:"Zwischen den Portionen die Pfanne kurz auswischen – verbrannte Reste machen bitter."}
+,
+{id:"quarkkeulchen-ddr", title:"Sächsische Quarkkeulchen", cat:"Herzhaft", emoji:"🥔", img:"https://upload.wikimedia.org/wikipedia/commons/d/da/Quarkkeulchen.jpg", credit:"Schmidti · CC BY-SA 3.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AQuarkkeulchen.jpg",
+  time:50, kcal:480, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["ddr","sachsen","quark","kartoffel","süßsalzig","apfel","kinder"],
+  desc:"Sächsische Kartoffel-Quark-Puffer mit Rosinen, in Butter goldgelb gebraten – mit Apfelmus oder Zucker ein Gedicht.",
+  zutaten:[{m:600,e:"g",z:"Kartoffeln, mehligkochend"},{m:250,e:"g",z:"Magerquark"},{m:2,e:"Stück",z:"Eier"},{m:100,e:"g",z:"Weizenmehl"},{m:50,e:"g",z:"Rosinen"},{m:3,e:"EL",z:"Zucker"},{m:1,e:"Päckchen",z:"Vanillezucker"},{m:1,e:"Prise",z:"Salz"},{m:4,e:"EL",z:"Butter zum Braten"},{m:400,e:"g",z:"Apfelmus (dazu)"}],
+  steps:["Kartoffeln weich kochen, heiß pellen und zweimal durchpressen oder fein stampfen.","Quark gut abtropfen lassen und mit Eiern, Mehl, Zucker, Vanillezucker und Salz unterkneten.","Rosinen unterarbeiten – ist der Teig zu weich, noch 1 EL Mehl zugeben.","Mit bemehlten Händen 12 flache Keulchen formen.","In Butter bei mittlerer Hitze je Seite 4–5 Min. goldgelb braten.","Mit Apfelmus oder Zimt-Zucker servieren – warm schmecken sie am besten."],
+  tipp:"Quark vorher in einem Tuch ausdrücken – zu nasser Quark macht den Teig klebrig."}
+
+,
+{id:"allerlei-ddr", title:"Leipziger Allerlei", cat:"Herzhaft", emoji:"🥕", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/2/21/Mischgem%C3%BCse.jpg/960px-Mischgem%C3%BCse.jpg", credit:"Moritz Kremer · CC BY-SA 4.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AMischgem%C3%BCse.jpg",
+  time:40, kcal:280, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["ddr","diabetes","gemüse","vegetarisch","süßsalzig","klassiker","beilage"],
+  desc:"Zartes Frühlingsgemüse in Butter, mit Bröseln und – ganz klassisch – Krebsbutter verfeinert. Feinste DDR-Festtagsküche.",
+  zutaten:[{m:300,e:"g",z:"Möhren"},{m:250,e:"g",z:"Blumenkohl"},{m:200,e:"g",z:"Zuckerschoten oder Erbsen"},{m:200,e:"g",z:"grüner Spargel"},{m:1,e:"Stange",z:"Lauch"},{m:50,e:"g",z:"Butter"},{m:2,e:"EL",z:"Semmelbrösel"},{m:150,e:"ml",z:"Gemüsebrühe"},{m:100,e:"ml",z:"Sahne"},{m:1,e:"EL",z:"Zitronensaft"},{m:1,e:"Prise",z:"Zucker, Salz und Pfeffer"}],
+  steps:["Alles Gemüse putzen und in mundgerechte Stücke schneiden – gleich groß, damit alles gleichzeitig gar wird.","Möhren und Blumenkohl in Salzwasser 5 Min. vorgaren, dann Erbsen, Spargel und Lauch zugeben.","Nach 3–4 Min. abgießen – das Gemüse soll noch Biss haben. Brühe dabei auffangen.","Butter schmelzen, Brösel darin goldgelb rösten und herausnehmen.","Brühe mit Sahne einkochen, mit Zitronensaft, Zucker, Salz und Pfeffer fein abschmecken.","Gemüse in der Soße schwenken, mit Butterbröseln bestreuen. Klassisch mit Krebsen oder Flusskrebsbutter servieren."],
+  tipp:"Jede Sorte einzeln garen und erst am Ende mischen – so bleibt alles knackig und farbig."}
+,
+{id:"kloesse-ddr", title:"Thüringer Klöße mit Gulasch", cat:"Herzhaft", emoji:"🥔", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8e/Rindergulasch_Rotkohl_Kloesse_011.JPG/960px-Rindergulasch_Rotkohl_Kloesse_011.JPG", credit:"Sebastian Wallroth · CC BY 3.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3ARindergulasch_Rotkohl_Kloesse_011.JPG",
+  time:120, kcal:720, diff:"Mittel", portion:4, portionUnit:"Portionen", tags:["ddr","diabetes","kartoffel","rind","sonntag","klassiker","hausmannskost"],
+  desc:"Seidenklöße halb Seide, halb roh gerieben, dazu mild geschmorter Rindergulasch und Rotkohl – der Sonntagsteller.",
+  zutaten:[{m:1.5,e:"kg",z:"Kartoffeln, mehligkochend"},{m:100,e:"g",z:"Kartoffelstärke"},{m:2,e:"Scheiben",z:"Toastbrot für Bröckchen"},{m:1,e:"EL",z:"Butter"},{m:800,e:"g",z:"Rindergulasch"},{m:2,e:"Stück",z:"Zwiebeln"},{m:2,e:"EL",z:"Tomatenmark"},{m:1,e:"EL",z:"Paprikapulver, edelsüß"},{m:750,e:"ml",z:"Rinderbrühe"},{m:1,e:"Stück",z:"Lorbeerblatt"},{m:1,e:"Prise",z:"Salz, Pfeffer und Majoran"},{m:600,e:"g",z:"Rotkohl (dazu)"}],
+  steps:["Für den Gulasch Zwiebeln würfeln, in Butterschmalz anbraten, Tomatenmark und Paprika kurz anrösten.","Fleisch portionsweise kräftig anbraten, mit Brühe ablöschen, Lorbeer zugeben.","Ca. 90 Min. weich schmoren, dann mit Salz, Pfeffer und Majoran mild abschmecken.","Ein Drittel der Kartoffeln als Pellkartoffeln garen, pellen und heiß stampfen.","Restliche Kartoffeln roh fein reiben, in einem Tuch kräftig ausdrücken und mit Stärke und Salz verkneten.","Heiße und rohe Masse zügig mischen – wird sie grau, war man zu langsam. Mit nassen Händen 8 Klöße formen, je ein geröstetes Brotbröckchen eindrücken.","Klöße in siedendes (nicht kochendes!) Salzwasser gleiten lassen, 20 Min. ziehen lassen, bis sie oben schwimmen.","Mit Gulasch und Rotkohl anrichten, Soße großzügig darüber geben."],
+  tipp:"Rohe und gekochte Masse erst kurz vor dem Formen mischen – so bleiben die Klöße hell."}
+,
+{id:"linseneintopf-ddr", title:"Linseneintopf mit Kasseler", cat:"Suppen", emoji:"🍲", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e8/Linseneintopf.jpg/960px-Linseneintopf.jpg", credit:"Matthias Lipinski · CC0", creditUrl:"https://commons.wikimedia.org/wiki/File%3ALinseneintopf.jpg",
+  time:70, kcal:480, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["ddr","diabetes","linsen","kasseler","eintopf","deftig","winter"],
+  desc:"Braune Tellerlinsen, Kasseler und Wurzelgemüse, mit Essig fein säuerlich abgeschmeckt – Eintopf zum Aufwärmen.",
+  zutaten:[{m:300,e:"g",z:"Tellerlinsen, braun"},{m:400,e:"g",z:"Kasseler"},{m:1,e:"Bund",z:"Suppengrün"},{m:2,e:"Stück",z:"Kartoffeln"},{m:1,e:"Stück",z:"Zwiebel"},{m:1.2,e:"l",z:"Wasser oder Brühe"},{m:1,e:"Stück",z:"Lorbeerblatt"},{m:2,e:"EL",z:"Essig"},{m:1,e:"TL",z:"Senf"},{m:1,e:"Prise",z:"Salz, Pfeffer und Zucker"}],
+  steps:["Linsen kalt abspülen. Suppengrün, Kartoffeln und Zwiebel würfeln, Kasseler in grobe Würfel schneiden.","Alles mit Wasser, Lorbeer und Senf aufsetzen und 45–50 Min. sanft garen.","Kasseler herausheben – ein Drittel der Suppe pürieren und zurückgeben, das bindet sämig.","Mit Essig, Salz, Pfeffer und einer Prise Zucker herzhaft-säuerlich abschmecken.","Kasseler wieder einlegen, 5 Min. durchwärmen. Dazu passt Bauernbrot."],
+  tipp:"Ein Schuss Essig erst ganz am Ende – so bleibt das Aroma frisch und die Linsen garen besser."}
+,
+{id:"graupensuppe-ddr", title:"Graupensuppe mit Rindfleisch", cat:"Suppen", emoji:"🍜", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a5/Graupensuppe.jpg/960px-Graupensuppe.jpg", credit:"1971markus · CC BY-SA 4.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AGraupensuppe.jpg",
+  time:100, kcal:420, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["ddr","diabetes","suppe","graupen","rind","eintopf","deftig","winter"],
+  desc:"Perlgraupen, Suppenfleisch und Wurzelgemüse – die Suppe, die schon Oma bei Erkältung und Kälte kochte.",
+  zutaten:[{m:150,e:"g",z:"Perlgraupen"},{m:400,e:"g",z:"Rinderbrust oder -beinscheibe"},{m:1,e:"Bund",z:"Suppengrün"},{m:3,e:"Stück",z:"Kartoffeln"},{m:1,e:"Stück",z:"Zwiebel"},{m:1.5,e:"l",z:"Wasser"},{m:1,e:"Stück",z:"Lorbeerblatt"},{m:5,e:"Körner",z:"Pfefferkörner"},{m:1,e:"Prise",z:"Salz und Majoran"}],
+  steps:["Graupen in kaltem Wasser 1 Std. einweichen, dann abgießen – so garen sie gleichmäßig.","Fleisch mit Zwiebel, Lorbeer und Pfefferkörnern in kaltem Wasser aufsetzen, 60 Min. sanft sieden.","Fleisch herausheben, Brühe durch ein Sieb gießen – sie soll klar und kräftig sein.","Graupen in der Brühe 30 Min. garen, gewürfeltes Suppengrün und Kartoffeln zugeben.","Weitere 20 Min. garen, bis alles weich ist. Fleisch würfeln und zurückgeben.","Mit Salz und Majoran abschmecken, 5 Min. ruhen lassen. Dazu Bauernbrot."],
+  tipp:"Übrige Suppe dickt über Nacht nach – einfach mit etwas Brühe oder Wasser wieder strecken."}
+,
+{id:"tomatensuppe-ddr", title:"Tomatensuppe mit Reis (DDR-Art)", cat:"Suppen", emoji:"🍅", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/Grilled_cheese_sandwich_with_roasted_tomato_soup.jpg/960px-Grilled_cheese_sandwich_with_roasted_tomato_soup.jpg", credit:"jeffreyw · CC BY 2.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AGrilled_cheese_sandwich_with_roasted_tomato_soup.jpg",
+  time:30, kcal:260, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["ddr","diabetes","suppe","tomate","reis","kinder","vegetarisch","schnell"],
+  desc:"Mild-süßliche Tomatensuppe mit weichem Reis – die Lieblingssuppe vieler Ost-Kinder, ganz ohne Schärfe.",
+  zutaten:[{m:800,e:"g",z:"passierte Tomaten"},{m:500,e:"ml",z:"Gemüsebrühe"},{m:125,e:"g",z:"Reis"},{m:1,e:"Stück",z:"Zwiebel"},{m:1,e:"Stück",z:"Möhre"},{m:100,e:"ml",z:"Sahne"},{m:1,e:"EL",z:"Butter"},{m:2,e:"TL",z:"Zucker"},{m:1,e:"Prise",z:"Salz und Pfeffer"}],
+  steps:["Reis in Salzwasser garen, abgießen und beiseitestellen.","Zwiebel und Möhre fein würfeln und in Butter weich dünsten – keine Farbe nehmen lassen.","Passierte Tomaten und Brühe angießen, 15 Min. sanft köcheln.","Fein pürieren, Sahne einrühren und mit Zucker, Salz und Pfeffer süßlich-mild abschmecken.","Reis in tiefe Teller geben und die heiße Suppe darüber schöpfen."],
+  tipp:"Ein Löffel Schmand pro Teller und frisches Basilikum machen aus der Kindersuppe ein Abendessen."}
+,
+{id:"russischeeier-ddr", title:"Russische Eier (DDR-Buffet)", cat:"Snacks", emoji:"🥚", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/0/04/Deviled_egg_closeup.jpg/960px-Deviled_egg_closeup.jpg", credit:"Stu Spivack · CC BY-SA 2.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3ADeviled_egg_closeup.jpg",
+  time:30, kcal:180, diff:"Einfach", portion:8, portionUnit:"Stück", tags:["ddr","diabetes","ei","party","buffet","süßsalzig","kalt","klassiker"],
+  desc:"Halbierte Eier mit Remouladenhaube, Gewürzgurke und Kaviar-Ersatz – auf keinem DDR-Büfett durften sie fehlen.",
+  zutaten:[{m:8,e:"Stück",z:"Eier"},{m:3,e:"EL",z:"Mayonnaise"},{m:1,e:"EL",z:"Senf"},{m:1,e:"Stück",z:"Gewürzgurke"},{m:1,e:"EL",z:"Gurkenflüssigkeit"},{m:1,e:"Glas",z:"Kaviar-Ersatz (Forellenkaviar)"},{m:1,e:"Bund",z:"Dill"},{m:1,e:"Prise",z:"Salz, Pfeffer und Zucker"}],
+  steps:["Eier 10 Min. wachsweich-hart kochen, eiskalt abschrecken und vorsichtig pellen.","Längs halbieren, die Eigelbe herauslösen und in eine Schüssel geben.","Eigelbe mit Mayonnaise, Senf, Gurkenflüssigkeit, Zucker, Salz und Pfeffer cremig verrühren.","Gewürzgurke sehr fein würfeln und unterheben – die Creme soll spritzfähig, aber standfest sein.","Mit zwei Löffeln oder Spritzbeutel kuppelförmig auf die Eihälften setzen.","Mit Kaviar-Ersatz und Dillfähnchen garnieren, kalt stellen und zügig servieren."],
+  tipp:"Eier eine Woche alt pellen sich am besten – ganz frische Eier kleben an der Schale."}
+,
+{id:"ketwurst-ddr", title:"Ketwurst wie vom Kiosk", cat:"Snacks", emoji:"🌭", img:"https://upload.wikimedia.org/wikipedia/commons/d/da/Ketwurst.jpg", credit:"M. Haase · CC BY-SA 3.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AKetwurst.jpg",
+  time:20, kcal:450, diff:"Einfach", portion:4, portionUnit:"Stück", tags:["ddr","wurst","kinder","streetfood","schnell","party","klassiker"],
+  desc:"Der DDR-Snack schlechthin: Bockwurst im ausgehöhlten Brötchen, mit Ketchup versenkt – Ketchup, die kleckert.",
+  zutaten:[{m:4,e:"Stück",z:"Bockwürste"},{m:4,e:"Stück",z:"längliche Brötchen"},{m:100,e:"ml",z:"Ketchup"},{m:1,e:"EL",z:"Butter (weich)"}],
+  steps:["Wasser zum Sieden bringen (nicht sprudelnd kochen) und die Bockwürste darin 10 Min. heiß werden lassen.","Brötchen aufbacken oder erwärmen – sie müssen warm und elastisch sein.","Mit einem Kochlöffelstiel oder Apfelausstecher längs eine Höhle ins Brötchen drücken – unten 1 cm Boden stehen lassen.","Höhle dünn mit Butter ausstreichen und je 1 EL Ketchup einfüllen.","Bockwurst hineinstecken, oben noch einen Ketchup-Klecks darauf – fertig ist die Ketwurst.","Sofort servieren – am besten über einem Teller, es kleckert garantiert."],
+  tipp:"Die Höhle nicht zu groß machen – das Brötchen soll die Wurst fest umschließen."}
+
+,
+{id:"grilletta-ddr", title:"Grilletta (Ost-Burger)", cat:"Snacks", emoji:"🍔", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4d/Grilletta_Leipzig.jpg/960px-Grilletta_Leipzig.jpg", credit:"Stylens · CC BY-SA 4.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3AGrilletta_Leipzig.jpg",
+  time:30, kcal:520, diff:"Einfach", portion:4, portionUnit:"Stück", tags:["ddr","burger","hackfleisch","streetfood","kinder","party","klassiker"],
+  desc:"Bulette im Rundbrötchen mit Letscho und Ketchup – der Burger aus dem Jugendclub, deftig und ehrlich.",
+  zutaten:[{m:500,e:"g",z:"Hackfleisch, gemischt"},{m:1,e:"Stück",z:"Brötchen vom Vortag"},{m:1,e:"Stück",z:"Zwiebel"},{m:1,e:"Stück",z:"Ei"},{m:1,e:"TL",z:"Senf"},{m:1,e:"TL",z:"Paprikapulver, edelsüß"},{m:4,e:"Stück",z:"Rundbrötchen"},{m:200,e:"g",z:"Letscho (Glas oder Rest)"},{m:4,e:"EL",z:"Ketchup"},{m:1,e:"Prise",z:"Salz und Pfeffer"},{m:2,e:"EL",z:"neutrales Öl"}],
+  steps:["Brötchen einweichen, ausdrücken. Zwiebel fein würfeln.","Hackfleisch mit Brötchen, Zwiebel, Ei, Senf, Paprika, Salz und Pfeffer verkneten.","4 flache, brötchengroße Buletten formen – etwas größer als das Brötchen, sie schrumpfen.","In Öl je Seite 5–6 Min. durchbraten – innen darf nichts Rohes mehr sein.","Brötchen aufschneiden, kurz toasten, Unterseite mit Ketchup bestreichen.","Bulette darauf, je 2 EL warmes Letscho darüber, Deckel drauf – sofort servieren."],
+  tipp:"Letscho vorher einkochen, bis es dick ist – zu flüssiges Letscho weicht das Brötchen auf."}
+,
+{id:"rotegruetze-ddr", title:"Rote Grütze mit Vanillesoße", cat:"Snacks", emoji:"🍒", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/67/Rote_Gr%C3%BCtze.jpg/960px-Rote_Gr%C3%BCtze.jpg", credit:"Wikimedia Commons · CC BY-SA 3.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3ARote_Gr%C3%BCtze.jpg",
+  time:25, kcal:220, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["ddr","dessert","nachtisch","fruchtig","beeren","sommer","vegetarisch","süß"],
+  desc:"Glänzende Beerengrütze, fruchtig-süß mit Vanillesoße – der Sommernachtisch aus dem Ferienlager.",
+  zutaten:[{m:750,e:"g",z:"Beerenmix (Johannis-, Him-, Brombeeren, Kirschen)"},{m:200,e:"ml",z:"Kirsch- oder Beerensaft"},{m:80,e:"g",z:"Zucker"},{m:30,e:"g",z:"Speisestärke"},{m:1,e:"Stück",z:"Zitrone (Saft)"},{m:500,e:"ml",z:"Milch"},{m:1,e:"Päckchen",z:"Vanillepuddingpulver"},{m:2,e:"EL",z:"Zucker (Soße)"}],
+  steps:["Beeren verlesen, Kirschen ggf. entsteinen. Stärke mit 5 EL kaltem Saft glatt rühren.","Restlichen Saft mit Zucker und Zitronensaft aufkochen.","Stärkemischung einrühren, einmal aufwallen lassen – es muss klar glänzen.","Beeren unterheben, 2 Min. ziehen (nicht mehr kochen), dann in eine Schüssel füllen.","Für die Soße Puddingpulver mit Zucker und etwas Milch anrühren, Rest aufkochen.","Pulver einrühren, kurz aufkochen, in ein Kännchen füllen. Grütze lauwarm oder kalt mit Soße servieren."],
+  tipp:"Folie direkt auf die Grütze legen beim Abkühlen – so bildet sich keine Haut."}
+,
+{id:"schwedenbecher-ddr", title:"Schwedeneisbecher", cat:"Snacks", emoji:"🍨", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9e/Schwedeneis_MB.jpg/960px-Schwedeneis_MB.jpg", credit:"Mark Benecke · CC BY-SA 3.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3ASchwedeneis_MB.jpg",
+  time:15, kcal:480, diff:"Einfach", portion:2, portionUnit:"Becher", tags:["ddr","dessert","eis","apfel","party","kinder","sommer","süß"],
+  desc:"Vanilleeis, Apfelmus, Eierlikör und Sahne – der legendäre Eisbecher aus der DDR-Eisdiele.",
+  zutaten:[{m:4,e:"Kugeln",z:"Vanilleeis"},{m:200,e:"g",z:"Apfelmus (kalt)"},{m:4,e:"cl",z:"Eierlikör"},{m:200,e:"ml",z:"Schlagsahne"},{m:1,e:"Päckchen",z:"Vanillezucker"},{m:2,e:"Stück",z:"Eiswaffeln oder Kekse"}],
+  steps:["Sahne mit Vanillezucker steif schlagen und kalt stellen.","Je 2 Eiskugeln in hohe Gläser oder Becher setzen.","Kaltes Apfelmus rundherum verteilen – der Kontrast warm-kalt gehört dazu.","Eierlikör in Zickzacklinien darüber gießen.","Sahnehaube aufspritzen, Waffel dazustecken und sofort servieren."],
+  tipp:"Gläser vorher 10 Min. ins Eisfach – so schmilzt nichts davon, während man schichtet."}
+,
+{id:"kalterhund-ddr", title:"Kalter Hund (Kalte Schnauze)", cat:"Kuchen", emoji:"🍫", img:"https://upload.wikimedia.org/wikipedia/commons/9/95/Kalter_hund.jpg", credit:"Daniel Rentsch · Public domain", creditUrl:"https://commons.wikimedia.org/wiki/File%3AKalter_hund.jpg",
+  time:30, kcal:380, diff:"Einfach", portion:20, portionUnit:"Scheiben", tags:["ddr","schoko","kinder","ohne backen","party","klassiker","süß"],
+  desc:"Butterkekse und Schokomasse schichtweise in der Kastenform – der Kuchen ohne Backen für Kindergeburtstage.",
+  zutaten:[{m:250,e:"g",z:"Kokosfett (Palmin)"},{m:150,e:"g",z:"Puderzucker"},{m:50,e:"g",z:"Backkakao"},{m:2,e:"Stück",z:"Eier"},{m:1,e:"Päckchen",z:"Vanillezucker"},{m:2,e:"EL",z:"Rum-Aroma oder Milch"},{m:300,e:"g",z:"Butterkekse"}],
+  steps:["Kastenform (25 cm) mit Backpapier auslegen – mit Überstand, zum Herausheben.","Kokosfett schmelzen und lauwarm abkühlen lassen – heißes Fett macht die Creme grisselig.","Puderzucker, Kakao, Vanillezucker, Eier und Rum-Aroma verrühren, Fett unterrühren.","Boden der Form dünn mit Creme bestreichen, Lage Butterkekse einlegen.","Creme und Kekse abwechselnd schichten, mit Creme abschließen.","Mindestens 4 Stunden, besser über Nacht, kalt stellen und fest werden lassen.","Mit dem Papier aus der Form heben und in Scheiben schneiden."],
+  tipp:"Zwischen Creme und Keks darf keine Luft bleiben – fest andrücken, sonst bricht er beim Schneiden."}
+,
+{id:"russischbrot-ddr", title:"Russisch Brot", cat:"Plätzchen", emoji:"🔤", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a6/Russisch-Brot-1.jpg/960px-Russisch-Brot-1.jpg", credit:"Rainer Zenz · CC BY-SA 3.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3ARussisch-Brot-1.jpg",
+  time:60, kcal:90, diff:"Mittel", portion:40, portionUnit:"Stück", tags:["ddr","weihnachten","kakao","kinder","backen mit kindern","süß","klassiker"],
+  desc:"Die knusprigen Kakao-Buchstaben zum Aufessen – DDR-Weihnachten zum Buchstabieren und Naschen.",
+  zutaten:[{m:3,e:"Stück",z:"Eiweiß"},{m:150,e:"g",z:"Puderzucker"},{m:1,e:"TL",z:"Zitronensaft"},{m:20,e:"g",z:"Backkakao"},{m:150,e:"g",z:"Weizenmehl"}],
+  steps:["Eiweiß mit Puderzucker und Zitronensaft sehr steif schlagen – Spitzen müssen stehen bleiben.","2 EL vom Schnee für die Glasur abnehmen und kalt stellen.","Kakao und Mehl sieben, locker unterheben – nur so viel rühren wie nötig.","Teig 30 Min. kalt stellen, Ofen auf 150 °C vorheizen, Bleche mit Backpapier belegen.","Teig 5 mm dick ausrollen und Buchstaben ausstechen (oder frei Hand formen).","Mit der Glasur dünn bepinseln und 15–18 Min. backen – sie sollen trocken-knusprig sein."],
+  tipp:"Namen und Wörter legen macht Kindern am meisten Spaß – erst backen, dann buchstabieren."}
+,
+{id:"pfefferkuchen-ddr", title:"Pulsnitzer Pfefferkuchen", cat:"Plätzchen", emoji:"🍪", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8a/Spitzenvielfalt_aus_der_Pfefferkuchenstadt_Pulsnitz.jpg/960px-Spitzenvielfalt_aus_der_Pfefferkuchenstadt_Pulsnitz.jpg", credit:"Numiscontrol · CC BY-SA 3.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3ASpitzenvielfalt_aus_der_Pfefferkuchenstadt_Pulsnitz.jpg",
+  time:70, kcal:110, diff:"Mittel", portion:30, portionUnit:"Stück", tags:["ddr","weihnachten","honig","gewürz","klassiker","süß"],
+  desc:"Saftig-würzige Honigkuchen aus der Pfefferkuchenstadt Pulsnitz – mit Zuckerguss oder Schokolade.",
+  zutaten:[{m:250,e:"g",z:"Honig"},{m:100,e:"g",z:"Zucker"},{m:100,e:"g",z:"Butter"},{m:500,e:"g",z:"Weizenmehl"},{m:1,e:"Päckchen",z:"Pfefferkuchengewürz"},{m:1,e:"TL",z:"Natron"},{m:1,e:"Stück",z:"Ei"},{m:100,e:"g",z:"Orangeat, fein gehackt"},{m:150,e:"g",z:"Puderzucker (Guss)"},{m:3,e:"EL",z:"Zitronensaft"}],
+  steps:["Honig, Zucker und Butter erwärmen, bis alles flüssig ist – nicht kochen! Lauwarm abkühlen lassen.","Mehl mit Gewürz und Natron mischen, Honigmischung, Ei und Orangeat unterkneten.","Teig in Folie wickeln und über Nacht kalt stellen – er wird dadurch aromatisch und formbar.","3–4 mm dick ausrollen, Herzen, Sterne und Ecken ausstechen. Ofen auf 180 °C vorheizen.","10–12 Min. backen – sie sollen noch weich sein, sie härten beim Abkühlen nach.","Puderzucker mit Zitronensaft verrühren, die kalten Kuchen bestreichen oder in Kuvertüre tauchen."],
+  tipp:"In einer Blechdose mit einem Apfelschnitz werden sie nach ein paar Tagen wunderbar weich."}
+,
+{id:"spirellisalat-ddr", title:"Spirellisalat mit Jagdwurst", cat:"Herzhaft", emoji:"🥗", img:"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/68/Nudelsalat_klassisch.JPG/960px-Nudelsalat_klassisch.JPG", credit:"3268zauber · CC BY-SA 3.0", creditUrl:"https://commons.wikimedia.org/wiki/File%3ANudelsalat_klassisch.JPG",
+  time:30, kcal:420, diff:"Einfach", portion:4, portionUnit:"Portionen", tags:["ddr","nudeln","jagdwurst","party","buffet","süßsalzig","grillen","kalt"],
+  desc:"Der Partysalat des Ostens: Spirelli, Jagdwurst, Gurke und Erbsen in süß-saurer Mayo-Creme.",
+  zutaten:[{m:350,e:"g",z:"Spirelli"},{m:300,e:"g",z:"Jagdwurst"},{m:3,e:"Stück",z:"Gewürzgurken + 4 EL Gurkenflüssigkeit"},{m:150,e:"g",z:"Erbsen (TK, aufgetaut)"},{m:150,e:"g",z:"Mayonnaise"},{m:150,e:"g",z:"Joghurt"},{m:1,e:"EL",z:"Senf"},{m:1,e:"EL",z:"Zucker"},{m:1,e:"Prise",z:"Salz und Pfeffer"}],
+  steps:["Spirelli bissfest garen, kalt abschrecken und gut abtropfen lassen – nasse Nudeln verwässern das Dressing.","Jagdwurst in Streifen, Gurken in Scheiben schneiden.","Mayonnaise, Joghurt, Senf, Gurkenflüssigkeit, Zucker, Salz und Pfeffer zur süß-sauren Creme verrühren.","Nudeln, Wurst, Gurken und Erbsen locker unterheben.","Mindestens 1 Stunde kalt durchziehen lassen, dann nochmal abschmecken – Nudeln schlucken Würze."],
+  tipp:"Erst kurz vor dem Servieren final abschmecken – und etwas Gurkenflüssigkeit zum Nachfeuchten bereithalten."}
+
 
 ];
 const CATS = [
   {id:"alle", label:"🍽️ Alle", },
   {id:"diabetes", label:"🩵 Diabetes · zuckerarm"},
+  {id:"dia-herzhaft", label:"🍝 Diabetes herzhaft"},
+  {id:"dia-suess", label:"🧁 Diabetes süß"},
   {id:"Muffins", label:"🧁 Muffins"},
   {id:"Kuchen", label:"🍰 Kuchen"},
   {id:"Torten", label:"🎂 Torten"},
@@ -1879,11 +2221,28 @@ const CATS = [
   {id:"frucht", label:"🍎 Fruchtig"},
   {id:"party", label:"🎉 Party"},
   {id:"fruehstueck", label:"🥐 Frühstück"},
+  {id:"ddr", label:"🧱 DDR-Klassiker"},
   {id:"online", label:"🌍 Online entdecken"},
 ];
-const QUICK = ["Diabetes","Zimt","Schoko","Bolognese","Pizza","Suppe","Kürbis","Curry","Apfel","Käse","Kokos","Vanille","Plätzchen"];
+const QUICK = ["DDR","Diabetes","Zimt","Schoko","Bolognese","Pizza","Suppe","Kürbis","Curry","Apfel","Käse","Kokos","Vanille","Plätzchen"];
 
 let activeCat = "alle", query = "", servings = {};
+let zuckerAn = false;
+function istZucker(z){ return /zucker|honig|ahornsirup|agavendicksaft|dicksaft|marmelade|konfitüre/i.test(z.z) && !/xylit|erythrit|stevia/i.test(z.z); }
+function machZuckerfrei(z){
+  if(/xylit|erythrit|stevia/i.test(z.z)) return z;
+  let n = z.z;
+  if(/hagelzucker/i.test(n)) n = "Xylit grob (statt Hagelzucker)";
+  else if(/puderzucker/i.test(n)) n = "Xylit fein gemahlen (statt Puderzucker)";
+  else if(/vanillezucker/i.test(n)) n = "Xylit mit Vanilleextrakt (statt Vanillezucker)";
+  else if(/gelierzucker/i.test(n)) n = "Xylit + Spritzer Zitronensaft (statt Gelierzucker)";
+  else if(/brauner zucker/i.test(n)) n = "Xylit (statt braunem Zucker)";
+  else if(/zucker/i.test(n)){ const k = n.match(/zucker(\s*\([^)]*\))?/i); n = "Xylit" + (k&&k[1] ? k[1] : "") + " (statt Zucker)"; }
+  else if(/honig/i.test(n)) n = "Xylit (statt Honig)";
+  else if(/ahornsirup|agavendicksaft|dicksaft/i.test(n)) n = "Xylit (statt Sirup)";
+  else if(/marmelade|konfitüre/i.test(n)) n = n.replace(/(marmelade|konfitüre)/i, "$1 (ohne Zucker)");
+  return {m:z.m, e:z.e, z:n};
+}
 let favs = [], currentOpen = null;
 try { favs = JSON.parse(localStorage.getItem("lk_favs")||"[]"); if(!Array.isArray(favs)) favs=[]; } catch(e){ favs = []; }
 let shop = [];
@@ -1900,20 +2259,32 @@ function fmtMenge(m, f){
   else v = Math.round(v*10)/10;
   return (""+v).replace(".",",");
 }
+const NUTRE = /mandel|haselnuss|walnuss|cashew|pecan|paranuss|pistazie|macadamia|erdnuss|pinie|\bnuss\b|\bnüsse\b|nusskern|nussmus|nusslikör/i;
+function isDia(r){
+  if(!(r.tags.includes("diabetes")||r.tags.includes("zuckerarm"))) return false;
+  return !NUTRE.test(r.title+" "+r.tags.join(" ")+" "+r.zutaten.map(z=>z.z).join(" "));
+}
+function isSweet(r){
+  if(/Muffins|Kuchen|Torten|Plätzchen/.test(r.cat)) return true;
+  return /bratapfel|dessert|nachtisch|pudding|kaiserschmarrn|armeritter|pfannkuchen|pancake|milchreis|bällchen|krapfen|\beis\b/i.test(r.title);
+}
 function matchCat(r){
   if(activeCat==="alle") return true;
   if(activeCat==="favs") return favs.includes(r.id);
   if(activeCat==="online") return false;
-  if(activeCat==="diabetes") return r.tags.includes("diabetes")||r.tags.includes("zuckerarm");
+  if(activeCat==="diabetes") return isDia(r);
+  if(activeCat==="dia-herzhaft") return isDia(r) && !isSweet(r);
+  if(activeCat==="dia-suess") return isDia(r) && isSweet(r);
   if(activeCat==="airfryer") return !!r.airfryer;
   if(activeCat==="weihnachten") return r.tags.includes("weihnachten");
   if(activeCat==="schnell") return r.time!=null && r.time<=30;
   if(activeCat==="schoko") return /schoko|kakao|nougat|brownie|kuvertüre|schokolade/i.test(r.title+" "+r.tags.join(" ")+" "+r.zutaten.map(z=>z.z).join(" "));
-  if(activeCat==="kaese") return /käse|parmesan|mozzarella|frischkäse|cheddar|camembert|gouda|feta|quark|bergkäse/i.test(r.title+" "+r.tags.join(" ")+" "+r.zutaten.map(z=>z.z).join(" "));
+  if(activeCat==="kaese") return /käse|parmesan|mozzarella|cheddar|camembert|gouda|feta|emmentaler|raclette|bergkäse/i.test(r.title+" "+r.tags.join(" ")+" "+r.zutaten.map(z=>z.z).join(" "));
   if(activeCat==="kartoffel") return /kartoffel/i.test(r.title+" "+r.tags.join(" ")+" "+r.zutaten.map(z=>z.z).join(" "));
   if(activeCat==="frucht") return r.tags.includes("fruchtig")||/apfel|kirsch|beere|erdbeer|himbeer|blaubeer|zitrone|orange|pflaume|rhabarber|banane|mandarine|maracuja|tomate/i.test(r.title+" "+r.tags.join(" "));
   if(activeCat==="party") return ["party","fingerfood","aperitif","filmabend"].some(t=>r.tags.includes(t));
   if(activeCat==="fruehstueck") return r.tags.includes("frühstück")||/waffel|müsli|porridge|pancake/i.test(r.title);
+  if(activeCat==="ddr") return r.tags.includes("ddr")||r.tags.includes("ddr-klassiker");
   return r.cat===activeCat;
 }
 function matchQuery(r){
@@ -1939,7 +2310,7 @@ function renderQuick(){
   QUICK.forEach(q=>{
     const b=document.createElement("button");
     b.textContent="# "+q;
-    b.onclick=()=>{ $("searchInput").value=q; query=q.toLowerCase(); render(); document.querySelector("main").scrollIntoView({behavior:"smooth"}); };
+    b.onclick=()=>{ $("searchInput").value=q; query=q.toLowerCase(); activeCat="alle"; renderChips(); render(); document.querySelector("main").scrollIntoView({behavior:"smooth"}); };
     quickEl.appendChild(b);
   });
 }
@@ -1951,13 +2322,13 @@ function render(){
     $("activeFilter").textContent = "❤️ deine gespeicherten Lieblinge (Knopf oben neben der Einkaufsliste)";
   } else {
     $("resultCount").textContent = list.length + (list.length===1?" Rezept":" Rezepte");
-    $("activeFilter").textContent = activeCat==="diabetes" ? "🩵 zuckerarme Auswahl" : (query ? `für „${query}“` : "");
+    $("activeFilter").textContent = activeCat==="diabetes" ? "🩵 zuckerarm & nussfrei" : activeCat==="dia-herzhaft" ? "🩵 herzhaft, zuckerarm & nussfrei" : activeCat==="dia-suess" ? "🩵 süß, zuckerarm & nussfrei" : (query ? `für „${query}“` : "");
   }
   grid.innerHTML="";
-  if(activeCat==="diabetes"){
+  if(activeCat==="diabetes"||activeCat==="dia-herzhaft"||activeCat==="dia-suess"){
     const note=document.createElement("div");
     note.className="online-note";
-    note.innerHTML="🩵 <b>Zuckerarm genießen:</b> Süßes gibt's hier mit deutlich weniger Zucker – mit Xylit/Erythrit oder Fruchtsüße gebacken. Herzhaftes passt von Natur aus gut dazu. Alle Angaben in g · ml · EL · TL, Nährwerte sind Schätzungen – <b>bei Diabetes bitte immer mit Arzt oder Ernährungsberatung absprechen.</b>";
+    note.innerHTML="🩵 <b>Zuckerarm & nussfrei genießen:</b> Süßes gibt's hier mit deutlich weniger Zucker – mit Xylit/Erythrit oder Fruchtsüße gebacken. Herzhaftes passt von Natur aus gut dazu. Mit <b>🍝 Diabetes herzhaft</b> und <b>🧁 Diabetes süß</b> wechselst du zwischen beiden Welten. Alle Angaben in g · ml · EL · TL, Nährwerte sind Schätzungen – <b>bei Diabetes bitte immer mit Arzt oder Ernährungsberatung absprechen.</b>";
     grid.appendChild(note);
   }
   if(!list.length){
@@ -2029,6 +2400,8 @@ function openRecipe(id){
       ${(r.tags.includes("diabetes")||r.tags.includes("zuckerarm"))?`<div class="tipbox" style="background:#EAF7EF;border-color:#4E9B6A">🩵 <b>Zuckerarm-Variante:</b> mit deutlich weniger Zucker bzw. Xylit/Erythrit statt Zucker – deshalb auch für Diabetiker besser geeignet. Nährwerte sind Schätzungen, bei Diabetes bitte mit Arzt oder Ernährungsberatung absprechen.</div>`:""}
       <div class="portion"><span>🍽️ Menge: <b id="portionVal">${servings[r.id]} ${r.portionUnit}</b> <small style="opacity:.7">(anpassen → Zutaten rechnen um)</small></span>
         <span class="stepper"><button id="minusBtn">−</button><button id="plusBtn">＋</button></span></div>
+      <div class="zuckerbox" id="zuckerBox"><label class="switch"><input type="checkbox" id="zuckerToggle"><span class="sl"></span></label><span>🩵 <b>Zuckerarm machen:</b> Zucker → Xylit (1:1)</span></div>
+      <div class="tipbox" id="zuckerHinweis" hidden style="background:#EAF7EF;border-color:#4E9B6A">🩵 <b>Zuckerarme Variante aktiv:</b> Zucker, Honig &amp; Co. stehen unten als Xylit (1:1 getauscht) – auch auf der Einkaufsliste. Nährwerte bleiben Schätzungen.</div>
       <div class="sec-t">🧾 Zutaten <button class="btn" id="allBtn" style="flex:0 0 auto;padding:8px 16px;font-size:13px;margin-left:auto">Alle auf die Liste ＋</button></div>
       <div id="ingList"></div>
       ${r.airfryer?`<div class="airbox">♨️ <b>Airfryer: ${r.airfryer.temp} · ${r.airfryer.zeit}</b><br><span style="font-size:13.5px;opacity:.95">${r.airfryer.hinweis}</span></div>`:""}
@@ -2041,7 +2414,8 @@ function openRecipe(id){
     const f2=factorFor(r);
     $("portionVal").textContent=`${servings[r.id]} ${r.portionUnit}`;
     const box=$("ingList"); box.innerHTML="";
-    r.zutaten.forEach((z,idx)=>{
+    const showZut = zuckerAn ? r.zutaten.map(machZuckerfrei) : r.zutaten;
+    showZut.forEach((z,idx)=>{
       const row=document.createElement("div"); row.className="ing"; row.style.animationDelay=(idx*0.03)+"s";
       const label = (z.m!=null?`<b>${fmtMenge(z.m,f2)} ${z.e}</b> `:"")+z.z;
       row.innerHTML=`<span class="dot"></span><span class="txt">${label}</span><button class="add" title="Auf die Einkaufsliste">＋</button>`;
@@ -2060,6 +2434,11 @@ function openRecipe(id){
   syncFavBtn(r);
   $("favBtn").onclick=()=>toggleFav(r.id);
   $("allBtn").onclick=()=>addAll(r); $("allBtn2").onclick=()=>addAll(r);
+  zuckerAn=false;
+  if(!r.zutaten.some(istZucker)){ $("zuckerBox").innerHTML="🩵 <b>Bereits zuckerarm</b> – hier muss nichts getauscht werden."; }
+  else{
+    $("zuckerToggle").onchange=(e)=>{ zuckerAn=e.target.checked; $("zuckerHinweis").hidden=!zuckerAn; renderIng(); toast(zuckerAn?"🩵 Zuckerarm an: Zucker steht jetzt als Xylit in Zutaten & Liste.":"Zurück zum Originalrezept."); };
+  }
   $("sheetX").onclick=closeSheet;
   $("overlay").classList.add("show");
   document.body.style.overflow="hidden";
@@ -2084,7 +2463,8 @@ function addItem(text, from){
 }
 function addAll(r){
   const f=factorFor(r); let n=0;
-  r.zutaten.forEach(z=>{
+  const zl = (zuckerAn && currentOpen===r.id) ? r.zutaten.map(machZuckerfrei) : r.zutaten;
+  zl.forEach(z=>{
     const t=`${z.m!=null?fmtMenge(z.m,f)+" "+z.e+" ":""}${z.z}`.trim();
     if(!shop.some(s=>s.text.toLowerCase()===t.toLowerCase())){ shop.push({text:t,from:r.title,done:false,id:Date.now()+Math.random()+n}); n++; }
   });
@@ -2163,7 +2543,7 @@ function renderOnline(){
   grid.innerHTML = "";
   const note = document.createElement("div");
   note.className = "online-note";
-  note.innerHTML = "🌍 <b>Online-Entdecken (Beta):</b> Funde stammen aus der freien Datenbank <b>TheMealDB</b> – tausende zusätzliche Rezepte aus aller Welt. Anleitung und Maße sind englische Originalangaben (ggf. in Cups). Deine 216 Leckerküche-Rezepte bleiben unverändert – inklusive Favoriten und Einkaufsliste, die auch für Online-Funde funktionieren. Ohne Suchbegriff siehst du 6 Zufalls-Rezepte; deutsche Wörter wie „Hähnchen“ oder „Suppe“ werden automatisch übersetzt.";
+  note.innerHTML = "🌍 <b>Online-Entdecken (Beta):</b> Funde stammen aus der freien Datenbank <b>TheMealDB</b> – tausende zusätzliche Rezepte aus aller Welt. Anleitung und Maße sind englische Originalangaben (ggf. in Cups). Deine 263 Leckerküche-Rezepte bleiben unverändert – inklusive Favoriten und Einkaufsliste, die auch für Online-Funde funktionieren. Ohne Suchbegriff siehst du 6 Zufalls-Rezepte; deutsche Wörter wie „Hähnchen“ oder „Suppe“ werden automatisch übersetzt.";
   grid.appendChild(note);
   if(onlineLoading){ grid.innerHTML += `<div class="empty"><div class="big spin">🌍</div><h3 style="font-family:Fredoka">Suche online …</h3><p style="color:var(--muted)">Einen Moment, die Rezepte-Welt wird durchsucht.</p></div>`; return; }
   if(onlineErr==="offline"){ grid.innerHTML += `<div class="empty"><div class="big">📡</div><h3 style="font-family:Fredoka">Online-Suche geht gerade nicht</h3><p style="color:var(--muted)">Kein Internet oder TheMealDB antwortet nicht. Einfach später nochmal versuchen – deine gespeicherten Rezepte funktionieren immer.</p></div>`; return; }
