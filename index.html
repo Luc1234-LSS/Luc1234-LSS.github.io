@@ -25,7 +25,7 @@
     background-image:radial-gradient(rgba(46,26,14,.07) 1.2px, transparent 1.2px);
     background-size:22px 22px;
   }
-  .blob{ position:fixed; border-radius:50%; filter:blur(70px); opacity:.35; z-index:0; pointer-events:none; animation:float 12s ease-in-out infinite alternate; }
+  .blob{ position:fixed; border-radius:50%; filter:blur(70px); opacity:.35; z-index:0; pointer-events:none; }
   .blob.b1{ width:340px;height:340px; background:#FFB86B; top:-90px; left:-90px; }
   .blob.b2{ width:300px;height:300px; background:#FF9EBB; top:10%; right:-110px; animation-delay:-4s; }
   .blob.b3{ width:280px;height:280px; background:#FFE08A; bottom:-100px; left:30%; animation-delay:-8s; }
@@ -33,8 +33,7 @@
 
   header.top{
     position:sticky; top:0; z-index:50;
-    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-    background:rgba(255,249,241,.82); border-bottom:1px solid var(--line);
+    background:#FFF9F1; border-bottom:1px solid var(--line);
   }
   .top-in{ max-width:1180px; margin:0 auto; padding:12px 18px; display:flex; gap:12px; align-items:center; }
   .logo{ display:flex; align-items:center; gap:11px; cursor:pointer; user-select:none; }
@@ -237,7 +236,7 @@
   }
   .airbox{
     background:linear-gradient(135deg,#7A4A1E,#E8A93B); color:#fff; border-radius:18px; padding:16px 18px; margin-top:14px;
-    box-shadow:0 14px 30px -14px rgba(122,74,30,.7); animation:glow 2.6s ease-in-out infinite alternate;
+    box-shadow:0 14px 30px -14px rgba(122,74,30,.7);
   }
   @keyframes glow{ from{ box-shadow:0 10px 24px -14px rgba(122,74,30,.6);} to{ box-shadow:0 18px 40px -12px rgba(232,169,59,.7);} }
   .tipbox{ background:#FFF3D6; border:1.5px dashed #D9A441; border-radius:16px; padding:14px 16px; margin-top:12px; font-size:14px; }
@@ -293,14 +292,14 @@
   #favBtnTop{ border-color:#F3C2D4; }
   footer{ text-align:center; color:var(--muted); font-size:13px; padding:26px 10px 40px; position:relative; z-index:1; }
   html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
-  .hero h1 .hl{ background:linear-gradient(90deg,#FFD98A,#FF9EBB,#FFD98A); background-size:220% auto; -webkit-background-clip:text; background-clip:text; color:transparent; animation:hlShift 7s linear infinite; }
+  .hero h1 .hl{ background:linear-gradient(90deg,#FFD98A,#FF9EBB,#FFD98A); background-size:220% auto; -webkit-background-clip:text; background-clip:text; color:transparent; }
   @keyframes hlShift{ to{ background-position:220% center; } }
   .hero p{ font-size:clamp(13px,3.4vw,15.5px); line-height:1.62; }
   .hero{ isolation:isolate; }
   .hero::before{
     content:""; position:absolute; top:-60%; bottom:-60%; left:-40%; width:32%; pointer-events:none; z-index:0;
     background:linear-gradient(100deg,transparent,rgba(255,255,255,.16),transparent);
-    transform:skewX(-18deg); animation:sheen 7.5s ease-in-out infinite;
+    transform:skewX(-18deg);
   }
   @keyframes sheen{ 0%,55%{ left:-40%; } 92%,100%{ left:135%; } }
   .hero h1, .hero p, .hero .search-row, .hero .quick, .hero .stat-row{ position:relative; z-index:1; }
@@ -319,7 +318,6 @@
   @keyframes statIn{ from{ opacity:0; transform:translateY(8px); } }
   main{ animation:pageIn .6s ease backwards; }
   @keyframes pageIn{ from{ opacity:0; transform:translateY(14px); } }
-  .dice-btn{ animation:dicePulse 2.4s ease-in-out infinite; }
   @keyframes dicePulse{ 0%,100%{ box-shadow:0 12px 30px -12px rgba(0,0,0,.4); } 50%{ box-shadow:0 12px 32px -8px rgba(200,122,27,.8); } }
   .dice-btn.rolling{ animation:diceRoll .12s linear infinite; }
   @keyframes diceRoll{ 0%{ transform:rotate(-9deg) scale(1.1); } 50%{ transform:rotate(9deg) scale(1.14); } 100%{ transform:rotate(-9deg) scale(1.1); } }
@@ -460,7 +458,7 @@
     <button class="icon-btn" id="menuBtn" title="Menü: alle Bereiche">☰</button>
     <div class="logo" id="logoEl" title="Nach oben">
       <div class="logo-mark">🧑‍🍳</div>
-      <div><b>Leckerküche</b><span>Backen · Herzhaft · Snacks · Airfryer</span></div>
+      <div><b>Küchenliebe</b><span>Backen · Herzhaft · Snacks · Airfryer</span></div>
     </div>
     <div class="spacer"></div>
     <button class="icon-btn" id="favBtnTop" title="Deine gespeicherten Favoriten">❤️ <span class="lbl">Favoriten</span> <span class="badge" id="favBadge" hidden>0</span></button>
@@ -479,7 +477,7 @@
     <p>538 Rezepte – Backen, Herzhaft, DDR, 🥩 Low-Carb, 🥗 Leicht &amp; 🐱 Katzen-Leckerli. Tipp eine Zutat ein, z. B. <b>Zimt</b>. Alles in g, ml, EL &amp; TL.</p>
     <button class="hero-more" id="heroMore">Mehr anzeigen ↓</button>
     <div class="search-row">
-      <div class="search"><span style="font-size:20px">🔍</span><input id="searchInput" placeholder="Zutat, Rezept oder Stichwort … z. B. Zimt, Apfel, Milchreis" autocomplete="off"><button id="searchBtn">Suchen</button></div>
+      <div class="search"><span style="font-size:20px">🔍</span><input id="searchInput" placeholder="Wonach suchst du? z. B. Zimt, Apfel, Milchreis …" autocomplete="off"><button id="searchBtn">Suchen</button></div>
       <button class="dice-btn" id="clearBtn" hidden title="Suche löschen">✕</button>
       <button class="dice-btn" id="randomBtn" title="Zufallsrezept">🎲 Überrasch mich</button>
     </div>
@@ -4100,6 +4098,7 @@ const CAT_TIPS=[
 ];
 
 let activeCat = "alle", query = "", servings = {};
+let showN = 60;
 let zuckerAn = false;
 function istZucker(z){ return /zucker|honig|ahornsirup|agavendicksaft|dicksaft|marmelade|konfitüre/i.test(z.z) && !/xylit|erythrit|stevia/i.test(z.z); }
 function machZuckerfrei(z){
@@ -4178,7 +4177,7 @@ function renderChips(){
     const b=document.createElement("button");
     b.className="chip"+(activeCat===c.id?" on":"");
     b.textContent=c.label;
-    b.onclick=()=>{ if(c.id!=="online"){ query=""; $("searchInput").value=""; $("clearBtn").hidden=true; } activeCat=c.id; renderChips(); render(); if(["diabetes","dia-herzhaft","dia-suess"].includes(c.id)) sugarRain(); if(c.id==="online") fetchOnline(query); };
+    b.onclick=()=>{ showN=60; if(c.id!=="online"){ query=""; $("searchInput").value=""; $("clearBtn").hidden=true; } activeCat=c.id; renderChips(); render(); if(["diabetes","dia-herzhaft","dia-suess"].includes(c.id)) sugarRain(); if(c.id==="online") fetchOnline(query); };
     chipsEl.appendChild(b);
   });
   if($("menuList").children.length) renderMenu();
@@ -4240,6 +4239,7 @@ function render(){
     return;
   }
   list.forEach((r,i)=>{
+    if(i>=showN) return;
     const d=document.createElement("article");
     d.className="card"; d.style.animationDelay=(Math.min(i,11)*0.05)+"s";
     d.innerHTML=`
@@ -4261,6 +4261,13 @@ function render(){
     d.querySelector(".img-wrap").appendChild(fb);
     grid.appendChild(d);
   });
+  if(list.length>showN){
+    const mb=document.createElement("button");
+    mb.className="wide-btn"; mb.id="moreBtn";
+    mb.textContent=`Mehr anzeigen (noch ${list.length-showN} von ${list.length})`;
+    mb.onclick=()=>{ showN+=120; render(); };
+    grid.appendChild(mb);
+  }
 }
 
 function factorFor(r){ return (servings[r.id]||r.portion)/r.portion; }
@@ -4384,12 +4391,12 @@ function renderShop(){
 }
 function openDrawer(){ renderShop(); $("drawer").classList.add("show"); $("drawerOv").classList.add("show"); }
 function closeDrawer(){ $("drawer").classList.remove("show"); $("drawerOv").classList.remove("show"); }
-$("favBtnTop").onclick=()=>{ activeCat="favs"; renderChips(); render(); document.getElementById("grid").scrollIntoView({behavior:"smooth"}); };
+$("favBtnTop").onclick=()=>{ showN=60; activeCat="favs"; renderChips(); render(); document.getElementById("grid").scrollIntoView({behavior:"smooth"}); };
 $("listBtn").onclick=openDrawer; $("closeDrawerBtn").onclick=closeDrawer; $("drawerOv").onclick=closeDrawer;
 $("clearShopBtn").onclick=()=>{ if(!shop.length) return; if(confirm("Wirklich die ganze Liste leeren?")){ shop=[]; saveShop(); renderShop(); } };
 $("copyBtn").onclick=async()=>{
   if(!shop.length){ toast("Die Liste ist leer 🧺"); return; }
-  const t="🧑‍🍳 Einkaufsliste Leckerküche\n"+shop.map(s=>`${s.done?"[x]":"[ ]"} ${s.text}`).join("\n");
+  const t="🧑‍🍳 Einkaufsliste Küchenliebe\n"+shop.map(s=>`${s.done?"[x]":"[ ]"} ${s.text}`).join("\n");
   try{ await navigator.clipboard.writeText(t); toast("📋 Kopiert – viel Spaß beim Einkaufen!"); }
   catch(e){ toast("Kopieren ging nicht – sorry!"); }
 };
@@ -4419,10 +4426,10 @@ function sugarRain(n){
 function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),document.body.classList.contains("senior")?4500:2400); }
 
 /* Suche */
-function doSearch(){ query=$("searchInput").value.trim().toLowerCase(); $("clearBtn").hidden=!query; render(); triggerOnline(); }
+function doSearch(){ showN=60; query=$("searchInput").value.trim().toLowerCase(); $("clearBtn").hidden=!query; render(); triggerOnline(); }
 $("searchBtn").onclick=doSearch;
-$("searchInput").addEventListener("input",(e)=>{ query=e.target.value.trim().toLowerCase(); $("clearBtn").hidden=!query; render(); triggerOnline(); });
-$("clearBtn").onclick=()=>{ $("searchInput").value=""; query=""; $("clearBtn").hidden=true; render(); triggerOnline(); };
+$("searchInput").addEventListener("input",(e)=>{ showN=60; query=e.target.value.trim().toLowerCase(); $("clearBtn").hidden=!query; render(); triggerOnline(); });
+$("clearBtn").onclick=()=>{ showN=60; $("searchInput").value=""; query=""; $("clearBtn").hidden=true; render(); triggerOnline(); };
 $("searchInput").addEventListener("keydown",(e)=>{ if(e.key==="Enter") doSearch(); });
 $("randomBtn").onclick=()=>{
   const r=RECIPES[Math.floor(Math.random()*RECIPES.length)];
@@ -4463,7 +4470,7 @@ function renderMenu(){
   CATS.forEach(c=>{
     const b=document.createElement("button");
     b.textContent=c.label; if(c.id===activeCat) b.classList.add("on");
-    b.onclick=()=>{ if(c.id!=="online"){ query=""; $("searchInput").value=""; $("clearBtn").hidden=true; } activeCat=c.id; renderChips(); render(); if(["diabetes","dia-herzhaft","dia-suess"].includes(c.id)) sugarRain(); closeMenu(); document.getElementById("grid").scrollIntoView({behavior:"smooth"}); if(c.id==="online") fetchOnline(query); };
+    b.onclick=()=>{ showN=60; if(c.id!=="online"){ query=""; $("searchInput").value=""; $("clearBtn").hidden=true; } activeCat=c.id; renderChips(); render(); if(["diabetes","dia-herzhaft","dia-suess"].includes(c.id)) sugarRain(); closeMenu(); document.getElementById("grid").scrollIntoView({behavior:"smooth"}); if(c.id==="online") fetchOnline(query); };
     box.appendChild(b);
   });
 }
@@ -4579,6 +4586,7 @@ const ONLINE_BLOCK = ["achiote","ajo blanco","alfajor","kefta","almojabana","pan
 function onlineGesperrt(t){ const s=String(t||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""); return ONLINE_BLOCK.some(b=>s.includes(b)); }
 async function fetchOnline(q){
   const raw = (q||"").trim().toLowerCase();
+  showN = 60;
   onlineLoading = true; onlineErr = ""; renderOnline();
   try{
     const seen = new Set(); onlineCache = [];
@@ -4610,12 +4618,13 @@ function renderOnline(){
   grid.innerHTML = "";
   const note = document.createElement("div");
   note.className = "online-note";
-  note.innerHTML = "🌍 <b>Online-Entdecken (Beta):</b> Funde stammen aus der freien Datenbank <b>TheMealDB</b> – <b>hunderte zusätzliche Rezepte</b> aus aller Welt: Titel, Zutaten & Maße <b>automatisch ins Deutsche übersetzt</b> (Anleitung per KI beim Öffnen). Ohne Suchbegriff siehst du die <b>gesamte A–Z-Auswahl</b>; deutsche Wörter wie „Hähnchen“ oder „Suppe“ werden automatisch übersetzt. Deine "+RECIPES.length+" Leckerküche-Rezepte bleiben unverändert – inklusive Favoriten und Einkaufsliste, die auch für Online-Funde funktionieren.";
+  note.innerHTML = "🌍 <b>Online-Entdecken (Beta):</b> Funde stammen aus der freien Datenbank <b>TheMealDB</b> – <b>hunderte zusätzliche Rezepte</b> aus aller Welt: Titel, Zutaten & Maße <b>automatisch ins Deutsche übersetzt</b> (Anleitung per KI beim Öffnen). Ohne Suchbegriff siehst du die <b>gesamte A–Z-Auswahl</b>; deutsche Wörter wie „Hähnchen“ oder „Suppe“ werden automatisch übersetzt. Deine "+RECIPES.length+" Küchenliebe-Rezepte bleiben unverändert – inklusive Favoriten und Einkaufsliste, die auch für Online-Funde funktionieren.";
   grid.appendChild(note);
   if(onlineLoading){ grid.innerHTML += `<div class="empty"><div class="big spin">🌍</div><h3 style="font-family:Fredoka">Suche online …</h3><p style="color:var(--muted)">Einen Moment, die Rezepte-Welt wird durchsucht.</p></div>`; return; }
   if(onlineErr==="offline"){ grid.innerHTML += `<div class="empty"><div class="big">📡</div><h3 style="font-family:Fredoka">Online-Suche geht gerade nicht</h3><p style="color:var(--muted)">Kein Internet oder TheMealDB antwortet nicht. Einfach später nochmal versuchen – deine gespeicherten Rezepte funktionieren immer.</p></div>`; return; }
   if(onlineErr==="empty"||!onlineCache.length){ grid.innerHTML += `<div class="empty"><div class="big">🔭</div><h3 style="font-family:Fredoka">Nichts gefunden</h3><p style="color:var(--muted)">Versuch es auf Englisch, z. B. „chicken“, „pasta“, „salmon“ oder „cake“ – die Datenbank ist englischsprachig.</p></div>`; return; }
   onlineCache.forEach((r,i)=>{
+    if(i>=showN) return;
     const d = document.createElement("article");
     d.className = "card"; d.style.animationDelay = (Math.min(i,11)*0.05)+"s";
     d.innerHTML = `
@@ -4637,6 +4646,13 @@ function renderOnline(){
     d.querySelector(".img-wrap").appendChild(fb);
     grid.appendChild(d);
   });
+  if(onlineCache.length>showN){
+    const mb=document.createElement("button");
+    mb.className="wide-btn"; mb.id="moreBtn";
+    mb.textContent=`Mehr Online-Funde (noch ${onlineCache.length-showN} von ${onlineCache.length})`;
+    mb.onclick=()=>{ showN+=120; renderOnline(); };
+    grid.appendChild(mb);
+  }
 }
 async function ladeOnlineVoll(mealId){
   try{
