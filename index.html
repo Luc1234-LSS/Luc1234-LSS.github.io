@@ -514,7 +514,7 @@
     <button class="icon-btn" id="menuBtn" title="Menü: alle Bereiche">☰</button>
     <div class="logo" id="logoEl" title="Nach oben">
       <div class="logo-mark">🧑‍🍳</div>
-      <div><b>Küchenliebe</b><span>Backen · Herzhaft · Snacks · Airfryer</span></div>
+      <div><b>Küchenglück</b><span>Backen · Herzhaft · Snacks · Airfryer</span></div>
     </div>
     <div class="spacer"></div>
     <button class="icon-btn" id="favBtnTop" title="Deine gespeicherten Favoriten">❤️ <span class="lbl">Favoriten</span> <span class="badge" id="favBadge" hidden>0</span></button>
@@ -579,14 +579,14 @@
   <div class="wart-box">
     <div class="wart-emoji">🔧</div>
     <h1>Wir backen gerade um …</h1>
-    <p><b>Küchenliebe</b> ist kurz im Wartungsmodus.<br>Schau gleich wieder vorbei – es lohnt sich! 🍰</p>
+    <p><b>Küchenglück</b> ist kurz im Wartungsmodus.<br>Schau gleich wieder vorbei – es lohnt sich! 🍰</p>
     <div class="wart-bar"><i></i></div>
   </div>
 </div>
 
-<script src="https://user.uploads.dev/file/33d8edc4be1c770ea2b50d7841970d8d.js"></script>
+<script src="https://user.uploads.dev/file/6b4f3a53853f63f4be790d36a2c8016f.js"></script>
 <script>if(!window.__REZ_INDEX){var s=document.createElement("script");s.src="src/data/rezepte-index.js";s.onload=function(){if(window.__boot)window.__boot();};document.head.appendChild(s);}</script>
-<script src="https://user.uploads.dev/file/9a13bb8b87b25902ceaa24dabd90924a.js" defer></script>
+<script src="https://user.uploads.dev/file/30ea08f146a8b237abfb8030647f0b88.js" defer></script>
 <script>
 /* 🔧 WARTUNGSMODUS – HIER UMSCHALTEN: true = Wartungsseite anzeigen, false = normaler Betrieb */
 const WARTUNG_AN = false;
@@ -1125,7 +1125,7 @@ $("listBtn").onclick=openDrawer; $("closeDrawerBtn").onclick=closeDrawer; $("dra
 $("clearShopBtn").onclick=()=>{ if(!shop.length) return; if(confirm("Wirklich die ganze Liste leeren?")){ shop=[]; saveShop(); renderShop(); } };
 $("copyBtn").onclick=async()=>{
   if(!shop.length){ toast("Die Liste ist leer 🧺"); return; }
-  const t="🧑‍🍳 Einkaufsliste Küchenliebe\n"+shop.map(s=>`${s.done?"[x]":"[ ]"} ${s.text}`).join("\n");
+  const t="🧑‍🍳 Einkaufsliste Küchenglück\n"+shop.map(s=>`${s.done?"[x]":"[ ]"} ${s.text}`).join("\n");
   try{ await navigator.clipboard.writeText(t); toast("📋 Kopiert – viel Spaß beim Einkaufen!"); }
   catch(e){ toast("Kopieren ging nicht – sorry!"); }
 };
@@ -1432,7 +1432,7 @@ function renderOnline(){  $("resultCount").textContent = onlineLoading ? "🌍 s
   grid.innerHTML = "";
   const note = document.createElement("div");
   note.className = "online-note";
-  note.innerHTML = "🌍 <b>Online-Entdecken (Beta):</b> Funde stammen aus der freien Datenbank <b>TheMealDB</b> – <b>hunderte zusätzliche Rezepte</b> aus aller Welt: Titel, Zutaten & Maße <b>automatisch ins Deutsche übersetzt</b> (Anleitung per KI beim Öffnen). Ohne Suchbegriff siehst du die <b>gesamte A–Z-Auswahl</b>; deutsche Wörter wie „Hähnchen“ oder „Suppe“ werden automatisch übersetzt. Deine "+RECIPES.length+" Küchenliebe-Rezepte bleiben unverändert – inklusive Favoriten und Einkaufsliste, die auch für Online-Funde funktionieren.";
+  note.innerHTML = "🌍 <b>Online-Entdecken (Beta):</b> Funde stammen aus der freien Datenbank <b>TheMealDB</b> – <b>hunderte zusätzliche Rezepte</b> aus aller Welt: Titel, Zutaten & Maße <b>automatisch ins Deutsche übersetzt</b> (Anleitung per KI beim Öffnen). Ohne Suchbegriff siehst du die <b>gesamte A–Z-Auswahl</b>; deutsche Wörter wie „Hähnchen“ oder „Suppe“ werden automatisch übersetzt. Deine "+RECIPES.length+" Küchenglück-Rezepte bleiben unverändert – inklusive Favoriten und Einkaufsliste, die auch für Online-Funde funktionieren.";
   grid.appendChild(note);
   if(onlineLoading){ grid.innerHTML += `<div class="empty"><div class="big spin">🌍</div><h3 style="font-family:Fredoka">Suche online …</h3><p style="color:var(--muted)">Einen Moment, die Rezepte-Welt wird durchsucht.</p></div>`; return; }
   if(onlineErr==="offline"){ grid.innerHTML += `<div class="empty"><div class="big">📡</div><h3 style="font-family:Fredoka">Online-Suche geht gerade nicht</h3><p style="color:var(--muted)">Kein Internet oder TheMealDB antwortet nicht. Einfach später nochmal versuchen – deine gespeicherten Rezepte funktionieren immer.</p></div>`; renderLokalFallback("offline"); return; }
@@ -1539,7 +1539,7 @@ window.__boot = function(){
   restoreKvBackup();
   vollMergen();
   setTimeout(function(){ if(!window.__REZ_VOLL){ var s=document.createElement("script"); s.src="src/data/rezepte-voll.js"; document.head.appendChild(s); } }, 6000);
-  try{ const hc=$("heroCount"); if(hc) hc.textContent=RECIPES.length; const sc=$("statCount"); if(sc) sc.textContent=RECIPES.length; const bt=$("buildTag"); if(bt) bt.textContent="Stand P23 · "+RECIPES.length+" Rezepte geladen"; }catch(e){}
+  try{ const hc=$("heroCount"); if(hc) hc.textContent=RECIPES.length; const sc=$("statCount"); if(sc) sc.textContent=RECIPES.length; const bt=$("buildTag"); if(bt) bt.textContent="Stand P24 · "+RECIPES.length+" Rezepte geladen"; }catch(e){}
   renderChips(); renderQuick(); render(); updateBadge(); renderShop();
   oeffneLink();
 };
