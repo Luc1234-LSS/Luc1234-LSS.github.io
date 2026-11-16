@@ -1075,7 +1075,7 @@ function renderShop(){
 }
 function openDrawer(){ renderShop(); $("drawer").classList.add("show"); $("drawerOv").classList.add("show"); }
 function closeDrawer(){ $("drawer").classList.remove("show"); $("drawerOv").classList.remove("show"); }
-$("favBtnTop").onclick=()=>{ showN=60; activeCat="favs"; renderChips(); render(); document.getElementById("grid").scrollIntoView({behavior:"smooth"}); };
+$("favBtnTop").onclick=()=>{ showN=60; query=""; $("searchInput").value=""; $("clearBtn").hidden=true; activeCat="favs"; renderChips(); render(); document.getElementById("grid").scrollIntoView({behavior:"smooth"}); };
 $("listBtn").onclick=openDrawer; $("closeDrawerBtn").onclick=closeDrawer; $("drawerOv").onclick=closeDrawer;
 $("clearShopBtn").onclick=()=>{ if(!shop.length) return; if(confirm("Wirklich die ganze Liste leeren?")){ shop=[]; saveShop(); renderShop(); } };
 $("copyBtn").onclick=async()=>{
@@ -1128,7 +1128,7 @@ $("randomBtn").onclick=()=>{
     if(Date.now()-t0>750){ clearInterval(iv); btn.classList.remove("rolling"); btn.innerHTML=orig; toast("🎲 Es wird: "+r.title+"!"); setTimeout(()=>openRecipe(r.id),450); }
   },90);
 };
-$("logoEl").onclick=()=>window.scrollTo({top:0,behavior:"smooth"});
+$("logoEl").onclick=()=>{ showN=60; query=""; $("searchInput").value=""; $("clearBtn").hidden=true; activeCat="alle"; renderChips(); render(); window.scrollTo({top:0,behavior:"smooth"}); updateHeroMore(); };
 
 /* ⚙️ Einstellungen: Seniorenmodus & Animationen */
 function applyPrefs(){
@@ -1171,7 +1171,7 @@ window.addEventListener("resize",updateHeroMore);
 updateHeroMore();
 
 /* 🌍 Online-Entdecken: hunderte zusätzliche Rezepte via TheMealDB (gratis, ohne Key), automatisch eingedeutscht */
-let onlineCache = [], onlineLoading = false, onlineErr = "", onlineTimer = null;
+let onlineCache = [], onlineLoading = false, onlineErr = "", onlineTimer = null, onlineLauf = 0, onlineRaw = "";
 const DE2EN = {hähnchen:"chicken",huhn:"chicken",hähnchenbrust:"chicken",hühnchen:"chicken",rind:"beef",rindfleisch:"beef",schwein:"pork",schweinefleisch:"pork",lachs:"salmon",fisch:"fish",fische:"fish",thunfisch:"tuna",garnelen:"shrimp",shrimps:"shrimp",nudeln:"pasta",pasta:"pasta",spaghetti:"spaghetti",reis:"rice",kartoffel:"potato",kartoffeln:"potato",suppe:"soup",suppen:"soup",eintopf:"stew",kuchen:"cake",torte:"cake",muffins:"muffin",muffin:"muffin",plätzchen:"cookies",kekse:"cookies",brot:"bread",brötchen:"bread",käse:"cheese",schoko:"chocolate",schokolade:"chocolate",kakao:"chocolate",tomate:"tomato",tomaten:"tomato",apfel:"apple",äpfel:"apple",zitrone:"lemon",erdbeere:"strawberry",erdbeeren:"strawberry",himbeere:"raspberry",himbeeren:"raspberry",banane:"banana",bananen:"banana",kirsche:"cherry",kirschen:"cherry",zwiebel:"onion",zwiebeln:"onion",pilze:"mushroom",champignons:"mushroom",paprika:"pepper",bohnen:"beans",ei:"egg",eier:"egg",sahne:"cream",salat:"salad",gemüse:"vegetarian",vegetarisch:"vegetarian",vegan:"vegan",curry:"curry",chili:"chili",pizza:"pizza",burger:"burger",pute:"turkey",lamm:"lamb",ente:"duck",wurst:"sausage",würstchen:"sausage",auflauf:"casserole",braten:"roast",schnell:"quick",frühstück:"breakfast",dessert:"dessert",nachtisch:"dessert",thai:"thai",indisch:"indian",mexikanisch:"mexican",italienisch:"italian",chinesisch:"chinese",japanisch:"japanese",griechisch:"greek",spanisch:"spanish",keks:"cookie",hack:"beef",hackfleisch:"beef",kohl:"cabbage",spinat:"spinach",möhre:"carrot",möhren:"carrot",karotte:"carrot",spargel:"asparagus",brokkoli:"broccoli",blumenkohl:"cauliflower",lauch:"leek",sellerie:"celery",linsen:"lentils",erbsen:"peas",mais:"corn",kokos:"coconut",nuss:"nut",nüsse:"nuts",mandel:"almond",mandeln:"almond",zucker:"sugar",honig:"honey",kaffee:"coffee",tee:"tea",pudding:"pudding",pfannkuchen:"pancakes",waffel:"waffles",waffeln:"waffles"};
 let onlineShown = "";
 /* EN→DE-Wörterbuch für Online-Funde (Titel, Zutaten, Herkunft, Kategorie) */
@@ -1252,7 +1252,7 @@ async function verfeinereOnline(r, origTitle, rawIng, rawInstr){
     const c=getTrCache();
     if(c[key]){ await wendeDetrAn(r,c[key]); delete detrBusy[r.id]; return; }
   }catch(e){}
-  if(typeof window.root==="undefined"||typeof window.root.generateText!=="function"){ delete detrBusy[r.id]; if(currentOpen===r.id) haengeOnlineNotizAn(r,"fehler"); return; }
+  if(!hatKI()){ delete detrBusy[r.id]; if(currentOpen===r.id) haengeOnlineNotizAn(r,"fehler"); return; }
   for(let versuch=0;versuch<2;versuch++){
     try{
       const res=await window.root.generateText(DETR_PRE+"Titel: "+origTitle+"\nZutaten: "+rawIng+"\nAnleitung: "+rawInstr.slice(0,3000));
@@ -1277,13 +1277,14 @@ async function wendeDetrAn(r,pack){
   haengeOnlineNotizAn(r,true);
   toast("✅ Deutsche Übersetzung fertig.");
 }
+function hatKI(){ try{ return typeof window.root!=="undefined"&&typeof window.root.generateText==="function"; }catch(e){ return false; } }
 function haengeOnlineNotizAn(r,kiFertig){
   const sb=document.querySelector("#sheet .sheet-body"); if(!sb) return;
   const alt=sb.querySelector("#onlineNote"); if(alt) alt.remove();
   const d=document.createElement("div");
   d.className="online-note"; d.id="onlineNote"; d.style.margin="0 0 14px";
   const stand = kiFertig===true ? "✅ <b>Deutsche Übersetzung fertig.</b>"
-    : kiFertig==="fehler" ? "⚠️ <b>Die KI-Übersetzung klappt gerade nicht.</b> Die Anleitung steht oben in einfacher Wörterbuch-Übersetzung – <button class=\"btn\" id=\"detrRetry\" style=\"margin-left:6px\">🔄 Nochmal versuchen</button>"
+    : kiFertig==="fehler" ? (hatKI() ? "⚠️ <b>Die KI-Übersetzung klappt gerade nicht.</b> Die Anleitung steht oben in einfacher Wörterbuch-Übersetzung – <button class=\"btn\" id=\"detrRetry\" style=\"margin-left:6px\">🔄 Nochmal versuchen</button>" : "🛈 <b>Hier gibt's keine KI-Verfeinerung</b> (diese Ausgabe hat keine KI) – du siehst die automatische Wörterbuch-Übersetzung, die stimmt schon. Auf Perchance kommt die feine Fassung dazu.")
     : "Titel, Zutaten & Maße sind deutsch – die Anleitung steht in Wörterbuch-Deutsch und wird gerade per KI verfeinert … 🔄";
   d.innerHTML="🌍 <b>Online-Fund (TheMealDB):</b> "+stand+(r.youtube?` <a href="${r.youtube}" target="_blank" rel="noopener">📺 Video ansehen</a>`:"")+`<br><span style="opacity:.75">Englisches Original: „${r.orig}“ · <a href="https://www.themealdb.com/meal/${r.mealId}" target="_blank" rel="noopener">Quelle ansehen</a></span>`;
   sb.prepend(d);
@@ -1302,6 +1303,7 @@ const ONLINE_BLOCK = ["achiote","ajo blanco","alfajor","kefta","almojabana","pan
 function onlineGesperrt(t){ const s=String(t||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""); return ONLINE_BLOCK.some(b=>s.includes(b)); }
 async function fetchOnline(q){
   const raw = (q||"").trim().toLowerCase();
+  const meinLauf = ++onlineLauf; onlineRaw = raw;
   showN = 60;
   onlineLoading = true; onlineErr = ""; renderOnline();
   try{
@@ -1325,11 +1327,62 @@ async function fetchOnline(q){
     }
     onlineCache.sort((a,b)=>a.title.localeCompare(b.title,"de"));
   }catch(e){ onlineErr = "offline"; onlineCache = []; }
+  if(meinLauf!==onlineLauf||activeCat!=="online") return; /* veraltet: Nutzer ist schon woanders */
   onlineLoading = false; renderOnline();
 }
 function triggerOnline(){ if(activeCat!=="online") return; clearTimeout(onlineTimer); onlineTimer=setTimeout(()=>fetchOnline(query), 600); }
-function renderOnline(){
-  $("resultCount").textContent = onlineLoading ? "🌍 suche online …" : (onlineCache.length ? onlineCache.length+" Online-Fund"+(onlineCache.length===1?"":"e")+" · "+onlineShown : "🌍 Online-Entdecken");
+/* 🏠 Fallback: Online leer/offline → eigene Sammlung (inkl. 775 gespeicherte Online-Funde) durchsuchen */
+function lokalFallback(){
+  const worte = (onlineRaw||"").split(/\s+/).filter(Boolean);
+  if(!worte.length) return [];
+  const treffer = [];
+  for(const r of RECIPES){
+    if(r.online) continue;
+    const hay = (r.title+" "+r.desc+" "+r.cat+" "+r.tags.join(" ")+" "+zNamen(r)).toLowerCase();
+    let punkte = 0;
+    for(const w of worte){
+      if(hay.includes(w)) punkte++;
+      else {
+        const en = (typeof DE2EN!=="undefined"&&DE2EN[w])||"";
+        if(en&&hay.includes(en)) punkte++;
+        else if((QSY[w]||[]).some(s=>hay.includes(s))) punkte++;
+      }
+    }
+    if(punkte>0) treffer.push([punkte,r]);
+  }
+  treffer.sort((a,b)=>b[0]-a[0]);
+  return treffer.slice(0,12).map(t=>t[1]);
+}
+function renderLokalFallback(grund){
+  const liste = lokalFallback();
+  if(!liste.length) return;
+  const h = document.createElement("div");
+  h.className = "online-note";
+  h.style.marginTop = "14px";
+  h.innerHTML = (grund==="offline" ? "📡 <b>Offline? Deine Sammlung geht immer:</b>" : "🏠 <b>Online nichts – aber deine Sammlung kennt das:</b>")+" Treffer aus deinen "+RECIPES.length+" gespeicherten Rezepten.";
+  grid.appendChild(h);
+  liste.forEach((r,i)=>{
+    const d = document.createElement("article");
+    d.className = "card"; d.style.animationDelay = (Math.min(i,11)*0.05)+"s";
+    d.innerHTML = `
+      <div class="img-wrap"><span class="fallback">${r.emoji}</span><img loading="lazy" decoding="async" src="${thumbU(r.img)}" alt="${r.title}" onerror="this.remove()">
+        <div class="pill-row"><span class="pill cat">${r.cat}</span><span class="pill time">⏱ ${r.time} Min.</span></div>
+      </div>
+      <div class="card-body"><h3>${r.title}</h3>
+        <div class="card-sub"><span>${r.diff||"k. A."}</span><span>·</span><span>${r.kcal==null?"k. A.":r.kcal+" kcal"}</span><span>·</span><span>${r.portion} ${r.portionUnit}</span></div>
+        <div class="card-actions"><button class="btn">📖 Rezept ansehen</button></div>
+      </div>`;
+    d.querySelector(".btn").onclick = (e)=>{ e.stopPropagation(); openRecipe(r.id); };
+    d.onclick = ()=>openRecipe(r.id);
+    const fb = document.createElement("button");
+    const refreshFb = ()=>{ fb.textContent=isFav(r.id)?"❤️":"🤍"; fb.classList.toggle("on",isFav(r.id)); };
+    fb.className = "favbtn"; fb.title = "Zu Favoriten"; refreshFb();
+    fb.onclick = async (e)=>{ e.stopPropagation(); if(!r.voll){ fb.textContent="⏳"; await ensureVoll(); } toggleFav(r.id); refreshFb(); };
+    d.querySelector(".img-wrap").appendChild(fb);
+    grid.appendChild(d);
+  });
+}
+function renderOnline(){  $("resultCount").textContent = onlineLoading ? "🌍 suche online …" : (onlineCache.length ? onlineCache.length+" Online-Fund"+(onlineCache.length===1?"":"e")+" · "+onlineShown : "🌍 Online-Entdecken");
   $("activeFilter").textContent = "(TheMealDB – automatisch ins Deutsche übersetzt)";
   grid.innerHTML = "";
   const note = document.createElement("div");
@@ -1337,8 +1390,8 @@ function renderOnline(){
   note.innerHTML = "🌍 <b>Online-Entdecken (Beta):</b> Funde stammen aus der freien Datenbank <b>TheMealDB</b> – <b>hunderte zusätzliche Rezepte</b> aus aller Welt: Titel, Zutaten & Maße <b>automatisch ins Deutsche übersetzt</b> (Anleitung per KI beim Öffnen). Ohne Suchbegriff siehst du die <b>gesamte A–Z-Auswahl</b>; deutsche Wörter wie „Hähnchen“ oder „Suppe“ werden automatisch übersetzt. Deine "+RECIPES.length+" Küchenliebe-Rezepte bleiben unverändert – inklusive Favoriten und Einkaufsliste, die auch für Online-Funde funktionieren.";
   grid.appendChild(note);
   if(onlineLoading){ grid.innerHTML += `<div class="empty"><div class="big spin">🌍</div><h3 style="font-family:Fredoka">Suche online …</h3><p style="color:var(--muted)">Einen Moment, die Rezepte-Welt wird durchsucht.</p></div>`; return; }
-  if(onlineErr==="offline"){ grid.innerHTML += `<div class="empty"><div class="big">📡</div><h3 style="font-family:Fredoka">Online-Suche geht gerade nicht</h3><p style="color:var(--muted)">Kein Internet oder TheMealDB antwortet nicht. Einfach später nochmal versuchen – deine gespeicherten Rezepte funktionieren immer.</p></div>`; return; }
-  if(onlineErr==="empty"||!onlineCache.length){ grid.innerHTML += `<div class="empty"><div class="big">🔭</div><h3 style="font-family:Fredoka">Nichts gefunden</h3><p style="color:var(--muted)">Versuch es auf Englisch, z. B. „chicken“, „pasta“, „salmon“ oder „cake“ – die Datenbank ist englischsprachig.</p></div>`; return; }
+  if(onlineErr==="offline"){ grid.innerHTML += `<div class="empty"><div class="big">📡</div><h3 style="font-family:Fredoka">Online-Suche geht gerade nicht</h3><p style="color:var(--muted)">Kein Internet oder TheMealDB antwortet nicht. Einfach später nochmal versuchen – deine gespeicherten Rezepte funktionieren immer.</p></div>`; renderLokalFallback("offline"); return; }
+  if(onlineErr==="empty"||!onlineCache.length){ grid.innerHTML += `<div class="empty"><div class="big">🔭</div><h3 style="font-family:Fredoka">Nichts gefunden</h3><p style="color:var(--muted)">Versuch es auf Englisch, z. B. „chicken“, „pasta“, „salmon“ oder „cake“ – die Datenbank ist englischsprachig.</p></div>`; renderLokalFallback("empty"); return; }
   onlineCache.forEach((r,i)=>{
     if(i>=showN) return;
     const d = document.createElement("article");
