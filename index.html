@@ -257,6 +257,32 @@
   .wide-btn:hover{ transform:translateY(-2px); }
   .wide-btn:active{ transform:scale(.98); }
 
+  /* 👨‍🍳 Schritt-für-Schritt Kochmodus */
+  .cook-ov{ position:fixed; inset:0; z-index:130; background:rgba(46,26,14,.62); display:none; align-items:center; justify-content:center; padding:16px; }
+  .cook-ov.show{ display:flex; }
+  .cook{ background:var(--cream); width:min(640px,100%); max-height:92vh; overflow-y:auto; border-radius:24px; padding:22px 22px 26px; box-shadow:0 30px 80px rgba(0,0,0,.4); }
+  .cook-top{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .cook-top h3{ margin:0; font-family:'Fredoka',sans-serif; font-size:19px; flex:1; line-height:1.2; }
+  .cook-x{ width:42px; height:42px; border-radius:50%; border:0; cursor:pointer; background:#fff; border:1.5px solid var(--line); font-size:18px; font-weight:800; flex:0 0 42px; }
+  .cook-bar{ height:10px; border-radius:999px; background:#EADBC3; overflow:hidden; margin:10px 0 4px; }
+  .cook-bar i{ display:block; height:100%; width:0; border-radius:999px; background:linear-gradient(90deg,var(--honig),var(--berry)); transition:width .25s; }
+  .cook-count{ font-size:13px; font-weight:800; color:var(--muted); }
+  .cook-step{ background:#fff; border:2px solid var(--line); border-radius:20px; padding:26px 22px; margin:14px 0; font-size:21px; line-height:1.65; }
+  body.senior .cook-step{ font-size:25px; }
+  .cook-need{ background:#FFF6E2; border:1.5px dashed #A86A12; border-radius:14px; padding:10px 14px; margin:0 0 6px; font-size:14px; }
+  .cook-ing{ display:flex; align-items:center; gap:10px; background:#fff; border:1.5px solid var(--line); border-radius:14px; padding:12px 14px; margin-bottom:8px; font-size:15.5px; cursor:pointer; }
+  body.senior .cook-ing{ font-size:18px; }
+  .cook-ing.done{ opacity:.55; text-decoration:line-through; }
+  .cook-ing .box{ width:26px; height:26px; border-radius:8px; border:2px solid var(--honig); display:grid; place-items:center; font-size:16px; font-weight:800; flex:0 0 26px; background:#fff; }
+  .cook-ing.done .box{ background:var(--honig); color:#fff; }
+  .cook-nav{ display:flex; gap:10px; margin-top:16px; }
+  .cook-nav button{ flex:1; border:0; border-radius:16px; padding:17px 10px; font-size:17px; font-weight:800; cursor:pointer; }
+  body.senior .cook-nav button{ font-size:20px; padding:20px 10px; }
+  .cook-back{ background:#fff; color:var(--cocoa); border:2px solid var(--line); }
+  .cook-next{ background:linear-gradient(135deg,var(--honig),#5C3A10); color:#fff; }
+  .cook-done{ text-align:center; padding:10px 4px; }
+  .cook-done .big{ font-size:64px; }
+
   /* Drawer */
   .drawer-ov{ position:fixed; inset:0; z-index:110; background:rgba(46,26,14,.5); display:none; }
   .drawer-ov.show{ display:block; }
@@ -520,6 +546,7 @@
   <div class="menu-list" id="menuList"></div>
 </aside>
 <div class="toast" id="toast"></div>
+<div class="cook-ov" id="cookOv"><div class="cook" id="cookBox"></div></div>
 <button id="topBtn" title="Nach oben">↑</button>
 
 <script>
@@ -4896,9 +4923,63 @@ function machZuckerfrei(z){
   return {m:z.m, e:z.e, z:n};
 }
 let favs = [], currentOpen = null;
-try { favs = JSON.parse(localStorage.getItem("lk_favs")||"[]"); if(!Array.isArray(favs)) favs=[]; } catch(e){ favs = []; }
+/* 💾 Speicher mit Notfall-Plan: localStorage ist klein (ca. 5 MB) und kann voll/blockiert sein –
+   dann schlug das Speichern bisher lautlos fehl. lsSetSafe() macht bei Platzmangel erst die
+   großen Caches (KI-Texte, Online-Funde) kleiner und speichert Favoriten/Einkaufsliste auf jeden Fall. */
+function lsSetSafe(k, v){
+  try{ localStorage.setItem(k, v); return true; }
+  catch(e){
+    try{
+      /* 1. Versuch: große Caches verkleinern */
+      try{
+        const d=JSON.parse(localStorage.getItem("lk_detr")||"{}"), dk=Object.keys(d);
+        if(dk.length>100){ dk.slice(0,dk.length-100).forEach(x=>delete d[x]); localStorage.setItem("lk_detr",JSON.stringify(d)); }
+      }catch(_){}
+      try{
+        const o=JSON.parse(localStorage.getItem("kk_online")||"{}"), ok=Object.keys(o);
+        while(ok.length>30){ delete o[ok.shift()]; }
+        localStorage.setItem("kk_online",JSON.stringify(o));
+      }catch(_){}
+      localStorage.setItem(k, v); return true;
+    }catch(e2){
+      try{
+        /* 2. Versuch: Caches ganz leeren – Favoriten & Liste haben Vorrang */
+        if(k==="lk_favs"||k==="kk_shop"){ localStorage.removeItem("lk_detr"); localStorage.removeItem("kk_online"); localStorage.setItem(k, v); return true; }
+      }catch(_){}
+    }
+    if(k==="lk_favs"||k==="kk_shop") toast("⚠️ Speichern geht gerade nicht – Browser blockiert die Ablage (z. B. privater Modus).");
+    return false;
+  }
+}
+function lsGet(k, fb){ try{ const v=localStorage.getItem(k); return v==null?fb:v; }catch(e){ return fb; } }
+try { favs = JSON.parse(lsGet("lk_favs","[]")); if(!Array.isArray(favs)) favs=[]; } catch(e){ favs = []; }
 let shop = [];
-try { shop = JSON.parse(localStorage.getItem("kk_shop")||"[]"); } catch(e){ shop = []; }
+try { shop = JSON.parse(lsGet("kk_shop","[]")); if(!Array.isArray(shop)) shop=[]; } catch(e){ shop = []; }
+/* Zweite Sicherung im Perchance-Speicher (IndexedDB, viel größer) – überlebt auch vollen/leeren localStorage */
+function kvBackup(kind, val){
+  try{
+    if(typeof window.root==="undefined"||!window.root.kv||!window.root.kv.kuechenliebe) return;
+    window.root.kv.kuechenliebe.set(kind, val).catch(()=>{});
+  }catch(e){}
+}
+function saveFavs(){
+  lsSetSafe("lk_favs", JSON.stringify(favs));
+  kvBackup("favs", favs);
+}
+function restoreKvBackup(){
+  try{
+    if(typeof window.root==="undefined"||!window.root.kv||!window.root.kv.kuechenliebe) return;
+    window.root.kv.kuechenliebe.get("favs").then(v=>{
+      if(Array.isArray(v)&&v.length){
+        const neu=v.filter(id=>!favs.includes(id));
+        if(neu.length){ favs=favs.concat(neu); lsSetSafe("lk_favs",JSON.stringify(favs)); updateBadge(); render(); }
+      }
+    }).catch(()=>{});
+    window.root.kv.kuechenliebe.get("einkauf").then(v=>{
+      if(Array.isArray(v)&&v.length&&!shop.length){ shop=v; saveShop(); renderShop(); }
+    }).catch(()=>{});
+  }catch(e){}
+}
 
 const $ = (id) => document.getElementById(id);
 const grid=$("grid"), chipsEl=$("chips"), quickEl=$("quickTags");
@@ -5064,7 +5145,7 @@ function isFav(id){ return favs.includes(id); }
 function toggleFav(id){
   if(isFav(id)){ favs=favs.filter(f=>f!==id); toast("Aus den Favoriten entfernt 🤍"); }
   else { favs.push(id); toast("Gespeichert ❤️ – oben neben der Einkaufsliste"); }
-  try{ localStorage.setItem("lk_favs",JSON.stringify(favs)); }catch(e){}
+  saveFavs();
   updateBadge(); render();
   if(currentOpen) syncFavBtn(RECIPES.find(x=>x.id===currentOpen));
 }
@@ -5111,6 +5192,7 @@ function openRecipe(id){
       ${r.airfryer?`<div class="airbox">♨️ <b>Airfryer: ${r.airfryer.temp} · ${r.airfryer.zeit}</b><br><span style="font-size:13.5px;opacity:.95">${r.airfryer.hinweis}</span></div>`:""}
       <div class="sec-t">👩‍🍳 Zubereitung</div>
       <div class="steps">${r.steps.map(s=>`<div class="step">${s}</div>`).join("")}</div>
+      <button class="wide-btn" id="cookBtn" style="background:linear-gradient(135deg,#2E7D32,#1B5E20)">👨‍🍳 Schritt für Schritt kochen</button>
       <div class="tipbox">💡 <b>Tipp:</b> ${r.tipp}</div>
       <button class="wide-btn" id="allBtn2">🛒 Alle Zutaten auf die Einkaufsliste</button>
       <button class="wide-btn" id="shareBtn" style="background:transparent;color:var(--cocoa);border:2px solid var(--line)">🔗 Link zu diesem Rezept kopieren</button>
@@ -5153,6 +5235,7 @@ function openRecipe(id){
     try{ await navigator.clipboard.writeText(url); toast("🔗 Link kopiert – weitergeben, öffnet direkt dieses Rezept!"); }
     catch(e){ try{ prompt("Diesen Link kopieren:",url); }catch(_){} }
   };
+  const cb=$("cookBtn"); if(cb) cb.onclick=()=>startCookMode(r.id);
   /* Importierte Online-Rezepte: KI-Verfeinerung bei Bedarf nachladen (gecacht, mit 🔄-Hinweis) */
   if(r.mealId && !r._rawAnleitung && !r._aiAngefragt){
     r._aiAngefragt=true;
@@ -5162,12 +5245,82 @@ function openRecipe(id){
     });
   }
 }
-function closeSheet(){ currentOpen=null; $("overlay").classList.remove("show"); document.body.style.overflow=""; try{ if(((location.hash||"").indexOf("#r=")===0)) history.replaceState(null,"",location.pathname+location.search); }catch(e){} }
+function closeSheet(){ closeCook(true); currentOpen=null; $("overlay").classList.remove("show"); document.body.style.overflow=""; try{ if(((location.hash||"").indexOf("#r=")===0)) history.replaceState(null,"",location.pathname+location.search); }catch(e){} }
+/* 👨‍🍳 Schritt-für-Schritt Kochmodus: ein Schritt pro Seite, Zutaten-Check zuerst */
+let cookState=null, cookChecks={}, wakeLock=null;
+async function keepAwake(on){
+  try{
+    if(on && "wakeLock" in navigator){ try{ if(wakeLock && wakeLock.release) await wakeLock.release(); }catch(e){} wakeLock=await navigator.wakeLock.request("screen"); }
+    else if(wakeLock && wakeLock.release){ await wakeLock.release(); wakeLock=null; }
+  }catch(e){}
+}
+function startCookMode(id){
+  const r=RECIPES.find(x=>x.id===id); if(!r||!r.steps||!r.steps.length){ toast("Keine Schritte vorhanden."); return; }
+  cookState={id:id, idx:-1}; cookChecks={};
+  $("cookOv").classList.add("show");
+  renderCook(); keepAwake(true);
+}
+function closeCook(silent){
+  if(!cookState && !$("cookOv").classList.contains("show")) return;
+  cookState=null; $("cookOv").classList.remove("show"); keepAwake(false);
+  if(!silent && !$("overlay").classList.contains("show")) document.body.style.overflow="";
+}
+function cookZutaten(r){
+  const f=factorFor(r);
+  return (zuckerAn?r.zutaten.map(machZuckerfrei):r.zutaten).map(z=>({label:`${z.m!=null?fmtMenge(z.m,f)+" "+z.e+" ":""}${z.z}`.trim(), z:z}));
+}
+function zutatenFuerSchritt(r, stepText){
+  const s=String(stepText||"").toLowerCase();
+  return cookZutaten(r).filter(o=>{
+    const w=o.z.z.toLowerCase().replace(/\(.*?\)/g," ").split(/[^a-zäöüß]+/).filter(t=>t.length>3);
+    return w.some(t=>s.includes(t));
+  }).slice(0,5);
+}
+function renderCook(){
+  if(!cookState) return;
+  const r=RECIPES.find(x=>x.id===cookState.id); if(!r){ closeCook(true); return; }
+  const n=r.steps.length; let i=Math.max(-1,Math.min(cookState.idx,n));
+  cookState.idx=i;
+  const box=$("cookBox");
+  const pct=Math.round(((i+1)/(n+1))*100);
+  let html=`<div class="cook-top"><h3>${r.emoji||"👨‍🍳"} ${r.title}</h3><button class="cook-x" id="cookX" title="Schließen">✕</button></div>
+    <div class="cook-bar"><i style="width:${pct}%"></i></div>
+    <div class="cook-count">${i<0?"Bereit machen":(i<n?("Schritt "+(i+1)+" von "+n):"Fertig 🎉")}</div>`;
+  if(i<0){
+    const zl=cookZutaten(r);
+    html+=`<div style="font-size:15px;margin:12px 0"><b>🧺 Alles bereitstellen:</b> Tippe jede Zutat an, wenn sie auf dem Tisch steht. (${servings[r.id]||r.portion} ${r.portionUnit})</div>`;
+    html+=zl.map((o,k)=>`<div class="cook-ing${cookChecks[k]?" done":""}" data-k="${k}"><span class="box">${cookChecks[k]?"✓":""}</span><span>${o.label}</span></div>`).join("");
+    const ready=Object.keys(cookChecks).length;
+    html+=`<div class="cook-nav"><button class="cook-back" id="cookBack">← Rezept</button><button class="cook-next" id="cookNext">Los geht's →</button></div>
+      <div style="text-align:center;margin-top:10px;font-size:13px;color:var(--muted)">${ready} von ${zl.length} bereit · Bildschirm bleibt währenddessen an</div>`;
+  } else if(i<n){
+    const need=zutatenFuerSchritt(r, r.steps[i]);
+    html+=`${need.length?`<div class="cook-need">🧂 <b>Dafür brauchst du:</b> ${need.map(o=>o.label).join(" · ")}</div>`:""}`;
+    html+=`<div class="cook-step">${r.steps[i]}</div>`;
+    html+=`<div class="cook-nav"><button class="cook-back" id="cookBack">← Zurück</button><button class="cook-next" id="cookNext">${i===n-1?"Fertig 🎉":"Weiter →"}</button></div>
+      <div style="text-align:center;margin-top:10px"><button class="btn" id="cookAll" style="font-size:13px;padding:8px 16px">📋 Alle Schritte im Überblick</button></div>`;
+  } else {
+    html+=`<div class="cook-done"><div class="big">🎉</div><h2 style="font-family:Fredoka;margin:6px 0">Guten Appetit!</h2><p style="color:var(--muted)">„${r.title}“ ist fertig. Lass es dir schmecken!</p></div>
+      <div class="cook-nav"><button class="cook-back" id="cookAgain">↺ Nochmal</button><button class="cook-next" id="cookNext">Zum Rezept ✓</button></div>`;
+  }
+  box.innerHTML=html;
+  box.scrollTop=0;
+  $("cookX").onclick=()=>closeCook();
+  const nx=$("cookNext"), bk=$("cookBack");
+  if(nx) nx.onclick=()=>{ if(cookState.idx>=n){ closeCook(); } else { cookState.idx++; renderCook(); } };
+  if(bk) bk.onclick=()=>{ if(cookState.idx<0){ closeCook(); } else { cookState.idx--; renderCook(); } };
+  const ag=$("cookAgain"); if(ag) ag.onclick=()=>{ cookState.idx=-1; cookChecks={}; renderCook(); };
+  const al=$("cookAll"); if(al) al.onclick=()=>{ closeCook(); };
+  box.querySelectorAll(".cook-ing").forEach(el=>{
+    el.onclick=()=>{ const k=el.getAttribute("data-k"); if(cookChecks[k]) delete cookChecks[k]; else cookChecks[k]=1; renderCook(); };
+  });
+}
+$("cookOv").addEventListener("click",(e)=>{ if(e.target.id==="cookOv") closeCook(); });
 $("overlay").addEventListener("click",(e)=>{ if(e.target.id==="overlay") closeSheet(); });
-document.addEventListener("keydown",(e)=>{ if(e.key==="Escape"){ closeSheet(); closeDrawer(); closeSettings(); closeMenu(); } });
+  document.addEventListener("keydown",(e)=>{ if(e.key==="Escape"){ if(cookState){ closeCook(); return; } closeSheet(); closeDrawer(); closeSettings(); closeMenu(); } if(cookState&&(e.key==="ArrowRight"||e.key===" ")){ e.preventDefault(); cookState.idx++; renderCook(); } if(cookState&&e.key==="ArrowLeft"){ e.preventDefault(); cookState.idx=Math.max(-1,cookState.idx-1); renderCook(); } });
 
 /* Einkaufsliste */
-function saveShop(){ try{ localStorage.setItem("kk_shop",JSON.stringify(shop)); }catch(e){} updateBadge(); }
+function saveShop(){ lsSetSafe("kk_shop",JSON.stringify(shop)); kvBackup("einkauf",shop); updateBadge(); }
 function updateBadge(){
   const b=$("listBadge");
   b.hidden = shop.length===0; b.textContent = shop.length;
@@ -5371,8 +5524,8 @@ function deMeasure(e){
 /* KI-Nachübersetzung der Anleitung (mit Cache), Wörterbuch-Deutsch steht sofort */
 const DETR_PRE="Du bist ein Kochbuch-Übersetzer. Übersetze das englische Rezept vollständig und natürlich ins Deutsche. Antworte AUSSCHLIESSLICH mit JSON, kein Markdown, keine Erklärung: {\"titel\":string,\"zutaten\":[{\"name\":string,\"menge\":string}],\"anleitung\":[string]}. Regeln: Maße metrisch (1 Cup=240 ml, 1 Tbsp=1 EL, 1 Tsp=1 TL, 1 oz=28 g, 1 lb=450 g, Fahrenheit in Celsius, sinnvoll gerundet); menge enthält Zahl und deutsche Einheit; anleitung höchstens 10 kurze Schritte; kein englisches Wort übrig lassen.\n\nREZEPT:\n";
 let detrCache=null, detrBusy={};
-function getTrCache(){ if(detrCache) return detrCache; try{ detrCache=JSON.parse(localStorage.getItem("lk_detr")||"{}"); }catch(e){ detrCache={}; } return detrCache; }
-function setTrCache(id,val){ const c=getTrCache(); c[id]=val; const ks=Object.keys(c); if(ks.length>400) ks.slice(0,ks.length-400).forEach(k=>delete c[k]); try{ localStorage.setItem("lk_detr",JSON.stringify(c)); }catch(e){} }
+function getTrCache(){ if(detrCache) return detrCache; try{ detrCache=JSON.parse(lsGet("lk_detr","{}")); }catch(e){ detrCache={}; } return detrCache; }
+function setTrCache(id,val){ const c=getTrCache(); c[id]=val; const ks=Object.keys(c); if(ks.length>400) ks.slice(0,ks.length-400).forEach(k=>delete c[k]); lsSetSafe("lk_detr",JSON.stringify(c)); }
 async function verfeinereOnline(r, origTitle, rawIng, rawInstr){
   if(detrBusy[r.id]) return; detrBusy[r.id]=true;
   const key=r.mealId||r.id;
@@ -5380,10 +5533,10 @@ async function verfeinereOnline(r, origTitle, rawIng, rawInstr){
     const c=getTrCache();
     if(c[key]){ wendeDetrAn(r,c[key]); delete detrBusy[r.id]; return; }
   }catch(e){}
-  if(typeof root.generateText!=="function"){ delete detrBusy[r.id]; if(currentOpen===r.id) haengeOnlineNotizAn(r,"fehler"); return; }
+  if(typeof window.root==="undefined"||typeof window.root.generateText!=="function"){ delete detrBusy[r.id]; if(currentOpen===r.id) haengeOnlineNotizAn(r,"fehler"); return; }
   for(let versuch=0;versuch<2;versuch++){
     try{
-      const res=await root.generateText(DETR_PRE+"Titel: "+origTitle+"\nZutaten: "+rawIng+"\nAnleitung: "+rawInstr.slice(0,3000));
+      const res=await window.root.generateText(DETR_PRE+"Titel: "+origTitle+"\nZutaten: "+rawIng+"\nAnleitung: "+rawInstr.slice(0,3000));
       const roh=String(res==null?"":(res.text!=null?res.text:res)).replace(/```json|```/g,"");
       const js=JSON.parse(roh.slice(roh.indexOf("{"),roh.lastIndexOf("}")+1));
       if(!js||!Array.isArray(js.anleitung)||!js.anleitung.length) throw 0;
@@ -5401,6 +5554,7 @@ function wendeDetrAn(r,pack){
   if(currentOpen!==r.id) return;
   r.title=pack.t; r.zutaten=pack.z.map(o=>({m:null,e:o.menge,z:o.name})); r.steps=pack.s;
   openRecipe(r.id);
+  if(cookState&&cookState.id===r.id) renderCook();
   haengeOnlineNotizAn(r,true);
   toast("✅ Deutsche Übersetzung fertig.");
 }
@@ -5538,15 +5692,15 @@ async function ladeOnlineVoll(mealId){
 /* Online-Funde dauerhaft merken, damit Favoriten & Suche Browser-Neustarts überleben */
 function sichereOnlineRezept(v){
   try{
-    let o={}; try{ o=JSON.parse(localStorage.getItem("kk_online")||"{}"); }catch(e){ o={}; }
+    let o={}; try{ o=JSON.parse(lsGet("kk_online","{}")); }catch(e){ o={}; }
     o[v.id]=v;
-    const ks=Object.keys(o); while(ks.length>120){ delete o[ks.shift()]; }
-    localStorage.setItem("kk_online",JSON.stringify(o));
+    const ks=Object.keys(o); while(ks.length>60){ delete o[ks.shift()]; }
+    lsSetSafe("kk_online",JSON.stringify(o));
   }catch(e){}
 }
 function ladeOnlineRezepte(){
   try{
-    const o=JSON.parse(localStorage.getItem("kk_online")||"{}");
+    const o=JSON.parse(lsGet("kk_online","{}"));
     Object.keys(o).forEach(id=>{ if(id&&o[id]&&o[id].id&&!RECIPES.some(r=>r.id===id)){ delete o[id].online; RECIPES.push(o[id]); } });
   }catch(e){}
 }
@@ -5560,6 +5714,7 @@ async function openOnlineRecipe(mealId){
 }
 
 ladeOnlineRezepte();
+restoreKvBackup();
 try{ const hc=$("heroCount"); if(hc) hc.textContent=RECIPES.length; const sc=$("statCount"); if(sc) sc.textContent=RECIPES.length; }catch(e){}
 renderChips(); renderQuick(); render(); updateBadge(); renderShop();
 /* 🔗 Teil-Link: #r=rezept-id öffnet das Rezept direkt (auch für Mama per Messenger/WhatsApp) */
