@@ -1,9 +1,4 @@
-<script>
-  const WARTUNG = true;   // true = Wartung an, false = normale Seite
-  if (WARTUNG) {
-    window.location.replace("wartung.html");
-  }
-</script>
+<style>
   @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   :root{
@@ -288,6 +283,32 @@
   .cook-done{ text-align:center; padding:10px 4px; }
   .cook-done .big{ font-size:64px; }
 
+  /* 🔧 Wartungsmodus */
+  .wart-ov{ position:fixed; inset:0; z-index:500; display:flex; align-items:center; justify-content:center; padding:20px;
+    background:linear-gradient(135deg,#2E1A0E 0%,#5C3413 55%,#8A5A1E 100%); overflow:hidden; }
+  .wart-ov[hidden]{ display:none; }
+  .wart-box{ position:relative; z-index:2; background:var(--cream); border-radius:28px; padding:44px 38px; max-width:520px; width:100%;
+    text-align:center; box-shadow:0 30px 80px rgba(0,0,0,.5); animation:wartRein .5s ease backwards; }
+  .wart-emoji{ font-size:64px; animation:wartWackel 2.2s ease-in-out infinite; }
+  .wart-box h1{ font-family:'Fredoka',sans-serif; font-size:clamp(26px,6vw,36px); margin:10px 0 8px; color:var(--cocoa); }
+  .wart-box p{ font-size:16px; color:var(--cocoa2); line-height:1.6; margin:0 0 18px; }
+  body.senior .wart-box p{ font-size:19px; }
+  .wart-bar{ height:12px; border-radius:999px; background:#EADBC3; overflow:hidden; }
+  .wart-bar i{ display:block; height:100%; width:40%; border-radius:999px;
+    background:linear-gradient(90deg,var(--honig),var(--berry),var(--honig)); animation:wartLaden 1.6s ease-in-out infinite alternate; }
+  .wart-floaties{ position:absolute; inset:0; z-index:1; pointer-events:none; }
+  .wart-floaties span{ position:absolute; font-size:34px; opacity:.85; animation:floatY 3.4s ease-in-out infinite alternate; }
+  .wart-floaties span:nth-child(1){ left:8%; top:12%; }
+  .wart-floaties span:nth-child(2){ left:16%; bottom:14%; animation-delay:.6s; font-size:28px; }
+  .wart-floaties span:nth-child(3){ right:10%; top:18%; animation-delay:1.1s; font-size:40px; }
+  .wart-floaties span:nth-child(4){ right:16%; bottom:12%; animation-delay:1.6s; font-size:26px; }
+  .wart-floaties span:nth-child(5){ left:46%; top:6%; animation-delay:.3s; font-size:30px; }
+  .wart-floaties span:nth-child(6){ left:44%; bottom:6%; animation-delay:1.9s; font-size:24px; }
+  @keyframes wartRein{ from{ opacity:0; transform:translateY(26px) scale(.97); } }
+  @keyframes wartWackel{ 0%,100%{ transform:rotate(-12deg); } 50%{ transform:rotate(12deg) scale(1.08); } }
+  @keyframes wartLaden{ from{ margin-left:-40%; } to{ margin-left:100%; } }
+  body.noanim .wart-box, body.noanim .wart-emoji, body.noanim .wart-bar i, body.noanim .wart-floaties span{ animation:none; }
+
   /* Drawer */
   .drawer-ov{ position:fixed; inset:0; z-index:110; background:rgba(46,26,14,.5); display:none; }
   .drawer-ov.show{ display:block; }
@@ -553,11 +574,23 @@
 <div class="toast" id="toast"></div>
 <div class="cook-ov" id="cookOv"><div class="cook" id="cookBox"></div></div>
 <button id="topBtn" title="Nach oben">↑</button>
+<div class="wart-ov" id="wartungOv" hidden>
+  <div class="wart-floaties" aria-hidden="true"><span>🧁</span><span>🥐</span><span>🍩</span><span>🍪</span><span>🥧</span><span>🧁</span></div>
+  <div class="wart-box">
+    <div class="wart-emoji">🔧</div>
+    <h1>Wir backen gerade um …</h1>
+    <p><b>Küchenliebe</b> ist kurz im Wartungsmodus.<br>Schau gleich wieder vorbei – es lohnt sich! 🍰</p>
+    <div class="wart-bar"><i></i></div>
+  </div>
+</div>
 
 <script src="https://user.uploads.dev/file/33d8edc4be1c770ea2b50d7841970d8d.js"></script>
 <script>if(!window.__REZ_INDEX){var s=document.createElement("script");s.src="src/data/rezepte-index.js";s.onload=function(){if(window.__boot)window.__boot();};document.head.appendChild(s);}</script>
 <script src="https://user.uploads.dev/file/9a13bb8b87b25902ceaa24dabd90924a.js" defer></script>
 <script>
+/* 🔧 WARTUNGSMODUS – HIER UMSCHALTEN: true = Wartungsseite anzeigen, false = normaler Betrieb */
+const WARTUNG_AN = true;
+if(WARTUNG_AN){ document.getElementById("wartungOv").hidden = false; try{ document.body.style.overflow = "hidden"; }catch(e){} }
 const U = (id) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=800&q=80`;
 /* 🗂️ Rezepte liegen extern (kostenlose Datei-Ablage, plus src/data/ als Rückfall) – Index sofort, Details verzögert. */
 let RECIPES = Array.isArray(window.__REZ_INDEX) ? window.__REZ_INDEX : [];
@@ -1500,18 +1533,20 @@ async function openOnlineRecipe(mealId){
 }
 
 window.__boot = function(){
-  if(window.__BOOT_FERTIG) return; window.__BOOT_FERTIG = true;
+  if(window.__BOOT_FERTIG||WARTUNG_AN) return; window.__BOOT_FERTIG = true;
   RECIPES = Array.isArray(window.__REZ_INDEX) ? window.__REZ_INDEX : [];
   ladeOnlineRezepte();
   restoreKvBackup();
   vollMergen();
   setTimeout(function(){ if(!window.__REZ_VOLL){ var s=document.createElement("script"); s.src="src/data/rezepte-voll.js"; document.head.appendChild(s); } }, 6000);
-  try{ const hc=$("heroCount"); if(hc) hc.textContent=RECIPES.length; const sc=$("statCount"); if(sc) sc.textContent=RECIPES.length; const bt=$("buildTag"); if(bt) bt.textContent="Stand P22 · "+RECIPES.length+" Rezepte geladen"; }catch(e){}
+  try{ const hc=$("heroCount"); if(hc) hc.textContent=RECIPES.length; const sc=$("statCount"); if(sc) sc.textContent=RECIPES.length; const bt=$("buildTag"); if(bt) bt.textContent="Stand P23 · "+RECIPES.length+" Rezepte geladen"; }catch(e){}
   renderChips(); renderQuick(); render(); updateBadge(); renderShop();
   oeffneLink();
 };
-if(window.__REZ_INDEX){ window.__boot(); }
-else{ var __iv=setInterval(function(){ if(window.__REZ_INDEX){ clearInterval(__iv); window.__boot(); } },200); setTimeout(function(){ clearInterval(__iv); if(!window.__BOOT_FERTIG) window.__boot(); },8000); }
+if(!WARTUNG_AN){
+  if(window.__REZ_INDEX){ window.__boot(); }
+  else{ var __iv=setInterval(function(){ if(window.__REZ_INDEX){ clearInterval(__iv); window.__boot(); } },200); setTimeout(function(){ clearInterval(__iv); if(!window.__BOOT_FERTIG) window.__boot(); },8000); }
+}
 /* 🔗 Teil-Link: #r=rezept-id öffnet das Rezept direkt (auch für Mama per Messenger/WhatsApp) */
 function oeffneLink(){
   const m=(location.hash||"").match(/^#r=(.+)$/);
