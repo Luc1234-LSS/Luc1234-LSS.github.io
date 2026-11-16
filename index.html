@@ -320,6 +320,19 @@
   #updateGo{ background:linear-gradient(135deg,var(--honig),#5C3A10); color:#fff; padding:9px 16px; font-size:14px; }
   #updateX{ background:transparent; color:#FFEFD6; opacity:.7; font-size:15px; padding:8px 10px; }
   body.noanim .update-bar{ animation:none; }
+  /* 🔧 Fern-Schalter (Admin-Panel) */
+  #adminOv{ z-index:600; }
+  .admin-box input[type=password], .admin-box #adminMsg{ width:100%; box-sizing:border-box; font-size:17px; padding:13px 14px; margin:8px 0; border-radius:14px; border:2px solid var(--line); }
+  .admin-merk{ display:flex; align-items:center; gap:8px; font-size:15px; color:var(--cocoa2); margin:4px 0 8px; }
+  .admin-merk input{ width:22px; height:22px; }
+  .admin-btns{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0; }
+  #adminAn, #adminAus{ border:0; border-radius:16px; padding:16px 8px; font-size:17px; font-weight:800; cursor:pointer; }
+  #adminAn{ background:linear-gradient(135deg,#A3331F,#5C1F10); color:#fff; }
+  #adminAus{ background:linear-gradient(135deg,#3E7A2E,#1E4A15); color:#fff; }
+  #adminX{ background:#fff; color:var(--cocoa); border:2px solid var(--line); border-radius:999px; padding:10px 22px; font-size:15px; font-weight:700; cursor:pointer; }
+  #adminNote{ min-height:22px; font-size:14px; }
+  #wartungCloudMsg{ font-size:15px; }
+  body.senior #adminAn, body.senior #adminAus{ font-size:20px; padding:20px 8px; }
 
   /* Drawer */
   .drawer-ov{ position:fixed; inset:0; z-index:110; background:rgba(46,26,14,.5); display:none; }
@@ -593,18 +606,36 @@
     <div class="wart-emoji">🔧</div>
     <h1>Wir backen gerade um …</h1>
     <p><b>Küchenglück</b> ist kurz im Wartungsmodus.<br>Schau gleich wieder vorbei – es lohnt sich! 🍰</p>
+    <p id="wartungCloudMsg" hidden></p>
     <div class="wart-bar"><i></i></div>
+  </div>
+</div>
+<div class="wart-ov" id="adminOv" hidden>
+  <div class="wart-box admin-box">
+    <div class="wart-emoji">🔧</div>
+    <h1>Wartungs-Schalter</h1>
+    <p id="adminStand">Stand wird geladen …</p>
+    <input type="password" id="adminKey" placeholder="Schalter-Schlüssel hier einfügen" autocomplete="off">
+    <label class="admin-merk"><input type="checkbox" id="adminMerken" checked> Auf diesem Gerät merken</label>
+    <input id="adminMsg" placeholder="Nachricht für Besucher (optional)" maxlength="120">
+    <div class="admin-btns">
+      <button id="adminAn">🔧 Wartung AN</button>
+      <button id="adminAus">✅ Wartung AUS</button>
+    </div>
+    <button id="adminX">Schließen ✕</button>
+    <p id="adminNote"></p>
   </div>
 </div>
 
 <script>
 /* ☁️ Rezeptdaten mit FESTER Adresse (einmal eintragen, danach Rezepte austauschen ohne GitHub-Update).
    Erstellt nach dem Speichern des Generators; Updates + Versionsnummer laufen über dieselben Dateien. */
-const DATEN = { index:"kg-index-85zc5uecv99py2dmo1", voll:"kg-voll-rszj9lupddd2dci316", version:"kg-stand-z4efmsn7i90n66v8ex" };
+const DATEN = { index:"kg-index-85zc5uecv99py2dmo1", voll:"kg-voll-rszj9lupddd2dci316", version:"kg-stand-z4efmsn7i90n66v8ex", status:"kg-status-omecvwk0aaia5kyd163e" };
 function datenNs(){ try{ if(typeof window.generatorName==="string"&&window.generatorName) return window.generatorName; }catch(e){} return "backen"; }
 function datenUrl(kind, v){ return "https://editable.uploads.dev/file/"+datenNs()+"/"+DATEN[kind]+(v!=null?"?v="+encodeURIComponent(v):""); }
 function skriptLaden(url, ok, fehler){ var s=document.createElement("script"); s.async=false; s.src=url; s.onload=function(){ ok&&ok(); }; s.onerror=function(){ fehler&&fehler(); }; document.head.appendChild(s); }
 function starteDaten(){
+  holeStatus().then(function(st){ if(st&&st.wartung) zeigeWartung(true, st.msg||""); });
   fetch(datenUrl("version")+"?t="+Date.now()).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(ver){
     window.__DATEN_V = (ver&&ver.v!=null)?ver.v:null;
     skriptLaden(datenUrl("index", window.__DATEN_V), function(){ window.__boot(); }, function(){ datenRueckfall(); });
@@ -616,6 +647,18 @@ function datenRueckfall(){
     var s=document.createElement("script"); s.src="src/data/rezepte-index.js"; s.onload=function(){ if(window.__boot) window.__boot(); }; document.head.appendChild(s);
     setTimeout(function(){ if(!window.__BOOT_FERTIG) window.__boot(); }, 8000);
   });
+}
+/* ☁️ Fern-Wartungsschalter (Handy, ohne Code): Cloud-Statusdatei – wartung:true = Wartungsseite für alle Besucher. */
+function holeStatus(){
+  try{ return fetch(datenUrl("status")+"?t="+Date.now()).then(function(r){ if(!r.ok) throw 0; return r.json(); }).catch(function(){ return null; }); }
+  catch(e){ return Promise.resolve(null); }
+}
+function zeigeWartung(an, msg){
+  var ov=document.getElementById("wartungOv"); if(!ov) return;
+  var cm=document.getElementById("wartungCloudMsg");
+  if(cm){ if(msg){ cm.textContent=msg; cm.hidden=false; } else cm.hidden=true; }
+  if(an){ ov.hidden=false; try{ document.body.style.overflow="hidden"; }catch(e){} window.__WARTUNG_CLOUD=true; }
+  else if(!WARTUNG_AN){ ov.hidden=true; try{ document.body.style.overflow=""; }catch(e){} window.__WARTUNG_CLOUD=false; }
 }
 </script>
 <script>
@@ -1204,7 +1247,7 @@ $("randomBtn").onclick=()=>{
     if(Date.now()-t0>750){ clearInterval(iv); btn.classList.remove("rolling"); btn.innerHTML=orig; toast("🎲 Es wird: "+r.title+"!"); setTimeout(()=>openRecipe(r.id),450); }
   },90);
 };
-$("logoEl").onclick=()=>{ showN=60; query=""; $("searchInput").value=""; $("clearBtn").hidden=true; activeCat="alle"; renderChips(); render(); window.scrollTo({top:0,behavior:"smooth"}); updateHeroMore(); };
+$("logoEl").onclick=()=>{ if(adminKlick()) return; showN=60; query=""; $("searchInput").value=""; $("clearBtn").hidden=true; activeCat="alle"; renderChips(); render(); window.scrollTo({top:0,behavior:"smooth"}); updateHeroMore(); };
 
 /* ⚙️ Einstellungen: Seniorenmodus & Animationen */
 function applyPrefs(){
@@ -1570,7 +1613,7 @@ window.__boot = function(){
   restoreKvBackup();
   vollMergen();
   setTimeout(function(){ if(!window.__REZ_VOLL){ var s=document.createElement("script"); s.src="src/data/rezepte-voll.js"; document.head.appendChild(s); } }, 6000);
-  try{ const hc=$("heroCount"); if(hc) hc.textContent=RECIPES.length; const sc=$("statCount"); if(sc) sc.textContent=RECIPES.length; const bt=$("buildTag"); if(bt) bt.textContent="Stand P25 · "+RECIPES.length+" Rezepte geladen"; }catch(e){}
+  try{ const hc=$("heroCount"); if(hc) hc.textContent=RECIPES.length; const sc=$("statCount"); if(sc) sc.textContent=RECIPES.length; const bt=$("buildTag"); if(bt) bt.textContent="Stand P27 · "+RECIPES.length+" Rezepte geladen"; }catch(e){}
   renderChips(); renderQuick(); render(); updateBadge(); renderShop();
   oeffneLink();
   try{ setInterval(function(){ pruefeUpdate(); }, 5*60*1000); document.addEventListener("visibilitychange", function(){ if(!document.hidden) pruefeUpdate(); }); }catch(e){}
@@ -1578,6 +1621,11 @@ window.__boot = function(){
 /* 🔄 Update-Hinweis: Versionsdatei abfragen – bei neuer Version Banner zeigen (nie automatisch neu laden) */
 function pruefeUpdate(){
   if(WARTUNG_AN) return;
+  holeStatus().then(function(st){
+    var war=!!(st&&st.wartung);
+    if(war&&!window.__WARTUNG_CLOUD){ zeigeWartung(true,(st&&st.msg)||""); }
+    else if(!war&&window.__WARTUNG_CLOUD&&!WARTUNG_AN){ zeigeWartung(false); zeigeUpdateHinweis("Wartung beendet – frisch laden"); }
+  });
   fetch(datenUrl("version")+"?t="+Date.now()).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(ver){
     if(ver==null||ver.v==null) return;
     if(window.__DATEN_V==null){ window.__DATEN_V = ver.v; return; }
@@ -1614,4 +1662,36 @@ window.addEventListener("scroll",()=>{ document.body.classList.add("scrolling");
 $("topBtn").onclick=()=>window.scrollTo({top:0,behavior:"smooth"});
 $("updateGo").onclick=()=>location.reload();
 $("updateX").onclick=()=>{ $("updateBar").hidden=true; };
+/* 🔧 Fern-Schalter (Handy, ohne Code): #admin oder 7× Logo tippen. Schalten geht auf der Perchance-Seite (Plugin), Lesen überall. */
+function adminKlick(){ try{ window.__admN=(window.__admN||0)+1; clearTimeout(window.__admT); window.__admT=setTimeout(()=>{ window.__admN=0; },3000); if(window.__admN>=7){ window.__admN=0; adminOeffnen(); return true; } }catch(e){} return false; }
+function adminOeffnen(){
+  var ov=$("adminOv"); if(!ov) return;
+  try{ var g=lsGet("lk_admin_key",""); if(g&&!$("adminKey").value) $("adminKey").value=g; }catch(e){}
+  ov.hidden=false;
+  var kannSchalten=(typeof window.root!=="undefined"&&window.root.uploadPlugin&&window.root.uploadPlugin.editable);
+  $("adminNote").textContent=kannSchalten?"":"ℹ️ Schalten geht auf deiner Perchance-Seite (perchance.org/"+datenNs()+"#admin) – hier nur Anzeige.";
+  $("adminStand").textContent="Stand wird geladen …";
+  holeStatus().then(function(st){ $("adminStand").textContent=st?("Cloud-Stand: "+(st.wartung?"🔧 AN":"✅ AUS")+(st.msg?" – „"+st.msg+"“":"")):"Cloud-Stand: unbekannt (offline?)"; });
+  if(location.hash!=="#admin"){ try{ history.replaceState(null,"","#admin"); }catch(e){ location.hash="#admin"; } }
+}
+function adminSchliessen(){ $("adminOv").hidden=true; if(location.hash==="#admin"){ try{ history.replaceState(null,"",location.pathname+location.search); }catch(e){} } }
+function adminSchalten(an){
+  var key=""; try{ key=$("adminKey").value.trim()||lsGet("lk_admin_key",""); }catch(e){}
+  if(!key){ $("adminNote").textContent="⚠️ Bitte zuerst den Schalter-Schlüssel einfügen."; return; }
+  if(typeof window.root==="undefined"||!window.root.uploadPlugin||!window.root.uploadPlugin.editable){ $("adminNote").textContent="⚠️ Geht nur auf perchance.org/"+datenNs()+"#admin – dort Schlüssel einfügen."; return; }
+  var msg=""; try{ msg=$("adminMsg").value.trim(); }catch(e){}
+  $("adminNote").textContent="⏳ Wird geschaltet …";
+  window.root.uploadPlugin.editable.set(DATEN.status, JSON.stringify({wartung:!!an,msg:msg}), {editKey:key}).then(function(r){
+    if(r&&r.error){ $("adminNote").textContent="❌ Fehler: "+r.error; return; }
+    try{ if($("adminMerken").checked) lsSetSafe("lk_admin_key",key); }catch(e){}
+    zeigeWartung(!!an,msg);
+    $("adminStand").textContent="Cloud-Stand: "+(an?"🔧 AN":"✅ AUS")+(msg?" – „"+msg+"“":"");
+    $("adminNote").textContent=an?"✅ Wartung ist AN – Besucher sehen die Wartungsseite.":"✅ Wartung ist AUS – Seite ist wieder offen.";
+  }).catch(function(e){ $("adminNote").textContent="❌ Fehler: "+e; });
+}
+$("adminAn").onclick=()=>adminSchalten(true);
+$("adminAus").onclick=()=>adminSchalten(false);
+$("adminX").onclick=()=>adminSchliessen();
+window.addEventListener("hashchange",()=>{ if(location.hash==="#admin") adminOeffnen(); });
+if(location.hash==="#admin") adminOeffnen();
 </script>
