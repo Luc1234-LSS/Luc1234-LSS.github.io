@@ -519,7 +519,7 @@
   <div class="meta-line"><span id="resultCount"></span><span id="activeFilter"></span></div>
   <div class="grid" id="grid"></div>
 
-  <footer>Fotos: Wikimedia Commons (freie Lizenzen, Quelle steht beim jeweiligen Rezept). Alle Rezepte klassisch &amp; gelingsicher in g · ml · EL · TL. <br>Airfryer-Angaben für 3,5–5-L-Geräte – jeder heizt anders, lieber 2 Min. früher schauen. Online-Funde stammen aus TheMealDB (automatisch ins Deutsche übersetzt; umgerechnete Maße, Original in Klammern).</footer>
+  <footer>Fotos: Wikimedia Commons (freie Lizenzen, Quelle steht beim jeweiligen Rezept). Alle Rezepte klassisch &amp; gelingsicher in g · ml · EL · TL. <br>Airfryer-Angaben für 3,5–5-L-Geräte – jeder heizt anders, lieber 2 Min. früher schauen. Online-Funde stammen aus TheMealDB (automatisch ins Deutsche übersetzt; umgerechnete Maße, Original in Klammern).<br><span id="buildTag" style="opacity:.65;font-size:12px"></span></footer>
 </main>
 
 <div class="overlay" id="overlay"><div class="sheet" id="sheet"></div></div>
@@ -549,11 +549,12 @@
 <div class="cook-ov" id="cookOv"><div class="cook" id="cookBox"></div></div>
 <button id="topBtn" title="Nach oben">↑</button>
 
-<script src="src/data/rezepte-index.js"></script>
-<script src="src/data/rezepte-voll.js" defer></script>
+<script src="https://user.uploads.dev/file/33d8edc4be1c770ea2b50d7841970d8d.js"></script>
+<script>if(!window.__REZ_INDEX){var s=document.createElement("script");s.src="src/data/rezepte-index.js";s.onload=function(){if(window.__boot)window.__boot();};document.head.appendChild(s);}</script>
+<script src="https://user.uploads.dev/file/9a13bb8b87b25902ceaa24dabd90924a.js" defer></script>
 <script>
 const U = (id) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=800&q=80`;
-/* 🗂️ Rezepte liegen extern in src/data/ (Index sofort, Details verzögert) – GitHub-Kopie wird beim Bauen wieder eingebettet. */
+/* 🗂️ Rezepte liegen extern (kostenlose Datei-Ablage, plus src/data/ als Rückfall) – Index sofort, Details verzögert. */
 let RECIPES = Array.isArray(window.__REZ_INDEX) ? window.__REZ_INDEX : [];
 let VOLL_BEREIT = false, VOLL_WARTEN = [];
 function vollMergen(){
@@ -774,6 +775,12 @@ function renderQuick(){
 }
 function render(){
   if(activeCat==="online"){ renderOnline(); return; }
+  if(!RECIPES.length){
+    $("resultCount").textContent = "⚠️ Rezeptdaten fehlen";
+    $("activeFilter").textContent = "";
+    grid.innerHTML = `<div class="empty"><div class="big">📦</div><h3 style="font-family:Fredoka">Rezeptdaten fehlen auf dieser Seite</h3><p style="color:var(--muted)">Die App ist hier <b>ohne Rezeptdaten</b> gelandet (nur Online geht noch). Lade bitte die <b>neuste Datei „lecker-kueche-rezepte.html“ aus dem Chat</b> auf GitHub hoch – <b>nicht</b> den Code aus dem Editor kopieren (dem fehlen die Daten-Dateien).</p></div>`;
+    return;
+  }
   const list = filtered();
   if(activeCat==="favs"){
     $("resultCount").textContent = list.length + (list.length===1?" Favorit":" Favoriten");
@@ -1487,11 +1494,19 @@ async function openOnlineRecipe(mealId){
   verfeinereOnline(r, r.orig, r._rawPaare||"", r._rawAnleitung||"");
 }
 
-ladeOnlineRezepte();
-restoreKvBackup();
-vollMergen();
-try{ const hc=$("heroCount"); if(hc) hc.textContent=RECIPES.length; const sc=$("statCount"); if(sc) sc.textContent=RECIPES.length; }catch(e){}
-renderChips(); renderQuick(); render(); updateBadge(); renderShop();
+window.__boot = function(){
+  if(window.__BOOT_FERTIG) return; window.__BOOT_FERTIG = true;
+  RECIPES = Array.isArray(window.__REZ_INDEX) ? window.__REZ_INDEX : [];
+  ladeOnlineRezepte();
+  restoreKvBackup();
+  vollMergen();
+  setTimeout(function(){ if(!window.__REZ_VOLL){ var s=document.createElement("script"); s.src="src/data/rezepte-voll.js"; document.head.appendChild(s); } }, 6000);
+  try{ const hc=$("heroCount"); if(hc) hc.textContent=RECIPES.length; const sc=$("statCount"); if(sc) sc.textContent=RECIPES.length; const bt=$("buildTag"); if(bt) bt.textContent="Stand P22 · "+RECIPES.length+" Rezepte geladen"; }catch(e){}
+  renderChips(); renderQuick(); render(); updateBadge(); renderShop();
+  oeffneLink();
+};
+if(window.__REZ_INDEX){ window.__boot(); }
+else{ var __iv=setInterval(function(){ if(window.__REZ_INDEX){ clearInterval(__iv); window.__boot(); } },200); setTimeout(function(){ clearInterval(__iv); if(!window.__BOOT_FERTIG) window.__boot(); },8000); }
 /* 🔗 Teil-Link: #r=rezept-id öffnet das Rezept direkt (auch für Mama per Messenger/WhatsApp) */
 function oeffneLink(){
   const m=(location.hash||"").match(/^#r=(.+)$/);
