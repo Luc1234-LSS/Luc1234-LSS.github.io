@@ -309,6 +309,18 @@
   @keyframes wartLaden{ from{ margin-left:-40%; } to{ margin-left:100%; } }
   body.noanim .wart-box, body.noanim .wart-emoji, body.noanim .wart-bar i, body.noanim .wart-floaties span{ animation:none; }
 
+  /* 🔄 Update-Hinweis */
+  .update-bar{ position:fixed; top:10px; left:50%; transform:translateX(-50%); z-index:400;
+    display:flex; align-items:center; gap:10px; max-width:min(620px,94vw);
+    background:#2E1A0E; color:#FFEFD6; border:1px solid #A86A12; border-radius:999px;
+    padding:10px 12px 10px 18px; font-size:14px; font-weight:700;
+    box-shadow:0 14px 40px rgba(0,0,0,.4); animation:wartRein .35s ease backwards; }
+  .update-bar[hidden]{ display:none; }
+  .update-bar button{ border:0; border-radius:999px; cursor:pointer; font-weight:800; }
+  #updateGo{ background:linear-gradient(135deg,var(--honig),#5C3A10); color:#fff; padding:9px 16px; font-size:14px; }
+  #updateX{ background:transparent; color:#FFEFD6; opacity:.7; font-size:15px; padding:8px 10px; }
+  body.noanim .update-bar{ animation:none; }
+
   /* Drawer */
   .drawer-ov{ position:fixed; inset:0; z-index:110; background:rgba(46,26,14,.5); display:none; }
   .drawer-ov.show{ display:block; }
@@ -572,6 +584,7 @@
   <div class="menu-list" id="menuList"></div>
 </aside>
 <div class="toast" id="toast"></div>
+<div class="update-bar" id="updateBar" hidden><span id="updateTxt">🔄 Neue Rezepte da – bitte neu laden.</span><button id="updateGo">Neu laden ⟳</button><button id="updateX" title="Schließen">✕</button></div>
 <div class="cook-ov" id="cookOv"><div class="cook" id="cookBox"></div></div>
 <button id="topBtn" title="Nach oben">↑</button>
 <div class="wart-ov" id="wartungOv" hidden>
@@ -584,12 +597,30 @@
   </div>
 </div>
 
-<script src="https://user.uploads.dev/file/6b4f3a53853f63f4be790d36a2c8016f.js"></script>
-<script>if(!window.__REZ_INDEX){var s=document.createElement("script");s.src="src/data/rezepte-index.js";s.onload=function(){if(window.__boot)window.__boot();};document.head.appendChild(s);}</script>
-<script src="https://user.uploads.dev/file/30ea08f146a8b237abfb8030647f0b88.js" defer></script>
+<script>
+/* ☁️ Rezeptdaten mit FESTER Adresse (einmal eintragen, danach Rezepte austauschen ohne GitHub-Update).
+   Erstellt nach dem Speichern des Generators; Updates + Versionsnummer laufen über dieselben Dateien. */
+const DATEN = { index:"kg-index-85zc5uecv99py2dmo1", voll:"kg-voll-rszj9lupddd2dci316", version:"kg-stand-z4efmsn7i90n66v8ex" };
+function datenNs(){ try{ if(typeof window.generatorName==="string"&&window.generatorName) return window.generatorName; }catch(e){} return "backen"; }
+function datenUrl(kind, v){ return "https://editable.uploads.dev/file/"+datenNs()+"/"+DATEN[kind]+(v!=null?"?v="+encodeURIComponent(v):""); }
+function skriptLaden(url, ok, fehler){ var s=document.createElement("script"); s.async=false; s.src=url; s.onload=function(){ ok&&ok(); }; s.onerror=function(){ fehler&&fehler(); }; document.head.appendChild(s); }
+function starteDaten(){
+  fetch(datenUrl("version")+"?t="+Date.now()).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(ver){
+    window.__DATEN_V = (ver&&ver.v!=null)?ver.v:null;
+    skriptLaden(datenUrl("index", window.__DATEN_V), function(){ window.__boot(); }, function(){ datenRueckfall(); });
+    skriptLaden(datenUrl("voll", window.__DATEN_V), function(){ vollMergen(); }, function(){});
+  }).catch(function(){ datenRueckfall(); });
+}
+function datenRueckfall(){
+  skriptLaden(datenUrl("index"), function(){ window.__boot(); }, function(){
+    var s=document.createElement("script"); s.src="src/data/rezepte-index.js"; s.onload=function(){ if(window.__boot) window.__boot(); }; document.head.appendChild(s);
+    setTimeout(function(){ if(!window.__BOOT_FERTIG) window.__boot(); }, 8000);
+  });
+}
+</script>
 <script>
 /* 🔧 WARTUNGSMODUS – HIER UMSCHALTEN: true = Wartungsseite anzeigen, false = normaler Betrieb */
-const WARTUNG_AN = true;
+const WARTUNG_AN = false;
 if(WARTUNG_AN){ document.getElementById("wartungOv").hidden = false; try{ document.body.style.overflow = "hidden"; }catch(e){} }
 const U = (id) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=800&q=80`;
 /* 🗂️ Rezepte liegen extern (kostenlose Datei-Ablage, plus src/data/ als Rückfall) – Index sofort, Details verzögert. */
@@ -1539,14 +1570,26 @@ window.__boot = function(){
   restoreKvBackup();
   vollMergen();
   setTimeout(function(){ if(!window.__REZ_VOLL){ var s=document.createElement("script"); s.src="src/data/rezepte-voll.js"; document.head.appendChild(s); } }, 6000);
-  try{ const hc=$("heroCount"); if(hc) hc.textContent=RECIPES.length; const sc=$("statCount"); if(sc) sc.textContent=RECIPES.length; const bt=$("buildTag"); if(bt) bt.textContent="Stand P24 · "+RECIPES.length+" Rezepte geladen"; }catch(e){}
+  try{ const hc=$("heroCount"); if(hc) hc.textContent=RECIPES.length; const sc=$("statCount"); if(sc) sc.textContent=RECIPES.length; const bt=$("buildTag"); if(bt) bt.textContent="Stand P25 · "+RECIPES.length+" Rezepte geladen"; }catch(e){}
   renderChips(); renderQuick(); render(); updateBadge(); renderShop();
   oeffneLink();
+  try{ setInterval(function(){ pruefeUpdate(); }, 5*60*1000); document.addEventListener("visibilitychange", function(){ if(!document.hidden) pruefeUpdate(); }); }catch(e){}
 };
-if(!WARTUNG_AN){
-  if(window.__REZ_INDEX){ window.__boot(); }
-  else{ var __iv=setInterval(function(){ if(window.__REZ_INDEX){ clearInterval(__iv); window.__boot(); } },200); setTimeout(function(){ clearInterval(__iv); if(!window.__BOOT_FERTIG) window.__boot(); },8000); }
+/* 🔄 Update-Hinweis: Versionsdatei abfragen – bei neuer Version Banner zeigen (nie automatisch neu laden) */
+function pruefeUpdate(){
+  if(WARTUNG_AN) return;
+  fetch(datenUrl("version")+"?t="+Date.now()).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(ver){
+    if(ver==null||ver.v==null) return;
+    if(window.__DATEN_V==null){ window.__DATEN_V = ver.v; return; }
+    if(ver.v!==window.__DATEN_V && ver.v!==window.__UPDATE_GEZEIGT){ window.__UPDATE_GEZEIGT = ver.v; zeigeUpdateHinweis(ver.msg||""); }
+  }).catch(function(){});
 }
+function zeigeUpdateHinweis(msg){
+  var b=$("updateBar"); if(!b) return;
+  $("updateTxt").textContent = msg ? "🔄 "+msg+" – bitte neu laden." : "🔄 Neue Rezepte da – bitte neu laden.";
+  b.hidden = false;
+}
+if(!WARTUNG_AN){ starteDaten(); }
 /* 🔗 Teil-Link: #r=rezept-id öffnet das Rezept direkt (auch für Mama per Messenger/WhatsApp) */
 function oeffneLink(){
   const m=(location.hash||"").match(/^#r=(.+)$/);
@@ -1569,4 +1612,6 @@ window.addEventListener("hashchange",()=>{
 let scrollT=null;
 window.addEventListener("scroll",()=>{ document.body.classList.add("scrolling"); $("topBtn").classList.toggle("show",window.scrollY>700); clearTimeout(scrollT); scrollT=setTimeout(()=>document.body.classList.remove("scrolling"),150); },{passive:true});
 $("topBtn").onclick=()=>window.scrollTo({top:0,behavior:"smooth"});
+$("updateGo").onclick=()=>location.reload();
+$("updateX").onclick=()=>{ $("updateBar").hidden=true; };
 </script>
