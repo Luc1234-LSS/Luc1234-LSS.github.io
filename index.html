@@ -653,7 +653,7 @@
     <p id="adminStand">Stand wird geladen …</p>
     <input type="password" id="adminKey" placeholder="Schalter-Schlüssel hier einfügen" autocomplete="off">
     <label class="admin-merk"><input type="checkbox" id="adminMerken" checked> Auf diesem Gerät merken</label>
-    <input id="adminMsg" placeholder="Nachricht für Besucher (optional)" maxlength="120">
+    <input id="adminMsg" placeholder="Nachricht bei Hand-Wartung (optional)" maxlength="120">
     <div class="admin-btns">
       <button id="adminAn">🔧 Wartung AN</button>
       <button id="adminAus">✅ Wartung AUS</button>
@@ -668,6 +668,7 @@
       <label>von <input type="time" id="planVon" value="04:00"></label>
       <label>bis <input type="time" id="planBis" value="06:00"></label>
     </div>
+    <input id="adminPlanMsg" placeholder="Nachricht bei Zeitplan-Wartung (optional)" maxlength="120" style="width:100%;box-sizing:border-box;font-size:17px;padding:13px 14px;margin:8px 0;border-radius:14px;border:2px solid var(--line)">
     <button id="planSpeichern">⏰ Zeitplan speichern</button>
     <p style="font-weight:800;margin:12px 0 6px">⏳ Einmal-Timer <small style="font-weight:400">(z. B. 60 Min. ab jetzt)</small></p>
     <div class="admin-zeit">
@@ -730,7 +731,7 @@ function wartungGrund(st){
       var jetzt=hh+":"+mm, drin;
       if(p.von<=p.bis) drin=(p.von<=jetzt&&jetzt<p.bis);
       else drin=(jetzt>=p.von||jetzt<p.bis);
-      if(tagOk&&drin) return {an:true,msg:st.msg||"🌙 Nächtliche Wartung – gleich wieder da! 🍪"};
+      if(tagOk&&drin){ var pm=""; try{ pm=p.msg||""; }catch(e){} return {an:true,msg:pm||"🌙 Nächtliche Wartung – gleich wieder da! 🍪"}; }
     }
   }catch(e){}
   return {an:false,msg:""};
@@ -1771,6 +1772,7 @@ function adminOeffnen(){
       __planTage=(Array.isArray(p.tage)&&p.tage.length)?p.tage.slice():[1,2,3,4];
       if(p.von) $("planVon").value=p.von;
       if(p.bis) $("planBis").value=p.bis;
+      try{ $("adminPlanMsg").value=p.msg||""; }catch(e){}
       adminTageAnzeigen();
     }catch(e){ try{ adminTageAnzeigen(); }catch(_){} }
   });
@@ -1809,7 +1811,7 @@ function adminStatusBeschreibung(st){
   try{
     if(st.bis&&Number(st.bis)>Date.now()){ var rest=Math.max(1,Math.round((Number(st.bis)-Date.now())/60000)); t+=" | ⏳ Timer: noch ca. "+rest+" Min."; }
     var p=st.plan;
-    if(p&&p.aktiv){ var namen=["So","Mo","Di","Mi","Do","Fr","Sa"]; var tg=(p.tage||[]).slice().sort(function(a,b){return a-b;}).map(function(x){ return namen[x]||"?"; }).join(","); t+=" | ⏰ Plan: "+(tg||"–")+" "+(p.von||"?")+"–"+(p.bis||"?")+" Uhr"; }
+    if(p&&p.aktiv){ var namen=["So","Mo","Di","Mi","Do","Fr","Sa"]; var tg=(p.tage||[]).slice().sort(function(a,b){return a-b;}).map(function(x){ return namen[x]||"?"; }).join(","); t+=" | ⏰ Plan: "+(tg||"–")+" "+(p.von||"?")+"–"+(p.bis||"?")+" Uhr"+(p.msg?" „"+p.msg+"“":""); }
     else t+=" | ⏰ Plan: aus";
   }catch(e){}
   return t;
@@ -1823,8 +1825,8 @@ function adminSchluessel(){
 }
 $("planSpeichern").onclick=function(){
   var key=adminSchluessel(); if(!key) return;
-  var plan={aktiv:false,tage:__planTage.slice(),von:"04:00",bis:"06:00"};
-  try{ plan.aktiv=!!$("planAktiv").checked; if($("planVon").value) plan.von=$("planVon").value; if($("planBis").value) plan.bis=$("planBis").value; }catch(e){}
+  var plan={aktiv:false,tage:__planTage.slice(),von:"04:00",bis:"06:00",msg:""};
+  try{ plan.aktiv=!!$("planAktiv").checked; if($("planVon").value) plan.von=$("planVon").value; if($("planBis").value) plan.bis=$("planBis").value; plan.msg=$("adminPlanMsg").value.trim(); }catch(e){}
   if(!plan.tage.length){ $("adminNote").textContent="⚠️ Bitte mindestens einen Tag antippen."; return; }
   $("adminNote").textContent="⏳ Zeitplan wird gespeichert …";
   holeStatus().then(function(alt){
