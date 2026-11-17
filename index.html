@@ -343,6 +343,17 @@
   #adminAus{ background:linear-gradient(135deg,#3E7A2E,#1E4A15); color:#fff; }
   #adminX{ background:#fff; color:var(--cocoa); border:2px solid var(--line); border-radius:999px; padding:10px 22px; font-size:15px; font-weight:700; cursor:pointer; }
   #adminNote{ min-height:22px; font-size:14px; }
+  /* ⏰ Zeitplan + Timer im Admin-Panel */
+  .admin-tage{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin:8px 0; }
+  .admin-tage button{ border:2px solid var(--line); background:#fff; border-radius:12px; padding:10px 0; font-size:14px; font-weight:800; cursor:pointer; color:var(--cocoa); }
+  .admin-tage button.an{ background:linear-gradient(135deg,#A86A12,#E8A93B); color:#fff; border-color:#A86A12; }
+  .admin-zeit{ display:flex; gap:10px; margin:8px 0; }
+  .admin-zeit label{ flex:1; font-size:15px; font-weight:700; color:var(--cocoa2); }
+  .admin-zeit input{ width:100%; box-sizing:border-box; font-size:17px; padding:10px; margin-top:4px; border-radius:12px; border:2px solid var(--line); }
+  #planSpeichern{ background:#fff; color:var(--cocoa); border:2px solid var(--line); border-radius:16px; padding:14px 8px; font-size:16px; font-weight:800; cursor:pointer; width:100%; }
+  #timerStart,#timerStop{ border-radius:16px; padding:14px 8px; font-size:16px; font-weight:800; cursor:pointer; }
+  #timerStart{ background:linear-gradient(135deg,#7A4A1E,#E8A93B); color:#fff; border:0; }
+  #timerStop{ background:#fff; color:var(--cocoa); border:2px solid var(--line); }
   #wartungCloudMsg{ font-size:15px; }
   body.senior #adminAn, body.senior #adminAus{ font-size:20px; padding:20px 8px; }
 
@@ -609,7 +620,7 @@
   <div style="font-size:14px;line-height:1.6;color:var(--cocoa2)">
     <p><b>Was bleibt auf deinem Gerät:</b> deine Favoriten (❤️), deine Einkaufsliste, Einstellungen (Seniorenmodus, Animationen) und deine Cookie-Auswahl – im Browser-Speicher (localStorage), auf Wunsch zusätzlich als Sicherung in deiner Perchance-Ablage. Es gibt keine Konten, keine Werbung und keine Tracker.</p>
     <p><b>Wohin Daten gehen:</b> Beim Start lädt die Seite Rezeptdaten von unserem Speicher (editable.uploads.dev). Die Online-Suche fragt TheMealDB, die KI-Übersetzung läuft über Perchance.</p>
-    <p><b>Herkunft:</b> Fotos stammen von Wikimedia Commons – die Quelle steht bei jedem Rezept (Herkunfts-Zeile). Online-Funde verlinken auf TheMealDB, alles andere sind Küchenglück-Hausrezepte.</p>
+    <p><b>Herkunft:</b> Fotos stammen von Wikimedia Commons – die Quelle steht bei jedem Rezept (Herkunfts-Zeile). Online-Funde verlinken auf TheMealDB, alles andere sind Küchenglück-Hausrezepte. Diese Hausrezepte schreibt die KI für dich in eigenen Worten neu – oft angeregt durch Rezeptideen aus dem Netz (z. B. Foodblogs). Es sind eigene Nachkreationen, keine kopierten Texte und keine übernommenen Fotos.</p>
     <p><b>Löschen:</b> Einkaufsliste leeren, Herzen entfernen oder die Browserdaten dieser Seite löschen – dann ist alles weg. Die Cookie-Frage kommt nur einmal: deine Auswahl wird gemerkt.</p>
     <p>Fragen? Schreib uns über die Perchance-Seite. – Stand: November 2026.</p>
   </div>
@@ -647,6 +658,25 @@
       <button id="adminAn">🔧 Wartung AN</button>
       <button id="adminAus">✅ Wartung AUS</button>
     </div>
+    <hr style="border:0;border-top:2px dashed var(--line);margin:12px 0">
+    <p style="font-weight:800;margin:6px 0">⏰ Fester Zeitplan <small style="font-weight:400">(jede Woche automatisch)</small></p>
+    <label class="admin-merk"><input type="checkbox" id="planAktiv"> Zeitplan aktiv</label>
+    <div class="admin-tage" id="planTage">
+      <button data-tag="1">Mo</button><button data-tag="2">Di</button><button data-tag="3">Mi</button><button data-tag="4">Do</button><button data-tag="5">Fr</button><button data-tag="6">Sa</button><button data-tag="0">So</button>
+    </div>
+    <div class="admin-zeit">
+      <label>von <input type="time" id="planVon" value="04:00"></label>
+      <label>bis <input type="time" id="planBis" value="06:00"></label>
+    </div>
+    <button id="planSpeichern">⏰ Zeitplan speichern</button>
+    <p style="font-weight:800;margin:12px 0 6px">⏳ Einmal-Timer <small style="font-weight:400">(z. B. 60 Min. ab jetzt)</small></p>
+    <div class="admin-zeit">
+      <label>Minuten <input type="number" id="timerMin" value="60" min="1" max="1440" inputmode="numeric"></label>
+    </div>
+    <div class="admin-btns">
+      <button id="timerStart">⏳ Timer starten</button>
+      <button id="timerStop">Timer stoppen</button>
+    </div>
     <button id="adminX">Schließen ✕</button>
     <p id="adminNote"></p>
   </div>
@@ -660,7 +690,7 @@ function datenNs(){ try{ if(typeof window.generatorName==="string"&&window.gener
 function datenUrl(kind, v){ return "https://editable.uploads.dev/file/"+datenNs()+"/"+DATEN[kind]+(v!=null?"?v="+encodeURIComponent(v):""); }
 function skriptLaden(url, ok, fehler){ var s=document.createElement("script"); s.async=false; s.src=url; s.onload=function(){ ok&&ok(); }; s.onerror=function(){ fehler&&fehler(); }; document.head.appendChild(s); }
 function starteDaten(){
-  holeStatus().then(function(st){ if(st&&st.wartung) zeigeWartung(true, st.msg||""); });
+  holeStatus().then(function(st){ var g=wartungGrund(st); if(g.an) zeigeWartung(true, g.msg); });
   fetch(datenUrl("version")+"?t="+Date.now()).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(ver){
     window.__DATEN_V = (ver&&ver.v!=null)?ver.v:null;
     skriptLaden(datenUrl("index", window.__DATEN_V), function(){ window.__boot(); }, function(){ datenRueckfall(); });
@@ -684,6 +714,34 @@ function zeigeWartung(an, msg){
   if(cm){ if(msg){ cm.textContent=msg; cm.hidden=false; } else cm.hidden=true; }
   if(an){ ov.hidden=false; try{ document.body.style.overflow="hidden"; }catch(e){} window.__WARTUNG_CLOUD=true; }
   else if(!WARTUNG_AN){ ov.hidden=true; try{ document.body.style.overflow=""; }catch(e){} window.__WARTUNG_CLOUD=false; }
+}
+/* ⏰ Wartungs-Zeitplan: Cloud-Status kann {bis: Zeitstempel} (Einmal-Timer) und {plan:{aktiv,tage:[0=So..6=Sa],von:"04:00",bis:"06:00"}} enthalten. Zeiten = Geräte-Uhrzeit. */
+function wartungGrund(st){
+  if(!st) return {an:false,msg:""};
+  if(st.wartung) return {an:true,msg:st.msg||""};
+  try{
+    if(st.bis&&Date.now()<Number(st.bis)) return {an:true,msg:st.msg||"⏳ Wartung läuft gerade – gleich wieder da! 🍪"};
+    var p=st.plan;
+    if(p&&p.aktiv&&p.von&&p.bis&&Array.isArray(p.tage)&&p.tage.length){
+      var d=new Date();
+      var tagOk=p.tage.indexOf(d.getDay())>=0;
+      var hh=String(d.getHours()), mm=String(d.getMinutes());
+      if(hh.length<2) hh="0"+hh; if(mm.length<2) mm="0"+mm;
+      var jetzt=hh+":"+mm, drin;
+      if(p.von<=p.bis) drin=(p.von<=jetzt&&jetzt<p.bis);
+      else drin=(jetzt>=p.von||jetzt<p.bis);
+      if(tagOk&&drin) return {an:true,msg:st.msg||"🌙 Nächtliche Wartung – gleich wieder da! 🍪"};
+    }
+  }catch(e){}
+  return {an:false,msg:""};
+}
+function pruefeWartung(){
+  if(WARTUNG_AN) return;
+  holeStatus().then(function(st){
+    var g=wartungGrund(st);
+    if(g.an){ zeigeWartung(true,g.msg); }
+    else if(!g.an&&window.__WARTUNG_CLOUD&&!WARTUNG_AN){ zeigeWartung(false); zeigeUpdateHinweis("Wartung beendet – frisch laden"); }
+  });
 }
 </script>
 <script>
@@ -1071,7 +1129,7 @@ async function openRecipe(id){
       row.innerHTML=`<span class="dot"></span><span class="txt">${label}</span><button class="add" title="Auf die Einkaufsliste">＋</button>`;
       row.querySelector(".add").onclick=(e)=>{
         const btn=e.currentTarget;
-        addItem(`${fmtMenge(z.m,f2)} ${z.e} ${z.z}`.trim(), r.title);
+        addItem(`${fmtMenge(z.m,f2)} ${z.e} ${z.z}`.replace(/\s+/g," ").trim(), r.title);
         btn.classList.add("done"); btn.textContent="✓";
         setTimeout(()=>{btn.classList.remove("done");btn.textContent="＋";},1200);
       };
@@ -1132,7 +1190,7 @@ function closeCook(silent){
 }
 function cookZutaten(r){
   const f=factorFor(r);
-  return (zuckerAn?r.zutaten.map(machZuckerfrei):r.zutaten).map(z=>({label:`${z.m!=null?fmtMenge(z.m,f)+" "+z.e+" ":""}${z.z}`.trim(), z:z}));
+  return (zuckerAn?r.zutaten.map(machZuckerfrei):r.zutaten).map(z=>({label:`${z.m!=null?fmtMenge(z.m,f)+" "+z.e+" ":""}${z.z}`.replace(/\s+/g," ").trim(), z:z}));
 }
 function zutatenFuerSchritt(r, stepText){
   const s=String(stepText||"").toLowerCase();
@@ -1654,16 +1712,12 @@ window.__boot = function(){
   try{ const hc=$("heroCount"); if(hc) hc.textContent=RECIPES.length; const sc=$("statCount"); if(sc) sc.textContent=RECIPES.length; const bt=$("buildTag"); if(bt) bt.textContent="Stand P27 · "+RECIPES.length+" Rezepte geladen"; }catch(e){}
   renderChips(); renderQuick(); render(); updateBadge(); renderShop();
   oeffneLink();
-  try{ setInterval(function(){ pruefeUpdate(); }, 5*60*1000); document.addEventListener("visibilitychange", function(){ if(!document.hidden) pruefeUpdate(); }); }catch(e){}
+  try{ setInterval(function(){ pruefeUpdate(); }, 5*60*1000); setInterval(function(){ pruefeWartung(); }, 60*1000); document.addEventListener("visibilitychange", function(){ if(!document.hidden) pruefeUpdate(); }); }catch(e){}
 };
 /* 🔄 Update-Hinweis: Versionsdatei abfragen – bei neuer Version Banner zeigen (nie automatisch neu laden) */
 function pruefeUpdate(){
   if(WARTUNG_AN) return;
-  holeStatus().then(function(st){
-    var war=!!(st&&st.wartung);
-    if(war&&!window.__WARTUNG_CLOUD){ zeigeWartung(true,(st&&st.msg)||""); }
-    else if(!war&&window.__WARTUNG_CLOUD&&!WARTUNG_AN){ zeigeWartung(false); zeigeUpdateHinweis("Wartung beendet – frisch laden"); }
-  });
+  pruefeWartung();
   fetch(datenUrl("version")+"?t="+Date.now()).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(ver){
     if(ver==null||ver.v==null) return;
     if(window.__DATEN_V==null){ window.__DATEN_V = ver.v; return; }
@@ -1709,7 +1763,17 @@ function adminOeffnen(){
   var kannSchalten=(typeof window.root!=="undefined"&&window.root.uploadPlugin&&window.root.uploadPlugin.editable);
   $("adminNote").textContent=kannSchalten?"":"ℹ️ Schalten geht auf deiner Perchance-Seite (perchance.org/"+datenNs()+"#admin) – hier nur Anzeige.";
   $("adminStand").textContent="Stand wird geladen …";
-  holeStatus().then(function(st){ $("adminStand").textContent=st?("Cloud-Stand: "+(st.wartung?"🔧 AN":"✅ AUS")+(st.msg?" – „"+st.msg+"“":"")):"Cloud-Stand: unbekannt (offline?)"; });
+  holeStatus().then(function(st){
+    $("adminStand").textContent=adminStatusBeschreibung(st);
+    try{
+      var p=(st&&st.plan)||{};
+      $("planAktiv").checked=!!p.aktiv;
+      __planTage=(Array.isArray(p.tage)&&p.tage.length)?p.tage.slice():[1,2,3,4];
+      if(p.von) $("planVon").value=p.von;
+      if(p.bis) $("planBis").value=p.bis;
+      adminTageAnzeigen();
+    }catch(e){ try{ adminTageAnzeigen(); }catch(_){} }
+  });
   if(location.hash!=="#admin"){ try{ history.replaceState(null,"","#admin"); }catch(e){ location.hash="#admin"; } }
 }
 function adminSchliessen(){ $("adminOv").hidden=true; if(location.hash==="#admin"){ try{ history.replaceState(null,"",location.pathname+location.search); }catch(e){} } }
@@ -1719,14 +1783,90 @@ function adminSchalten(an){
   if(typeof window.root==="undefined"||!window.root.uploadPlugin||!window.root.uploadPlugin.editable){ $("adminNote").textContent="⚠️ Geht nur auf perchance.org/"+datenNs()+"#admin – dort Schlüssel einfügen."; return; }
   var msg=""; try{ msg=$("adminMsg").value.trim(); }catch(e){}
   $("adminNote").textContent="⏳ Wird geschaltet …";
-  window.root.uploadPlugin.editable.set(DATEN.status, JSON.stringify({wartung:!!an,msg:msg}), {editKey:key}).then(function(r){
+  holeStatus().then(function(alt){
+    var neu={wartung:!!an,msg:msg};
+    try{ if(alt&&alt.plan) neu.plan=alt.plan; if(alt&&alt.bis!=null) neu.bis=Number(alt.bis)||0; }catch(e){}
+    return window.root.uploadPlugin.editable.set(DATEN.status, JSON.stringify(neu), {editKey:key});
+  }).then(function(r){
     if(r&&r.error){ $("adminNote").textContent="❌ Fehler: "+r.error; return; }
     try{ if($("adminMerken").checked) lsSetSafe("lk_admin_key",key); }catch(e){}
     zeigeWartung(!!an,msg);
-    $("adminStand").textContent="Cloud-Stand: "+(an?"🔧 AN":"✅ AUS")+(msg?" – „"+msg+"“":"");
     $("adminNote").textContent=an?"✅ Wartung ist AN – Besucher sehen die Wartungsseite.":"✅ Wartung ist AUS – Seite ist wieder offen.";
+    holeStatus().then(function(st){ $("adminStand").textContent=adminStatusBeschreibung(st); });
   }).catch(function(e){ $("adminNote").textContent="❌ Fehler: "+e; });
 }
+/* ⏰ Zeitplan + Timer: Tage-Knöpfe, Stand-Text, Speichern (alles bleibt in der Cloud-Datei, Zeitplan überlebt AN/AUS). */
+var __planTage=[1,2,3,4];
+function adminTageAnzeigen(){ try{ var bs=document.querySelectorAll("#planTage button"); for(var i=0;i<bs.length;i++){ var b=bs[i]; var drin=__planTage.indexOf(Number(b.getAttribute("data-tag")))>=0; if(drin) b.classList.add("an"); else b.classList.remove("an"); } }catch(e){} }
+try{
+  var __ptB=document.querySelectorAll("#planTage button");
+  for(var __ptI=0;__ptI<__ptB.length;__ptI++){ (function(b){ b.onclick=function(){ var t=Number(b.getAttribute("data-tag")); var i=__planTage.indexOf(t); if(i>=0) __planTage.splice(i,1); else __planTage.push(t); adminTageAnzeigen(); }; })(__ptB[__ptI]); }
+  adminTageAnzeigen();
+}catch(e){}
+function adminStatusBeschreibung(st){
+  if(!st) return "Cloud-Stand: unbekannt (offline?)";
+  var t="Cloud-Stand: "+(st.wartung?"🔧 AN":"✅ AUS")+(st.msg?" – „"+st.msg+"“":"");
+  try{
+    if(st.bis&&Number(st.bis)>Date.now()){ var rest=Math.max(1,Math.round((Number(st.bis)-Date.now())/60000)); t+=" | ⏳ Timer: noch ca. "+rest+" Min."; }
+    var p=st.plan;
+    if(p&&p.aktiv){ var namen=["So","Mo","Di","Mi","Do","Fr","Sa"]; var tg=(p.tage||[]).slice().sort(function(a,b){return a-b;}).map(function(x){ return namen[x]||"?"; }).join(","); t+=" | ⏰ Plan: "+(tg||"–")+" "+(p.von||"?")+"–"+(p.bis||"?")+" Uhr"; }
+    else t+=" | ⏰ Plan: aus";
+  }catch(e){}
+  return t;
+}
+function adminSchluessel(){
+  var key=""; try{ key=$("adminKey").value.trim()||lsGet("lk_admin_key",""); }catch(e){}
+  if(!key){ $("adminNote").textContent="⚠️ Bitte zuerst den Schalter-Schlüssel einfügen."; return null; }
+  if(typeof window.root==="undefined"||!window.root.uploadPlugin||!window.root.uploadPlugin.editable){ $("adminNote").textContent="⚠️ Geht nur auf perchance.org/"+datenNs()+"#admin – dort Schlüssel einfügen."; return null; }
+  try{ if($("adminMerken").checked) lsSetSafe("lk_admin_key",key); }catch(e){}
+  return key;
+}
+$("planSpeichern").onclick=function(){
+  var key=adminSchluessel(); if(!key) return;
+  var plan={aktiv:false,tage:__planTage.slice(),von:"04:00",bis:"06:00"};
+  try{ plan.aktiv=!!$("planAktiv").checked; if($("planVon").value) plan.von=$("planVon").value; if($("planBis").value) plan.bis=$("planBis").value; }catch(e){}
+  if(!plan.tage.length){ $("adminNote").textContent="⚠️ Bitte mindestens einen Tag antippen."; return; }
+  $("adminNote").textContent="⏳ Zeitplan wird gespeichert …";
+  holeStatus().then(function(alt){
+    var neu={wartung:!!(alt&&alt.wartung),msg:(alt&&alt.msg)||"",plan:plan};
+    try{ if(alt&&alt.bis!=null) neu.bis=Number(alt.bis)||0; }catch(e){}
+    return window.root.uploadPlugin.editable.set(DATEN.status, JSON.stringify(neu), {editKey:key});
+  }).then(function(r){
+    if(r&&r.error){ $("adminNote").textContent="❌ Fehler: "+r.error; return; }
+    $("adminNote").textContent="✅ Zeitplan gespeichert – läuft automatisch, auch ohne dein Handy.";
+    holeStatus().then(function(st){ $("adminStand").textContent=adminStatusBeschreibung(st); });
+    pruefeWartung();
+  }).catch(function(e){ $("adminNote").textContent="❌ Fehler: "+e; });
+};
+$("timerStart").onclick=function(){
+  var key=adminSchluessel(); if(!key) return;
+  var minuten=60; try{ minuten=Math.max(1,Math.min(1440,parseInt($("timerMin").value,10)||60)); }catch(e){}
+  $("adminNote").textContent="⏳ Timer wird gestartet …";
+  holeStatus().then(function(alt){
+    var neu={wartung:!!(alt&&alt.wartung),msg:(alt&&alt.msg)||"",bis:Date.now()+minuten*60000};
+    try{ if(alt&&alt.plan) neu.plan=alt.plan; }catch(e){}
+    return window.root.uploadPlugin.editable.set(DATEN.status, JSON.stringify(neu), {editKey:key});
+  }).then(function(r){
+    if(r&&r.error){ $("adminNote").textContent="❌ Fehler: "+r.error; return; }
+    $("adminNote").textContent="✅ Timer läuft: ca. "+minuten+" Min. Wartung – danach von allein wieder offen.";
+    holeStatus().then(function(st){ $("adminStand").textContent=adminStatusBeschreibung(st); });
+    pruefeWartung();
+  }).catch(function(e){ $("adminNote").textContent="❌ Fehler: "+e; });
+};
+$("timerStop").onclick=function(){
+  var key=adminSchluessel(); if(!key) return;
+  $("adminNote").textContent="⏳ Timer wird gestoppt …";
+  holeStatus().then(function(alt){
+    var neu={wartung:!!(alt&&alt.wartung),msg:(alt&&alt.msg)||"",bis:0};
+    try{ if(alt&&alt.plan) neu.plan=alt.plan; }catch(e){}
+    return window.root.uploadPlugin.editable.set(DATEN.status, JSON.stringify(neu), {editKey:key});
+  }).then(function(r){
+    if(r&&r.error){ $("adminNote").textContent="❌ Fehler: "+r.error; return; }
+    $("adminNote").textContent="✅ Timer gestoppt.";
+    holeStatus().then(function(st){ $("adminStand").textContent=adminStatusBeschreibung(st); });
+    pruefeWartung();
+  }).catch(function(e){ $("adminNote").textContent="❌ Fehler: "+e; });
+};
 $("adminAn").onclick=()=>adminSchalten(true);
 $("adminAus").onclick=()=>adminSchalten(false);
 $("adminX").onclick=()=>adminSchliessen();
