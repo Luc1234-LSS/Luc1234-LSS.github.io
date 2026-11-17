@@ -320,6 +320,18 @@
   #updateGo{ background:linear-gradient(135deg,var(--honig),#5C3A10); color:#fff; padding:9px 16px; font-size:14px; }
   #updateX{ background:transparent; color:#FFEFD6; opacity:.7; font-size:15px; padding:8px 10px; }
   body.noanim .update-bar{ animation:none; }
+  /* 🍪 Cookie-Banner */
+  .cookie-bar{ position:fixed; left:50%; transform:translateX(-50%); bottom:12px; z-index:500;
+    display:flex; align-items:center; gap:10px; max-width:min(680px,94vw);
+    background:#2E1A0E; color:#FFEFD6; border:1px solid #A86A12; border-radius:18px;
+    padding:12px 12px 12px 18px; font-size:13.5px; font-weight:600;
+    box-shadow:0 14px 40px rgba(0,0,0,.45); }
+  .cookie-bar[hidden]{ display:none; }
+  .cookie-bar a{ color:#FFD9A8; }
+  .cookie-bar button{ border:0; border-radius:999px; cursor:pointer; font-weight:800; padding:9px 16px; font-size:14px; white-space:nowrap; }
+  #cookieOk{ background:linear-gradient(135deg,var(--honig),#5C3A10); color:#fff; }
+  #cookieNo{ background:transparent; color:#FFEFD6; border:1px solid #A86A12; }
+  body.noanim .cookie-bar{ animation:none; }
   /* 🔧 Fern-Schalter (Admin-Panel) */
   #adminOv{ z-index:600; }
   .admin-box input[type=password], .admin-box #adminMsg{ width:100%; box-sizing:border-box; font-size:17px; padding:13px 14px; margin:8px 0; border-radius:14px; border:2px solid var(--line); }
@@ -570,7 +582,7 @@
   <div class="meta-line"><span id="resultCount"></span><span id="activeFilter"></span></div>
   <div class="grid" id="grid"></div>
 
-  <footer>Fotos: Wikimedia Commons (freie Lizenzen, Quelle steht beim jeweiligen Rezept). Alle Rezepte klassisch &amp; gelingsicher in g · ml · EL · TL. <br>Airfryer-Angaben für 3,5–5-L-Geräte – jeder heizt anders, lieber 2 Min. früher schauen. Online-Funde stammen aus TheMealDB (automatisch ins Deutsche übersetzt; umgerechnete Maße, Original in Klammern).<br><span id="buildTag" style="opacity:.65;font-size:12px"></span></footer>
+  <footer>Fotos: Wikimedia Commons (freie Lizenzen, Quelle steht beim jeweiligen Rezept). Alle Rezepte klassisch &amp; gelingsicher in g · ml · EL · TL. <br>Airfryer-Angaben für 3,5–5-L-Geräte – jeder heizt anders, lieber 2 Min. früher schauen. Online-Funde stammen aus TheMealDB (automatisch ins Deutsche übersetzt; umgerechnete Maße, Original in Klammern).<br><span id="buildTag" style="opacity:.65;font-size:12px"></span><br><button id="dsLink" style="background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer;font-size:13px">🔒 Datenschutz & Cookies</button></footer>
 </main>
 
 <div class="overlay" id="overlay"><div class="sheet" id="sheet"></div></div>
@@ -591,6 +603,18 @@
   <label class="set-row"><span>✨ Animationen<br><small>Glanz, Wackeln &amp; Bewegung an/aus</small></span><span class="switch"><input type="checkbox" id="animToggle" checked><span class="sl"></span></span></label>
   <button class="wide-btn" id="setClose">Fertig ✓</button>
 </div>
+<div class="set-ov" id="dsOv"></div>
+<div class="set-panel" id="dsPanel" hidden style="max-height:82vh;overflow-y:auto">
+  <h3>🔒 Datenschutz & Cookies</h3>
+  <div style="font-size:14px;line-height:1.6;color:var(--cocoa2)">
+    <p><b>Was bleibt auf deinem Gerät:</b> deine Favoriten (❤️), deine Einkaufsliste, Einstellungen (Seniorenmodus, Animationen) und deine Cookie-Auswahl – im Browser-Speicher (localStorage), auf Wunsch zusätzlich als Sicherung in deiner Perchance-Ablage. Es gibt keine Konten, keine Werbung und keine Tracker.</p>
+    <p><b>Wohin Daten gehen:</b> Beim Start lädt die Seite Rezeptdaten von unserem Speicher (editable.uploads.dev). Die Online-Suche fragt TheMealDB, die KI-Übersetzung läuft über Perchance.</p>
+    <p><b>Herkunft:</b> Fotos stammen von Wikimedia Commons – die Quelle steht bei jedem Rezept (Herkunfts-Zeile). Online-Funde verlinken auf TheMealDB, alles andere sind Küchenglück-Hausrezepte.</p>
+    <p><b>Löschen:</b> Einkaufsliste leeren, Herzen entfernen oder die Browserdaten dieser Seite löschen – dann ist alles weg. Die Cookie-Frage kommt nur einmal: deine Auswahl wird gemerkt.</p>
+    <p>Fragen? Schreib uns über die Perchance-Seite. – Stand: November 2026.</p>
+  </div>
+  <button class="wide-btn" id="dsClose">Verstanden ✓</button>
+</div>
 <div class="menu-ov" id="menuOv"></div>
 <aside class="menu" id="menu">
   <div class="menu-h"><h3>☰ Bereiche</h3><p>Direkt in eine Abteilung springen</p></div>
@@ -598,6 +622,7 @@
 </aside>
 <div class="toast" id="toast"></div>
 <div class="update-bar" id="updateBar" hidden><span id="updateTxt">🔄 Neue Rezepte da – bitte neu laden.</span><button id="updateGo">Neu laden ⟳</button><button id="updateX" title="Schließen">✕</button></div>
+<div class="cookie-bar" id="cookieBar" hidden><span>🍪 Wir speichern Favoriten, Einkaufsliste & Einstellungen auf deinem Gerät. <a href="#" id="dsLink2">Datenschutz</a></span><span style="display:flex;gap:8px"><button id="cookieOk">OK ✓</button><button id="cookieNo">Nein</button></span></div>
 <div class="cook-ov" id="cookOv"><div class="cook" id="cookBox"></div></div>
 <button id="topBtn" title="Nach oben">↑</button>
 <div class="wart-ov" id="wartungOv" hidden>
@@ -1019,6 +1044,7 @@ async function openRecipe(id){
         <div class="fact"><b>${r.cat}</b><span>Kategorie</span></div>
       </div>
       <p style="font-size:15px;color:var(--cocoa2)">${r.desc}</p>
+      ${r.mealId?`<div class="tipbox" id="herkunft">🌍 <b>Herkunft:</b> Online-Fund (TheMealDB), von uns ins Deutsche gebracht. <a href="https://www.themealdb.com/meal/${r.mealId}" target="_blank" rel="noopener">Quelle ansehen</a></div>`:`<div class="tipbox" id="herkunft">💡 <b>Herkunft:</b> Küchenglück-Hausrezept – von der KI für dich geschrieben.</div>`}
       ${(r.tags.includes("diabetes")||r.tags.includes("zuckerarm"))?`<div class="tipbox" style="background:#FFF6E2;border-color:#A86A12">🩵 <b>Zuckerarm-Variante:</b> mit deutlich weniger Zucker bzw. Xylit/Erythrit statt Zucker – deshalb auch für Diabetiker besser geeignet. Nährwerte sind Schätzungen, bei Diabetes bitte mit Arzt oder Ernährungsberatung absprechen.</div>`:""}
       <div class="portion"><span>🍽️ Menge: <b id="portionVal">${servings[r.id]} ${r.portionUnit}</b> <small style="opacity:.7">(anpassen → Zutaten rechnen um)</small></span>
         <span class="stepper"><button id="minusBtn">−</button><button id="plusBtn">＋</button></span></div>
@@ -1065,6 +1091,8 @@ async function openRecipe(id){
   }
   $("sheetX").onclick=closeSheet;
   $("overlay").classList.add("show");
+  sheet.scrollTop=0; /* neues Rezept immer von oben anfangen */
+  requestAnimationFrame(()=>{ try{ sheet.scrollTop=0; }catch(e){} }); /* zweiter Reset nach dem Zeichnen (Bilder/Layout) */
   document.body.style.overflow="hidden";
   try{ history.replaceState(null,"","#r="+r.id); }catch(e){}
   $("shareBtn").onclick=async()=>{
@@ -1082,7 +1110,7 @@ async function openRecipe(id){
     });
   }
 }
-function closeSheet(){ closeCook(true); currentOpen=null; $("overlay").classList.remove("show"); document.body.style.overflow=""; try{ if(((location.hash||"").indexOf("#r=")===0)) history.replaceState(null,"",location.pathname+location.search); }catch(e){} }
+function closeSheet(){ closeCook(true); currentOpen=null; try{ $("sheet").scrollTop=0; }catch(e){} $("overlay").classList.remove("show"); document.body.style.overflow=""; try{ if(((location.hash||"").indexOf("#r=")===0)) history.replaceState(null,"",location.pathname+location.search); }catch(e){} }
 /* 👨‍🍳 Schritt-für-Schritt Kochmodus: ein Schritt pro Seite, Zutaten-Check zuerst */
 let cookState=null, cookChecks={}, wakeLock=null;
 async function keepAwake(on){
@@ -1154,7 +1182,7 @@ function renderCook(){
 }
 $("cookOv").addEventListener("click",(e)=>{ if(e.target.id==="cookOv") closeCook(); });
 $("overlay").addEventListener("click",(e)=>{ if(e.target.id==="overlay") closeSheet(); });
-  document.addEventListener("keydown",(e)=>{ if(e.key==="Escape"){ if(cookState){ closeCook(); return; } closeSheet(); closeDrawer(); closeSettings(); closeMenu(); } if(cookState&&(e.key==="ArrowRight"||e.key===" ")){ e.preventDefault(); cookState.idx++; renderCook(); } if(cookState&&e.key==="ArrowLeft"){ e.preventDefault(); cookState.idx=Math.max(-1,cookState.idx-1); renderCook(); } });
+  document.addEventListener("keydown",(e)=>{ if(e.key==="Escape"){ if(cookState){ closeCook(); return; } closeSheet(); closeDrawer(); closeSettings(); closeMenu(); dsSchliessen(); } if(cookState&&(e.key==="ArrowRight"||e.key===" ")){ e.preventDefault(); cookState.idx++; renderCook(); } if(cookState&&e.key==="ArrowLeft"){ e.preventDefault(); cookState.idx=Math.max(-1,cookState.idx-1); renderCook(); } });
 
 /* Einkaufsliste */
 function saveShop(){ lsSetSafe("kk_shop",JSON.stringify(shop)); kvBackup("einkauf",shop); updateBadge(); }
@@ -1262,6 +1290,15 @@ function applyPrefs(){
 function closeSettings(){ if($("setPanel").hidden) return; $("setPanel").classList.remove("show"); $("setOv").classList.remove("show"); setTimeout(()=>{ $("setPanel").hidden=true; },220); }
 $("setBtn").onclick=()=>{ $("setPanel").hidden=false; requestAnimationFrame(()=>$("setPanel").classList.add("show")); $("setOv").classList.add("show"); };
 $("setClose").onclick=closeSettings; $("setOv").onclick=closeSettings;
+/* 🔒 Datenschutz-Panel + 🍪 Cookie-Banner (einmal wählen, dann nie wieder fragen) */
+function dsOeffnen(){ $("dsPanel").hidden=false; requestAnimationFrame(()=>$("dsPanel").classList.add("show")); $("dsOv").classList.add("show"); }
+function dsSchliessen(){ if($("dsPanel").hidden) return; $("dsPanel").classList.remove("show"); $("dsOv").classList.remove("show"); setTimeout(()=>{ $("dsPanel").hidden=true; },220); }
+$("dsLink").onclick=(e)=>{ e.preventDefault(); dsOeffnen(); };
+$("dsLink2").onclick=(e)=>{ e.preventDefault(); dsOeffnen(); };
+$("dsClose").onclick=dsSchliessen; $("dsOv").onclick=dsSchliessen;
+try{ if(!lsGet("kk_cookie")) $("cookieBar").hidden=false; }catch(e){ try{ $("cookieBar").hidden=false; }catch(_){} }
+$("cookieOk").onclick=()=>{ try{ lsSetSafe("kk_cookie","ja"); }catch(e){} $("cookieBar").hidden=true; toast("🍪 Danke – gespeichert!"); };
+$("cookieNo").onclick=()=>{ try{ lsSetSafe("kk_cookie","nein"); }catch(e){} $("cookieBar").hidden=true; };
 $("seniorToggle").onchange=(e)=>{ try{localStorage.setItem("lk_senior",e.target.checked?"1":"0");}catch(_){} applyPrefs(); toast(e.target.checked?"👴 Seniorenmodus an – alles größer und gemütlicher.":"Seniorenmodus aus."); };
 $("animToggle").onchange=(e)=>{ try{localStorage.setItem("lk_anim",e.target.checked?"1":"0");}catch(_){} applyPrefs(); };
 $("heroMore").onclick=()=>{ const h=document.querySelector(".hero"); h.classList.toggle("expanded"); $("heroMore").textContent=h.classList.contains("expanded")?"Weniger anzeigen ↑":"Mehr anzeigen ↓"; updateHeroMore(); };
@@ -1399,6 +1436,7 @@ async function wendeDetrAn(r,pack){
 function hatKI(){ try{ return typeof window.root!=="undefined"&&typeof window.root.generateText==="function"; }catch(e){ return false; } }
 function haengeOnlineNotizAn(r,kiFertig){
   const sb=document.querySelector("#sheet .sheet-body"); if(!sb) return;
+  const hk=document.querySelector("#sheet #herkunft"); if(hk) hk.remove(); /* ausführliche Online-Notiz ersetzt die kurze Herkunfts-Zeile */
   const alt=sb.querySelector("#onlineNote"); if(alt) alt.remove();
   const d=document.createElement("div");
   d.className="online-note"; d.id="onlineNote"; d.style.margin="0 0 14px";
