@@ -792,6 +792,7 @@ function ensureVoll(){
   {id:"Herzhaft", label:"🍝 Herzhaft"},
   {id:"Suppen", label:"🍲 Suppen"},
   {id:"Snacks", label:"🍿 Snacks"},
+  {id:"brezel", label:"🥨 Brezel"},
   {id:"airfryer", label:"♨️ Airfryer"},
   {id:"weihnachten", label:"🎄 Weihnachten"},
   {id:"schnell", label:"⚡ Schnell"},
@@ -933,6 +934,7 @@ function matchCat(r){
   if(activeCat==="salat") return /salat|rucola|feldsalat|eisbergsalat/i.test(r.title+" "+r.tags.join(" ")+" "+zNamen(r));
   if(activeCat==="frucht") return r.tags.includes("fruchtig")||/apfel|kirsch|beere|erdbeer|himbeer|blaubeer|zitrone|orange|pflaume|rhabarber|banane|mandarine|maracuja|tomate/i.test(r.title+" "+r.tags.join(" ")+" "+zNamen(r));
   if(activeCat==="party") return ["party","fingerfood","aperitif","filmabend"].some(t=>r.tags.includes(t));
+  if(activeCat==="brezel") return /brezel|lauge/i.test(r.title+" "+r.tags.join(" ")+" "+zNamen(r));
   if(activeCat==="fruehstueck") return r.tags.includes("frühstück")||/waffel|müsli|porridge|pancake/i.test(r.title);
   if(activeCat==="katzen") return r.cat==="Katzen";
   if(activeCat==="ddr") return r.tags.includes("ddr")||r.tags.includes("ddr-klassiker");
